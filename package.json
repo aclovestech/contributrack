@@ -1,0 +1,14 @@
+{
+  "name": "contributrack",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "backend": "pnpm --filter contributrack-backend"
+  },
+  "keywords": [],
+  "author": "aclovestech",
+  "private": "true",
+  "license": "ISC",
+  "packageManager": "pnpm@10.6.2"
+}
