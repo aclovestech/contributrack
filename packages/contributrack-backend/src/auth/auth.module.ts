@@ -7,6 +7,7 @@ import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { JwtStrategy } from './jwt.strategy';
+import { PrismaModule } from 'src/prisma/prisma.module';
 
 // Wait for environment variables to be loaded first
 async function getJwtModule() {
@@ -18,7 +19,7 @@ async function getJwtModule() {
 }
 
 @Module({
-  imports: [UsersModule, PassportModule, getJwtModule()],
+  imports: [UsersModule, PassportModule, getJwtModule(), PrismaModule],
   providers: [AuthService, LocalStrategy, JwtStrategy],
   controllers: [AuthController],
 })
