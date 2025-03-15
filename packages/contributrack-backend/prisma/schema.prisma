@@ -19,34 +19,40 @@ enum DonationType {
 }
 
 model User {
-  id           Int        @id @default(autoincrement())
-  username     String     @unique
-  password     String
-  donations    Donation[]
-  donors       Donor[]
+  id                  String     @id @default(uuid())
+  username            String     @unique
+  hashed_password     String     @map("hashed_password")
+  donations           Donation[]
+  donors              Donor[]
+
+  @@map("users")
 }
 
 model Donor {
-  id           Int        @id @default(autoincrement())
+  id           String     @id @default(uuid())
   name         String
   email        String?
-  phoneNumber  String?
+  phone_number String?    @map("phone_number")
   address      String?
   notes        String?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  created_at   DateTime   @default(now()) @map("created_at")
+  updated_at   DateTime   @updatedAt  @map("updated_at")
   donations    Donation[]
-  user         User       @relation(fields: [userId], references: [id])
-  userId       Int
+  user         User       @relation(fields: [user_id], references: [id])
+  user_id      String     @map("user_id")
+
+  @@map("donors")
 }
 
 model Donation {
-  id           Int          @id @default(autoincrement())
-  dateReceived DateTime
-  amount       Float
-  donationType DonationType
-  donor        Donor        @relation(fields: [donorId], references: [id])
-  donorId      Int
-  user         User         @relation(fields: [userId], references: [id])
-  userId       Int
+  id            String       @id @default(uuid())
+  date_received DateTime     @map("date_received")
+  amount        Float
+  donation_type DonationType @map("donation_type")
+  donor         Donor        @relation(fields: [donor_id], references: [id])
+  donor_id      String       @map("donor_id")
+  user          User         @relation(fields: [user_id], references: [id])
+  user_id       String       @map("user_id")
+
+  @@map("donations")
 }
