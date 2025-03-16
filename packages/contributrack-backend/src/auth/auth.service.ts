@@ -43,12 +43,18 @@ export class AuthService {
   async register(username: string, password: string): Promise<User | null> {
     const hashedPassword = await this.hashPassword(password);
 
-    return this.prismaService.user.create({
+    const user = this.prismaService.user.create({
       data: {
         username: username,
         hashed_password: hashedPassword,
       },
     });
+
+    if (user === null) {
+      return null;
+    }
+
+    return user;
   }
 
   async hashPassword(password: string): Promise<string> {

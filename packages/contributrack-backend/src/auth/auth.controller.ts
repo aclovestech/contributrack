@@ -1,4 +1,12 @@
-import { Controller, Req, Get, Post, UseGuards, Body } from '@nestjs/common';
+import {
+  Controller,
+  Req,
+  Get,
+  Post,
+  UseGuards,
+  Body,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
@@ -8,6 +16,7 @@ import { User } from '@prisma/client';
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+  registrationPassword = process.env.REGISTRATION_PASSWORD;
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
@@ -23,9 +32,23 @@ export class AuthController {
 
   @Post('register')
   async register(
-    @Body('username') username: string,
-    @Body('password') password: string,
-  ): Promise<any> {
-    return await this.authService.register(username, password);
+    @Body()
+    createUserDto: {
+      username: string;
+      password: string;
+      registrationPassword: string;
+    },
+  ): Promise<User | null> {
+    if (
+      createUserDto.registrationPassword !== this.registrationPassword ||
+      !this.registrationPassword
+    ) {
+      throw new UnauthorizedException();
+    }
+
+    return await this.authService.register(
+      createUserDto.username,
+      createUserDto.password,
+    );
   }
 }
