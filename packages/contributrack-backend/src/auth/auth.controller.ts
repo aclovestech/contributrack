@@ -12,6 +12,7 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { Request } from 'express';
 import { User } from '@prisma/client';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -33,12 +34,8 @@ export class AuthController {
   @Post('register')
   async register(
     @Body()
-    createUserDto: {
-      username: string;
-      password: string;
-      registrationPassword: string;
-    },
-  ): Promise<User | null> {
+    createUserDto: CreateUserDto,
+  ) {
     if (
       createUserDto.registrationPassword !== this.registrationPassword ||
       !this.registrationPassword
