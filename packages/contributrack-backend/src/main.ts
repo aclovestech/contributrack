@@ -17,11 +17,13 @@ async function bootstrap() {
   const documentFactory = () =>
     SwaggerModule.createDocument(app, swaggerConfig);
 
+  const PORT = process.env.PORT ?? 3000;
+
   SwaggerModule.setup('api', app, documentFactory);
 
-  console.log(`🚀 Server ready at port ${process.env.PORT ?? 3000}`);
+  console.log(`🚀 Server ready at port ${PORT}`);
 
-  await app.listen(process.env.PORT ?? 3000, '0.0.0.0');
+  await app.listen(PORT, '0.0.0.0');
 }
 
 // eslint-disable-next-line
