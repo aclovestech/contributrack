@@ -4,16 +4,11 @@ import {
   IsOptional,
   IsPhoneNumber,
   IsString,
-  IsUUID,
   MaxLength,
   MinLength,
 } from 'class-validator';
 
 export class CreateDonorDto {
-  @IsUUID()
-  @ApiProperty()
-  user_id: string;
-
   @IsString()
   @MinLength(2)
   @ApiProperty()
