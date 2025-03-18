@@ -7,26 +7,34 @@ import { UpdateDonationDto } from './dto/update-donation.dto';
 export class DonationsService {
   constructor(private prismaService: PrismaService) {}
 
-  create(createDonationDto: CreateDonationDto) {
-    return this.prismaService.donation.create({ data: createDonationDto });
+  create(createDonationDto: CreateDonationDto, user_id: string) {
+    return this.prismaService.donation.create({
+      data: { ...createDonationDto, user_id: user_id },
+    });
   }
 
-  findAll() {
-    return this.prismaService.donation.findMany();
+  findAll(user_id: string) {
+    return this.prismaService.donation.findMany({
+      where: { user_id: user_id },
+    });
   }
 
-  findOne(id: string) {
-    return this.prismaService.donation.findUnique({ where: { id } });
+  findOne(id: string, user_id: string) {
+    return this.prismaService.donation.findUnique({
+      where: { id: id, user_id: user_id },
+    });
   }
 
-  update(id: string, updateDonationDto: UpdateDonationDto) {
+  update(id: string, updateDonationDto: UpdateDonationDto, user_id: string) {
     return this.prismaService.donation.update({
-      where: { id },
+      where: { id: id, user_id: user_id },
       data: updateDonationDto,
     });
   }
 
-  remove(id: string) {
-    return this.prismaService.donation.delete({ where: { id } });
+  remove(id: string, user_id: string) {
+    return this.prismaService.donation.delete({
+      where: { id: id, user_id: user_id },
+    });
   }
 }
