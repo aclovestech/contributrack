@@ -19,11 +19,13 @@ enum DonationType {
 }
 
 model User {
-  id                  String     @id @default(uuid())
-  username            String     @unique
-  hashed_password     String     @map("hashed_password")
-  donations           Donation[]
-  donors              Donor[]
+  id              String     @id @default(uuid())
+  username        String     @unique
+  hashed_password String     @map("hashed_password")
+  donations       Donation[]
+  donors          Donor[]
+  created_at      DateTime   @default(now()) @map("created_at")
+  updated_at      DateTime   @updatedAt @map("updated_at")
 
   @@map("users")
 }
@@ -35,11 +37,11 @@ model Donor {
   phone_number String?    @map("phone_number")
   address      String?
   notes        String?
-  created_at   DateTime   @default(now()) @map("created_at")
-  updated_at   DateTime   @updatedAt  @map("updated_at")
   donations    Donation[]
-  user         User       @relation(fields: [user_id], references: [id])
-  user_id      String     @map("user_id")
+  user         User?      @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  user_id      String?    @map("user_id")
+  created_at   DateTime   @default(now()) @map("created_at")
+  updated_at   DateTime   @updatedAt @map("updated_at")
 
   @@map("donors")
 }
@@ -49,10 +51,12 @@ model Donation {
   date_received DateTime     @map("date_received")
   amount        Float
   donation_type DonationType @map("donation_type")
-  donor         Donor        @relation(fields: [donor_id], references: [id])
-  donor_id      String       @map("donor_id")
-  user          User         @relation(fields: [user_id], references: [id])
-  user_id       String       @map("user_id")
+  donor         Donor?       @relation(fields: [donor_id], references: [id], onDelete: SetNull)
+  donor_id      String?      @map("donor_id")
+  user          User?        @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  user_id       String?      @map("user_id")
+  created_at    DateTime     @default(now()) @map("created_at")
+  updated_at    DateTime     @updatedAt @map("updated_at")
 
   @@map("donations")
 }
