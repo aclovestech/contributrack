@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "backend": "pnpm --filter contributrack-backend"
+    "backend": "pnpm --filter contributrack-backend",
+    "frontend": "pnpm --filter contributrack-frontend"
   },
   "keywords": [],
   "author": "aclovestech",
