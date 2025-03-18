@@ -1,17 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { DonationType } from '@prisma/client';
+import { Type } from 'class-transformer';
 import { IsDate, IsEnum, IsNumber, IsUUID } from 'class-validator';
 
 export class CreateDonationDto {
-  @IsUUID()
-  @ApiProperty()
-  user_id: string;
-
   @IsDate()
+  @Type(() => Date)
   @ApiProperty()
   date_received: Date;
 
   @IsNumber()
+  @Type(() => Number)
   @ApiProperty()
   amount: number;
 
