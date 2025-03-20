@@ -11,15 +11,50 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as DashboardRouteImport } from './routes/dashboard/route'
 import { Route as IndexImport } from './routes/index'
+import { Route as DashboardIndexImport } from './routes/dashboard/index'
+import { Route as DashboardReportsImport } from './routes/dashboard/reports'
+import { Route as DashboardDonorsImport } from './routes/dashboard/donors'
+import { Route as DashboardDonationsImport } from './routes/dashboard/donations'
 import { Route as AuthLoginImport } from './routes/auth/login'
 
 // Create/Update Routes
+
+const DashboardRouteRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const DashboardIndexRoute = DashboardIndexImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+
+const DashboardReportsRoute = DashboardReportsImport.update({
+  id: '/reports',
+  path: '/reports',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+
+const DashboardDonorsRoute = DashboardDonorsImport.update({
+  id: '/donors',
+  path: '/donors',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+
+const DashboardDonationsRoute = DashboardDonationsImport.update({
+  id: '/donations',
+  path: '/donations',
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
 
 const AuthLoginRoute = AuthLoginImport.update({
@@ -39,6 +74,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRoute
+    }
     '/auth/login': {
       id: '/auth/login'
       path: '/auth/login'
@@ -46,43 +88,126 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginImport
       parentRoute: typeof rootRoute
     }
+    '/dashboard/donations': {
+      id: '/dashboard/donations'
+      path: '/donations'
+      fullPath: '/dashboard/donations'
+      preLoaderRoute: typeof DashboardDonationsImport
+      parentRoute: typeof DashboardRouteImport
+    }
+    '/dashboard/donors': {
+      id: '/dashboard/donors'
+      path: '/donors'
+      fullPath: '/dashboard/donors'
+      preLoaderRoute: typeof DashboardDonorsImport
+      parentRoute: typeof DashboardRouteImport
+    }
+    '/dashboard/reports': {
+      id: '/dashboard/reports'
+      path: '/reports'
+      fullPath: '/dashboard/reports'
+      preLoaderRoute: typeof DashboardReportsImport
+      parentRoute: typeof DashboardRouteImport
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexImport
+      parentRoute: typeof DashboardRouteImport
+    }
   }
 }
 
 // Create and export the route tree
 
+interface DashboardRouteRouteChildren {
+  DashboardDonationsRoute: typeof DashboardDonationsRoute
+  DashboardDonorsRoute: typeof DashboardDonorsRoute
+  DashboardReportsRoute: typeof DashboardReportsRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
+  DashboardDonationsRoute: DashboardDonationsRoute,
+  DashboardDonorsRoute: DashboardDonorsRoute,
+  DashboardReportsRoute: DashboardReportsRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
+  DashboardRouteRouteChildren,
+)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
+  '/dashboard/donations': typeof DashboardDonationsRoute
+  '/dashboard/donors': typeof DashboardDonorsRoute
+  '/dashboard/reports': typeof DashboardReportsRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth/login': typeof AuthLoginRoute
+  '/dashboard/donations': typeof DashboardDonationsRoute
+  '/dashboard/donors': typeof DashboardDonorsRoute
+  '/dashboard/reports': typeof DashboardReportsRoute
+  '/dashboard': typeof DashboardIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/auth/login': typeof AuthLoginRoute
+  '/dashboard/donations': typeof DashboardDonationsRoute
+  '/dashboard/donors': typeof DashboardDonorsRoute
+  '/dashboard/reports': typeof DashboardReportsRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth/login'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/auth/login'
+    | '/dashboard/donations'
+    | '/dashboard/donors'
+    | '/dashboard/reports'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth/login'
-  id: '__root__' | '/' | '/auth/login'
+  to:
+    | '/'
+    | '/auth/login'
+    | '/dashboard/donations'
+    | '/dashboard/donors'
+    | '/dashboard/reports'
+    | '/dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/auth/login'
+    | '/dashboard/donations'
+    | '/dashboard/donors'
+    | '/dashboard/reports'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   AuthLoginRoute: typeof AuthLoginRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRouteRoute: DashboardRouteRouteWithChildren,
   AuthLoginRoute: AuthLoginRoute,
 }
 
@@ -97,14 +222,40 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/dashboard",
         "/auth/login"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
+    "/dashboard": {
+      "filePath": "dashboard/route.tsx",
+      "children": [
+        "/dashboard/donations",
+        "/dashboard/donors",
+        "/dashboard/reports",
+        "/dashboard/"
+      ]
+    },
     "/auth/login": {
       "filePath": "auth/login.tsx"
+    },
+    "/dashboard/donations": {
+      "filePath": "dashboard/donations.tsx",
+      "parent": "/dashboard"
+    },
+    "/dashboard/donors": {
+      "filePath": "dashboard/donors.tsx",
+      "parent": "/dashboard"
+    },
+    "/dashboard/reports": {
+      "filePath": "dashboard/reports.tsx",
+      "parent": "/dashboard"
+    },
+    "/dashboard/": {
+      "filePath": "dashboard/index.tsx",
+      "parent": "/dashboard"
     }
   }
 }
