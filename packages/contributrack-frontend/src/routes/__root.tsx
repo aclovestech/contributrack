@@ -10,9 +10,7 @@ export const Route = createRootRoute({
   component: () => (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <QueryClientProvider client={queryClient}>
-        <header>Header</header>
         <Outlet />
-        <footer>Footer</footer>
         <TanStackRouterDevtools />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
