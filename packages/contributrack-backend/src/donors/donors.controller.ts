@@ -48,21 +48,24 @@ export class DonorsController {
   }
 
   @Post()
-  create(@Body() createDonorDto: CreateDonorDto, @User('id') user_id: string) {
-    return this.donorsService.create(createDonorDto, user_id);
+  async create(
+    @Body() createDonorDto: CreateDonorDto,
+    @User('id') user_id: string,
+  ) {
+    return await this.donorsService.create(createDonorDto, user_id);
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateDonorDto: UpdateDonorDto,
     @User('id') user_id: string,
   ) {
-    return this.donorsService.update(id, updateDonorDto, user_id);
+    return await this.donorsService.update(id, updateDonorDto, user_id);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @User('id') user_id: string) {
-    return this.donorsService.remove(id, user_id);
+  async remove(@Param('id') id: string, @User('id') user_id: string) {
+    return await this.donorsService.remove(id, user_id);
   }
 }
