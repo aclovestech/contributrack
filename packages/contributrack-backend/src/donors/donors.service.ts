@@ -108,21 +108,21 @@ export class DonorsService {
     };
   }
 
-  create(createDonorDto: CreateDonorDto, user_id: string) {
-    return this.prismaService.donor.create({
+  async create(createDonorDto: CreateDonorDto, user_id: string) {
+    return await this.prismaService.donor.create({
       data: { ...createDonorDto, user_id: user_id },
     });
   }
 
-  update(id: string, updateDonorDto: UpdateDonorDto, user_id: string) {
-    return this.prismaService.donor.update({
+  async update(id: string, updateDonorDto: UpdateDonorDto, user_id: string) {
+    return await this.prismaService.donor.update({
       where: { id: id, user_id: user_id },
       data: updateDonorDto,
     });
   }
 
-  remove(id: string, user_id: string) {
-    return this.prismaService.donor.delete({
+  async remove(id: string, user_id: string) {
+    return await this.prismaService.donor.delete({
       where: { id: id, user_id: user_id },
     });
   }
