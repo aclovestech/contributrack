@@ -19,7 +19,7 @@ async function bootstrap() {
 
   const PORT = process.env.PORT ?? 3000;
 
-  SwaggerModule.setup('api', app, documentFactory);
+  SwaggerModule.setup('api-docs', app, documentFactory);
 
   console.log(`🚀 Server ready at port ${PORT}`);
 
