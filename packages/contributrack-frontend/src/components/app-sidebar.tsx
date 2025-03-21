@@ -23,6 +23,8 @@ import { Link } from '@tanstack/react-router';
 const data = {
   user: {
     name: 'kc.canada',
+    email: '',
+    avatar: '',
   },
   navMain: [
     {
