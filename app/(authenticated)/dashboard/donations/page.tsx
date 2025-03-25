@@ -1,1 +1,3 @@
-export default function Donations() {}
+export default function Donations() {
+  return <div>Donations</div>;
+}
