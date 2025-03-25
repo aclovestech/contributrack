@@ -1,1 +1,3 @@
-export default function Donors() {}
+export default function Donors() {
+  return <div>Donors</div>;
+}
