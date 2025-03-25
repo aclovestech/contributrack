@@ -1,17 +1,14 @@
 import { DataTable } from '@/components/data-table';
 import { OverviewSectionCards } from '@/components/overview-section-cards';
-import { ChartAreaInteractive } from '@/components/chart-area-interactive';
-
-import data from './data.json';
+import { BarChartDonationTrend } from '@/components/bar-chart-donation-trend';
 
 export default function DashboardOverview() {
   return (
     <>
       <OverviewSectionCards />
       <div className="px-4 lg:px-6">
-        <ChartAreaInteractive />
+        <BarChartDonationTrend />
       </div>
-      <DataTable data={data} />
     </>
   );
 }
