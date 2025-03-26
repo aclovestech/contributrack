@@ -1,20 +1,23 @@
 'use client';
 
 import { Table } from '@tanstack/react-table';
-import { X } from 'lucide-react';
+import { PlusIcon, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DataTableViewOptions } from '@/components/data-table-view-options';
+import { AddDonorDialog } from '@/components/add-donor-dialog';
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
   filterName: string;
+  addType: string;
 }
 
 export function DataTableToolbar<TData>({
   table,
   filterName,
+  addType,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
@@ -40,7 +43,10 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
-      <DataTableViewOptions table={table} />
+      <div className="flex items-center space-x-2">
+        <DataTableViewOptions table={table} />
+        <AddDonorDialog />
+      </div>
     </div>
   );
 }
