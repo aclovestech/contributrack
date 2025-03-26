@@ -3,7 +3,7 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { InferSelectModel } from 'drizzle-orm';
 import { donorsTable } from '@/src/db/schema';
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
+import { ArrowUpDown, Edit, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -13,6 +13,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { DonorForm } from '@/components/donor-form';
+import React from 'react';
 
 export type Donor = Pick<
   InferSelectModel<typeof donorsTable>,
@@ -20,6 +30,32 @@ export type Donor = Pick<
 >;
 
 export const columns: ColumnDef<Donor>[] = [
+  {
+    id: 'edit',
+    cell: ({ row }) => {
+      const [open, setOpen] = React.useState(false);
+
+      return (
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <div className="cursor-pointer hover:underline">
+              <Edit className="h-4 w-4" />
+            </div>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Donor Details</DialogTitle>
+              <DialogDescription>
+                Enter the donor details below
+              </DialogDescription>
+            </DialogHeader>
+            <DonorForm setOpen={setOpen} cellData={row} />
+          </DialogContent>
+        </Dialog>
+      );
+    },
+    enableHiding: false,
+  },
   {
     accessorKey: 'name',
     header: ({ column }) => {
@@ -68,11 +104,6 @@ export const columns: ColumnDef<Donor>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel className="pb-2">Actions</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => console.log('edit button pressed')}
-            >
-              Edit
-            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Delete</DropdownMenuItem>
           </DropdownMenuContent>
