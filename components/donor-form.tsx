@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Dispatch, SetStateAction } from 'react';
 import { Row } from '@tanstack/react-table';
 import { Donor } from '@/app/(authenticated)/dashboard/donors/columns';
+import { Donations } from '@/app/(authenticated)/dashboard/donations/columns';
 import { Textarea } from '@/components/ui/textarea';
 
 const formSchema = z.object({
@@ -34,7 +35,7 @@ export function DonorForm({
   cellData,
 }: {
   setOpen: Dispatch<SetStateAction<boolean>>;
-  cellData?: Row<Donor>;
+  cellData?: Row<Donor> | Row<Donations>;
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

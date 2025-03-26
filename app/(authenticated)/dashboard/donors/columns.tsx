@@ -24,10 +24,13 @@ import {
 import { DonorForm } from '@/components/donor-form';
 import React from 'react';
 
-export type Donor = Pick<
-  InferSelectModel<typeof donorsTable>,
-  'name' | 'email' | 'phoneNumber' | 'address' | 'notes'
->;
+export type Donor = {
+  name: string;
+  email: string;
+  phoneNumber: string;
+  address: string;
+  notes: string;
+};
 
 export const columns: ColumnDef<Donor>[] = [
   {

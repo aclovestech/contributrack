@@ -1,5 +1,5 @@
 import { DataTable } from '@/components/data-table';
-import { Donor, columns } from '@/app/(authenticated)/dashboard/donors/columns';
+import { columns } from '@/app/(authenticated)/dashboard/donors/columns';
 
 export default function Donors() {
   const data = [
@@ -115,8 +115,9 @@ export default function Donors() {
       <DataTable
         columns={columns}
         data={data}
+        filterTextName="donor"
         filterName="name"
-        addType="donor"
+        dialogType="donor"
       />
     </div>
   );
