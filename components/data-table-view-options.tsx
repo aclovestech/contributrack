@@ -17,6 +17,14 @@ interface DataTableViewOptionsProps<TData> {
   table: Table<TData>;
 }
 
+function formatColumnId(id: string): string {
+  // Split camelCase words and capitalize the first letter of each word
+  return id
+    .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space between camelCase words
+    .replace(/_/g, ' ') // Replace underscores with spaces (if applicable)
+    .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize first letter of each word
+}
+
 export function DataTableViewOptions<TData>({
   table,
 }: DataTableViewOptionsProps<TData>) {
@@ -45,11 +53,10 @@ export function DataTableViewOptions<TData>({
             return (
               <DropdownMenuCheckboxItem
                 key={column.id}
-                className="capitalize"
                 checked={column.getIsVisible()}
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >
-                {column.id}
+                {formatColumnId(column.id)}
               </DropdownMenuCheckboxItem>
             );
           })}

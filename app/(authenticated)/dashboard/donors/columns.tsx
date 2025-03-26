@@ -13,7 +13,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { DataTableColumnHeader } from '@/components/data-table-column-header';
 
 export type Donor = Pick<
   InferSelectModel<typeof donorsTable>,
