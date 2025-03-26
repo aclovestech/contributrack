@@ -15,6 +15,9 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Dispatch, SetStateAction } from 'react';
+import { Row } from '@tanstack/react-table';
+import { Donor } from '@/app/(authenticated)/dashboard/donors/columns';
+import { Textarea } from '@/components/ui/textarea';
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -28,17 +31,19 @@ const formSchema = z.object({
 
 export function DonorForm({
   setOpen,
+  cellData,
 }: {
   setOpen: Dispatch<SetStateAction<boolean>>;
+  cellData?: Row<Donor>;
 }) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      email: '',
-      phoneNumber: '',
-      address: '',
-      notes: '',
+      name: cellData ? cellData.getValue('name') : '',
+      email: cellData ? cellData.getValue('email') : '',
+      phoneNumber: cellData ? cellData.getValue('phoneNumber') : '',
+      address: cellData ? cellData.getValue('address') : '',
+      notes: cellData ? cellData.getValue('notes') : '',
     },
   });
 
@@ -59,7 +64,7 @@ export function DonorForm({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} autoFocus={undefined} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -111,7 +116,7 @@ export function DonorForm({
             <FormItem>
               <FormLabel>Notes</FormLabel>
               <FormControl>
-                <Input {...field} className="h-32" />
+                <Textarea {...field} className="min-h-32 max-h-64" />
               </FormControl>
               <FormMessage />
             </FormItem>
