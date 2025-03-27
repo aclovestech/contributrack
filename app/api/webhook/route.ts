@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
     // get the data from the webhook
     const { data, type: eventType } = (await JSON.parse(
-      payload
+      payload,
     )) as StackAuthWebhookData;
 
     // if the event type is user.created, insert the user into the database

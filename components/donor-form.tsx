@@ -124,7 +124,7 @@ export function DonorForm({ setOpen, donorDetails }: DonorFormProps) {
             <FormItem>
               <FormLabel>Notes</FormLabel>
               <FormControl>
-                <Textarea {...field} className="min-h-32 max-h-64" />
+                <Textarea {...field} className="max-h-64 min-h-32" />
               </FormControl>
               <FormMessage />
             </FormItem>
