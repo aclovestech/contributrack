@@ -1,7 +1,6 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { InferSelectModel } from 'drizzle-orm';
 import { donorsTable } from '@/src/db/schema';
 import { ArrowUpDown, Edit, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -24,15 +23,14 @@ import {
 import { DonorForm } from '@/components/donor-form';
 import React from 'react';
 
-export type Donor = {
-  name: string;
-  email: string;
-  phoneNumber: string;
-  address: string;
-  notes: string;
-};
+export type Donor = typeof donorsTable.$inferSelect;
+export type DonorColumns = Pick<
+  Donor,
+  'name' | 'email' | 'phoneNumber' | 'address' | 'notes'
+>;
+export type DonorName = Pick<Donor, 'name'>;
 
-export const columns: ColumnDef<Donor>[] = [
+export const columns: ColumnDef<DonorColumns>[] = [
   {
     id: 'edit',
     cell: ({ row }) => {
@@ -52,7 +50,7 @@ export const columns: ColumnDef<Donor>[] = [
                 Enter the donor details below
               </DialogDescription>
             </DialogHeader>
-            <DonorForm setOpen={setOpen} cellData={row} />
+            <DonorForm setOpen={setOpen} donorDetails={row.original} />
           </DialogContent>
         </Dialog>
       );
@@ -95,8 +93,6 @@ export const columns: ColumnDef<Donor>[] = [
   {
     id: 'actions',
     cell: ({ row }) => {
-      const payment = row.original;
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

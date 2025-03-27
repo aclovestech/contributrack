@@ -15,40 +15,47 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Dispatch, SetStateAction } from 'react';
-import { Row } from '@tanstack/react-table';
-import { Donor } from '@/app/(authenticated)/dashboard/donors/columns';
-import { Donations } from '@/app/(authenticated)/dashboard/donations/columns';
 import { Textarea } from '@/components/ui/textarea';
+import { donorsTable } from '@/src/db/schema';
+import { createInsertSchema } from 'drizzle-zod';
+import { DonorColumns } from '@/app/(authenticated)/dashboard/donors/columns';
 
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: 'Name must be at least 2 characters.',
-  }),
-  email: z.string().email().optional().or(z.literal('')),
-  phoneNumber: z.string().optional(),
-  address: z.string().optional(),
-  notes: z.string().optional(),
-});
+const donorFormSchema = createInsertSchema(donorsTable)
+  .pick({
+    name: true,
+    email: true,
+    phoneNumber: true,
+    address: true,
+    notes: true,
+  })
+  .transform((data) => ({
+    name: data.name,
+    email: data.email ?? undefined,
+    phoneNumber: data.phoneNumber ?? undefined,
+    address: data.address ?? undefined,
+    notes: data.notes ?? undefined,
+  }));
 
-export function DonorForm({
-  setOpen,
-  cellData,
-}: {
+type DonorFormData = z.infer<typeof donorFormSchema>;
+
+interface DonorFormProps {
   setOpen: Dispatch<SetStateAction<boolean>>;
-  cellData?: Row<Donor> | Row<Donations>;
-}) {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  donorDetails?: DonorColumns;
+}
+
+export function DonorForm({ setOpen, donorDetails }: DonorFormProps) {
+  const form = useForm<DonorFormData>({
+    resolver: zodResolver(donorFormSchema),
     defaultValues: {
-      name: cellData ? cellData.getValue('name') : '',
-      email: cellData ? cellData.getValue('email') : '',
-      phoneNumber: cellData ? cellData.getValue('phoneNumber') : '',
-      address: cellData ? cellData.getValue('address') : '',
-      notes: cellData ? cellData.getValue('notes') : '',
+      name: donorDetails?.name || '',
+      email: donorDetails?.email || '',
+      phoneNumber: donorDetails?.phoneNumber || '',
+      address: donorDetails?.address || '',
+      notes: donorDetails?.notes || '',
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: z.infer<typeof donorFormSchema>) {
     console.log(values);
     if (values) {
       setOpen(false);

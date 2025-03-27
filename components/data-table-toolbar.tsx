@@ -1,38 +1,38 @@
 'use client';
 
 import { Table } from '@tanstack/react-table';
-import { PlusIcon, X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DataTableViewOptions } from '@/components/data-table-view-options';
 import { AddDonorOrDonationDialog } from '@/components/add-donor-or-donation-dialog';
+import { useTableType } from '@/app/contexts/table-provider.context';
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
-  filterTextName: string;
-  filterName: string;
-  dialogType: 'donor' | 'donation';
 }
 
 export function DataTableToolbar<TData>({
   table,
-  filterTextName,
-  filterName,
-  dialogType,
 }: DataTableToolbarProps<TData>) {
+  const tableType = useTableType();
+  const filterTextName =
+    tableType === 'donors' ? 'Filter donors' : 'Filter donations';
+  const columnToFilter = tableType === 'donors' ? 'name' : 'donorName';
+
   const isFiltered = table.getState().columnFilters.length > 0;
 
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
         <Input
-          placeholder={`Filter ${filterTextName}...`}
+          placeholder={filterTextName}
           value={
-            (table.getColumn(filterName)?.getFilterValue() as string) ?? ''
+            (table.getColumn(columnToFilter)?.getFilterValue() as string) ?? ''
           }
           onChange={(event) =>
-            table.getColumn(filterName)?.setFilterValue(event.target.value)
+            table.getColumn(columnToFilter)?.setFilterValue(event.target.value)
           }
           className="h-8 w-[150px] lg:w-[250px]"
         />
@@ -49,7 +49,7 @@ export function DataTableToolbar<TData>({
       </div>
       <div className="flex items-center space-x-2">
         <DataTableViewOptions table={table} />
-        <AddDonorOrDonationDialog dialogType={dialogType} />
+        <AddDonorOrDonationDialog />
       </div>
     </div>
   );

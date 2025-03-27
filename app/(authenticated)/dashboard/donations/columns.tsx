@@ -1,7 +1,6 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { InferInsertModel, InferSelectModel } from 'drizzle-orm';
 import { donationsTable } from '@/src/db/schema';
 import { ArrowUpDown, Edit, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -24,15 +23,17 @@ import {
 import { DonorForm } from '@/components/donor-form';
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
+import { DonorName } from '@/app/(authenticated)/dashboard/donors/columns';
 
-export type Donations = {
-  donorName: string;
-  dateReceived: Date;
-  amount: number;
-  donationType: string;
+export type DonationWithDonor = typeof donationsTable.$inferSelect & {
+  donorName: DonorName['name'];
 };
+export type DonationColumn = Pick<
+  DonationWithDonor,
+  'donorName' | 'dateReceived' | 'amount' | 'donationType'
+>;
 
-export const columns: ColumnDef<Donations>[] = [
+export const columns: ColumnDef<DonationColumn>[] = [
   {
     id: 'edit',
     cell: ({ row }) => {
@@ -52,7 +53,7 @@ export const columns: ColumnDef<Donations>[] = [
                 Enter the donor details below
               </DialogDescription>
             </DialogHeader>
-            <DonorForm setOpen={setOpen} cellData={row} />
+            <DonorForm setOpen={setOpen} />
           </DialogContent>
         </Dialog>
       );
@@ -123,9 +124,10 @@ export const columns: ColumnDef<Donations>[] = [
       );
     },
     cell: ({ row }) => {
+      const amount = parseFloat(row.original.amount);
       return (
         <div className="text-center">
-          {row.original.amount.toLocaleString('en-US', {
+          {amount.toLocaleString('en-US', {
             style: 'currency',
             currency: 'CAD',
           })}
