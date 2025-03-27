@@ -72,12 +72,8 @@
           "name": "donations_donor_id_donors_id_fk",
           "tableFrom": "donations",
           "tableTo": "donors",
-          "columnsFrom": [
-            "donor_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["donor_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -85,12 +81,8 @@
           "name": "donations_user_id_users_id_fk",
           "tableFrom": "donations",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -174,12 +166,8 @@
           "name": "donors_user_id_users_id_fk",
           "tableFrom": "donors",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -215,12 +203,7 @@
     "public.donation_type": {
       "name": "donation_type",
       "schema": "public",
-      "values": [
-        "tithes",
-        "daily_seed",
-        "mission_offering",
-        "other"
-      ]
+      "values": ["tithes", "daily_seed", "mission_offering", "other"]
     }
   },
   "schemas": {},
