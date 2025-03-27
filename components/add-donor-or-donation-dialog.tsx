@@ -10,28 +10,29 @@ import {
 } from '@/components/ui/dialog';
 import { PlusIcon } from 'lucide-react';
 import React from 'react';
+import { useTableType } from '@/app/contexts/table-provider.context';
 
-interface AddDonorOrDonationDialogProps {
-  dialogType: 'donor' | 'donation';
-}
-
-export function AddDonorOrDonationDialog({
-  dialogType,
-}: AddDonorOrDonationDialogProps) {
+export function AddDonorOrDonationDialog() {
   const [open, setOpen] = React.useState(false);
 
-  const dialogTitle = dialogType === 'donor' ? 'Donor' : 'Donation';
-  const dialogDescription =
-    dialogType === 'donor'
-      ? 'Enter the donor details below'
-      : 'Enter the donation details below';
+  const tableType = useTableType();
+  const { dialogTitle, dialogDescription } =
+    tableType === 'donors'
+      ? {
+          dialogTitle: 'Add Donor',
+          dialogDescription: 'Enter donor details below',
+        }
+      : {
+          dialogTitle: 'Add Donation',
+          dialogDescription: 'Enter donation details below',
+        };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <PlusIcon />
-          <span className="hidden lg:inline">Add {dialogType}</span>
+          <span className="hidden lg:inline">{dialogTitle}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

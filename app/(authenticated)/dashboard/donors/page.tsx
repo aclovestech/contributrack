@@ -1,5 +1,6 @@
 import { DataTable } from '@/components/data-table';
 import { columns } from '@/app/(authenticated)/dashboard/donors/columns';
+import { TableTypeProvider } from '@/app/contexts/table-provider.context';
 
 export default function Donors() {
   const data = [
@@ -112,13 +113,9 @@ export default function Donors() {
 
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-6">
-      <DataTable
-        columns={columns}
-        data={data}
-        filterTextName="donor"
-        filterName="name"
-        dialogType="donor"
-      />
+      <TableTypeProvider type="donors">
+        <DataTable columns={columns} data={data} />
+      </TableTypeProvider>
     </div>
   );
 }
