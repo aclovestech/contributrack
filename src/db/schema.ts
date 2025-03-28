@@ -9,9 +9,12 @@ export const donationTypeEnum = pgEnum('donation_type', [
 ]);
 
 const timestamps = {
-  updated_at: t.timestamp({ withTimezone: true }),
-  created_at: t.timestamp({ withTimezone: true }).defaultNow().notNull(),
-  deleted_at: t.timestamp({ withTimezone: true }),
+  updatedAt: t.timestamp('updated_at', { withTimezone: true }),
+  createdAt: t
+    .timestamp('created_at', { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  deletedAt: t.timestamp('deleted_at', { withTimezone: true }),
 };
 
 export const usersTable = table('users', {
