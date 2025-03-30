@@ -1,7 +1,6 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { donationsTable } from '@/src/db/schema';
 import { ArrowUpDown, Edit, MoreHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,18 +19,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { DonorForm } from '@/components/donor-form';
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { DonorName } from '@/app/(authenticated)/dashboard/donors/columns';
-
-export type DonationWithDonor = typeof donationsTable.$inferSelect & {
-  donorName: DonorName['name'];
-};
-export type DonationColumn = Pick<
-  DonationWithDonor,
-  'donorName' | 'dateReceived' | 'amount' | 'donationType'
->;
+import { DonationColumn } from '@/types/donations';
 
 export const columns: ColumnDef<DonationColumn>[] = [
   {
@@ -53,7 +43,6 @@ export const columns: ColumnDef<DonationColumn>[] = [
                 Enter the donor details below
               </DialogDescription>
             </DialogHeader>
-            <DonorForm setOpen={setOpen} />
           </DialogContent>
         </Dialog>
       );
