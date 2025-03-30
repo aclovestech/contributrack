@@ -3,7 +3,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -14,65 +13,68 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Dispatch, SetStateAction } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { donorsTable } from '@/src/db/schema';
 import { createInsertSchema } from 'drizzle-zod';
-import { DonorColumns } from '@/app/(authenticated)/dashboard/donors/columns';
 
-const donorFormSchema = createInsertSchema(donorsTable)
-  .pick({
-    name: true,
-    email: true,
-    phoneNumber: true,
-    address: true,
-    notes: true,
-  })
-  .transform((data) => ({
-    name: data.name,
-    email: data.email ?? undefined,
-    phoneNumber: data.phoneNumber ?? undefined,
-    address: data.address ?? undefined,
-    notes: data.notes ?? undefined,
-  }));
+export const insertDonorSchema = createInsertSchema(donorsTable, {
+  name: z.string().min(1, 'Donor name is required').max(100),
+  email: z
+    .string()
+    .email('Invalid email address')
+    .max(254)
+    .optional()
+    .or(z.literal('')),
+  phoneNumber: z.string().max(20).optional().or(z.literal('')),
+  address: z.string().max(200).optional().or(z.literal('')),
+  notes: z.string().max(1000).optional().or(z.literal('')),
+}).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  deletedAt: true,
+  userId: true,
+});
 
-type DonorFormData = z.infer<typeof donorFormSchema>;
+export type NewDonorFormData = z.infer<typeof insertDonorSchema>;
 
 interface DonorFormProps {
-  setOpen: Dispatch<SetStateAction<boolean>>;
-  donorDetails?: DonorColumns;
+  onSubmit: () => void;
+  initialData?: NewDonorFormData;
 }
 
-export function DonorForm({ setOpen, donorDetails }: DonorFormProps) {
-  const form = useForm<DonorFormData>({
-    resolver: zodResolver(donorFormSchema),
+export function DonorForm({ initialData, onSubmit }: DonorFormProps) {
+  const form = useForm<NewDonorFormData>({
+    resolver: zodResolver(insertDonorSchema),
     defaultValues: {
-      name: donorDetails?.name || '',
-      email: donorDetails?.email || '',
-      phoneNumber: donorDetails?.phoneNumber || '',
-      address: donorDetails?.address || '',
-      notes: donorDetails?.notes || '',
+      name: initialData ? initialData.name : '',
+      email: initialData ? initialData.email : '',
+      phoneNumber: initialData ? initialData.phoneNumber : '',
+      address: initialData ? initialData.address : '',
+      notes: initialData ? initialData.notes : '',
     },
   });
 
-  function onSubmit(values: z.infer<typeof donorFormSchema>) {
-    console.log(values);
-    if (values) {
-      setOpen(false);
-    }
+  function handleFormSubmit() {
+    onSubmit();
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        onSubmit={form.handleSubmit(handleFormSubmit)}
+        className="space-y-8"
+      >
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>
+                Name <span className="text-red-500">*</span>
+              </FormLabel>
               <FormControl>
-                <Input {...field} autoFocus={undefined} />
+                <Input {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
