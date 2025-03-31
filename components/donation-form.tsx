@@ -24,7 +24,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { DonorName } from '@/types/donor';
 import { DONATION_TYPES } from '@/types/donations';
 
 export const insertDonationSchema = createInsertSchema(donationsTable, {
@@ -47,22 +46,22 @@ export const insertDonationSchema = createInsertSchema(donationsTable, {
 export type NewDonationFormData = z.infer<typeof insertDonationSchema>;
 
 interface DonationDetailsFormProps {
-  selectedDonor: DonorName;
-  onEditDonor: () => void;
   onSubmit: () => void;
+  initialData?: NewDonationFormData;
 }
 
 export function DonationForm({
-  selectedDonor,
-  onEditDonor,
   onSubmit,
+  initialData,
 }: DonationDetailsFormProps) {
   const form = useForm<NewDonationFormData>({
     resolver: zodResolver(insertDonationSchema),
     defaultValues: {
-      dateReceived: new Date().toISOString().split('T')[0],
-      amount: 0.0,
-      donationType: undefined,
+      dateReceived: initialData
+        ? initialData.dateReceived
+        : new Date().toISOString().split('T')[0],
+      amount: initialData ? initialData.amount : 0.0,
+      donationType: initialData ? initialData.donationType : undefined,
     },
   });
 
@@ -71,118 +70,102 @@ export function DonationForm({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="bg-muted/50 flex flex-row items-center justify-between rounded-md border p-3">
-        <div>
-          <Label className="text-muted-foreground text-xs">Donor Name</Label>
-          <p className="font-semibold">{selectedDonor.name}</p>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onEditDonor}
-          className="mt-2 sm:mt-0"
-        >
-          Change Donor
-        </Button>
-      </div>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(handleFormSubmit)}
-          className="space-y-6"
-        >
-          <div className="grid grid-cols-2 gap-4">
-            {/* Date Received */}
-            <FormField
-              control={form.control}
-              name="dateReceived"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Date Received <span className="text-red-500">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Input {...field} type="date" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {/* Amount */}
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Amount <span className="text-red-500">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <span className="text-muted-foreground absolute inset-y-0 left-0 flex items-center pl-3 text-sm">
-                        CA$
-                      </span>
-                      <Input
-                        type="number"
-                        placeholder="0.00"
-                        step="0.01"
-                        min="0.01"
-                        className="pl-12"
-                        {...field}
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(handleFormSubmit)}
+        className="space-y-6"
+      >
+        <div className="grid grid-cols-2 gap-4">
+          {/* Date Received */}
+          <FormField
+            control={form.control}
+            name="dateReceived"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Date Received <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input {...field} type="date" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Amount */}
+          <FormField
+            control={form.control}
+            name="amount"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Amount <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <span className="text-muted-foreground absolute inset-y-0 left-0 flex items-center pl-3 text-sm">
+                      CA$
+                    </span>
+                    <Input
+                      type="number"
+                      placeholder="0.00"
+                      step="0.01"
+                      min="0.01"
+                      className="pl-12"
+                      {...field}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {/* Donation Type */}
+          <FormField
+            control={form.control}
+            name="donationType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Donation Type <span className="text-red-500">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue
+                        placeholder="Select donation type"
+                        className="capitalize"
                       />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {/* Donation Type */}
-            <FormField
-              control={form.control}
-              name="donationType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Donation Type <span className="text-red-500">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue
-                          placeholder="Select donation type"
-                          className="capitalize"
-                        />
-                      </SelectTrigger>
+                    </SelectTrigger>
 
-                      <SelectContent>
-                        {DONATION_TYPES.map((type) => (
-                          <SelectItem
-                            key={type}
-                            value={type}
-                            className="capitalize"
-                          >
-                            {type
-                              .replace(/_/g, ' ')
-                              .replace(/\b\w/g, (char) => char.toUpperCase())}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="flex items-center justify-center">
-            <Button type="submit">Submit</Button>
-          </div>
-        </form>
-      </Form>
-    </div>
+                    <SelectContent>
+                      {DONATION_TYPES.map((type) => (
+                        <SelectItem
+                          key={type}
+                          value={type}
+                          className="capitalize"
+                        >
+                          {type
+                            .replace(/_/g, ' ')
+                            .replace(/\b\w/g, (char) => char.toUpperCase())}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        <div className="flex items-center justify-center">
+          <Button type="submit">Submit</Button>
+        </div>
+      </form>
+    </Form>
   );
 }

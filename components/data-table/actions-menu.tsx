@@ -10,9 +10,10 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
+import { DonationColumn } from '@/types/donations';
 
 interface DataTableActionsMenuProps {
-  row: Row<DonorColumns>;
+  row: Row<DonorColumns> | Row<DonationColumn>;
 }
 
 export function DataTableActionsMenu({ row }: DataTableActionsMenuProps) {
