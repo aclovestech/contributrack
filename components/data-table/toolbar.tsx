@@ -69,7 +69,7 @@ export function DataTableToolbar<TData>({
         </div>
       )}
       <div className="flex items-center space-x-2">
-        <DataTableViewOptions table={table} />
+        {currentPage !== 'donations' && <DataTableViewOptions table={table} />}
         {currentPage === 'donors' && <AddDonorDialog />}
         {currentPage === 'donations' && <DonationDialog />}
       </div>
