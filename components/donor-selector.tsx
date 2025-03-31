@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Check, ChevronsUpDown, UserPlus } from 'lucide-react';
 import { cn } from '@/lib/utils'; // Make sure you have this utility
 import { Button } from '@/components/ui/button';

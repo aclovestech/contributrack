@@ -1,8 +1,6 @@
 import { DataTable } from '@/components/data-table/data-table';
-import {
-  columns,
-  DonationColumn,
-} from '@/app/(authenticated)/dashboard/donations/columns';
+import { columns } from '@/app/(authenticated)/dashboard/donations/columns';
+import { DonationColumn } from '@/types/donations';
 
 export default function Donations() {
   const data: DonationColumn[] = [
