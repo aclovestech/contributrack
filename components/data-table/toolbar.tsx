@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { DataTableViewOptions } from '@/components/data-table/view-options';
 import { AddDonorDialog } from '@/components/dialogs/add-donor-dialog';
 import { usePathname } from 'next/navigation';
-import { AddDonationDialog } from '@/components/dialogs/add-donation-dialog';
+import { DonationDialog } from '@/components/dialogs/donation-dialog';
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -71,7 +71,7 @@ export function DataTableToolbar<TData>({
       <div className="flex items-center space-x-2">
         <DataTableViewOptions table={table} />
         {currentPage === 'donors' && <AddDonorDialog />}
-        {currentPage === 'donations' && <AddDonationDialog />}
+        {currentPage === 'donations' && <DonationDialog />}
       </div>
     </div>
   );
