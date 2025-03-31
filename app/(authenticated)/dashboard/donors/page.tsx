@@ -1,8 +1,9 @@
 import { DataTable } from '@/components/data-table/data-table';
 import { columns } from '@/app/(authenticated)/dashboard/donors/columns';
+import { DonorColumns } from '@/types/donor';
 
 export default function Donors() {
-  const data = [
+  const mockData: DonorColumns[] = [
     {
       name: 'Abc Def Ghi Jkl',
       email: 'IyOg9@example.com',
@@ -112,7 +113,7 @@ export default function Donors() {
 
   return (
     <div className="flex flex-col gap-4 px-4 py-4 md:gap-6 md:py-6 lg:px-6">
-      <DataTable columns={columns} data={data} />
+      <DataTable columns={columns} data={mockData} />
     </div>
   );
 }
