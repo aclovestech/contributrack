@@ -23,7 +23,7 @@ export const usersTable = table('users', {
 
 export const donorsTable = table('donors', {
   id: t.uuid().defaultRandom().primaryKey(),
-  name: t.varchar({ length: 100 }).notNull(),
+  name: t.varchar({ length: 100 }).notNull().unique(),
   email: t.varchar({ length: 254 }),
   phoneNumber: t.varchar('phone_number', { length: 20 }),
   address: t.varchar({ length: 200 }),
@@ -37,7 +37,7 @@ export const donorsTable = table('donors', {
 
 export const donationsTable = table('donations', {
   id: t.uuid().defaultRandom().primaryKey(),
-  dateReceived: t.timestamp('date_received', { withTimezone: true }).notNull(),
+  dateReceived: t.date('date_received').notNull(),
   amount: t.numeric({ precision: 10, scale: 2 }).notNull(),
   donationType: donationTypeEnum().notNull(),
   donorId: t
