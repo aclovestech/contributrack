@@ -35,18 +35,38 @@ export const columns: ColumnDef<DonorColumns>[] = [
   {
     accessorKey: 'email',
     header: 'Email',
+    cell: ({ row }) => {
+      if (row.original.email === null) {
+        return <div className="text-center">-</div>;
+      }
+    },
   },
   {
     accessorKey: 'phoneNumber',
     header: 'Phone Number',
+    cell: ({ row }) => {
+      if (row.original.phoneNumber === null) {
+        return <div className="text-center">-</div>;
+      }
+    },
   },
   {
     accessorKey: 'address',
     header: 'Address',
+    cell: ({ row }) => {
+      if (row.original.address === null) {
+        return <div className="text-center">-</div>;
+      }
+    },
   },
   {
     accessorKey: 'notes',
     header: 'Notes',
+    cell: ({ row }) => {
+      if (row.original.notes === null) {
+        return <div className="text-center">-</div>;
+      }
+    },
   },
   {
     id: 'actions',
