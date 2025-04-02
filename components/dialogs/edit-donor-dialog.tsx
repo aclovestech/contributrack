@@ -24,9 +24,7 @@ export function EditDonorDialog({ row }: EditDonorDialogProps) {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
   async function handleOnSubmit(formData: DonorFormData) {
-    const result = await editDonor(user?.id, row.original.id, formData);
-
-    console.log(result);
+    await editDonor(user?.id, row.original.id, formData);
 
     setIsDialogOpen(false);
   }
