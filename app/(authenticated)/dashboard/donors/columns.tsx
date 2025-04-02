@@ -7,6 +7,14 @@ import { Button } from '@/components/ui/button';
 import { EditDonorDialog } from '@/components/dialogs/edit-donor-dialog';
 import { DataTableActionsMenu } from '@/components/data-table/actions-menu';
 
+function formatCell(value: string | null) {
+  return (
+    <div className="text-center break-words whitespace-pre-wrap">
+      {value ? value : '-'}
+    </div>
+  );
+}
+
 export const columns: ColumnDef<DonorRowData>[] = [
   {
     id: 'edit',
@@ -34,38 +42,30 @@ export const columns: ColumnDef<DonorRowData>[] = [
   },
   {
     accessorKey: 'email',
-    header: 'Email',
+    header: () => <div className="text-center">Email</div>,
     cell: ({ row }) => {
-      if (row.original.email === null) {
-        return <div className="text-center">-</div>;
-      }
+      return formatCell(row.original.email);
     },
   },
   {
     accessorKey: 'phoneNumber',
-    header: 'Phone Number',
+    header: () => <div className="text-center">Phone Number</div>,
     cell: ({ row }) => {
-      if (row.original.phoneNumber === null) {
-        return <div className="text-center">-</div>;
-      }
+      return formatCell(row.original.phoneNumber);
     },
   },
   {
     accessorKey: 'address',
-    header: 'Address',
+    header: () => <div className="text-center">Address</div>,
     cell: ({ row }) => {
-      if (row.original.address === null) {
-        return <div className="text-center">-</div>;
-      }
+      return formatCell(row.original.address);
     },
   },
   {
     accessorKey: 'notes',
-    header: 'Notes',
+    header: () => <div className="text-center">Notes</div>,
     cell: ({ row }) => {
-      if (row.original.notes === null) {
-        return <div className="text-center">-</div>;
-      }
+      return formatCell(row.original.notes);
     },
   },
   {

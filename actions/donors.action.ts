@@ -2,7 +2,7 @@
 
 import { db } from '@/src/db';
 import { donorsTable } from '@/src/db/schema';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { DonorRowData } from '@/types/donor';
 import { DonorFormData } from '@/components/donor-form';
 import { revalidatePath } from 'next/cache';
@@ -25,9 +25,29 @@ export async function addDonor(userId: string, formData: DonorFormData) {
   return result;
 }
 
-export async function deleteDonor() {}
+export async function editDonor(
+  userId: string,
+  donorId: string,
+  formData: DonorFormData,
+) {
+  const result = await db
+    .update(donorsTable)
+    .set({
+      name: formData.name,
+      email: formData.email,
+      phoneNumber: formData.phoneNumber,
+      address: formData.address,
+      notes: formData.notes,
+    })
+    .where(and(eq(donorsTable.userId, userId), eq(donorsTable.id, donorId)))
+    .returning();
 
-export async function editDonor() {}
+  revalidatePath('/dashboard/donors');
+
+  return result;
+}
+
+export async function deleteDonor() {}
 
 export async function getAllDonors(userId: string): Promise<DonorRowData[]> {
   const donors = await db
