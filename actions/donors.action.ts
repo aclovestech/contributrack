@@ -47,7 +47,13 @@ export async function editDonor(
   return result;
 }
 
-export async function deleteDonor() {}
+export async function deleteDonor(userId: string, donorId: string) {
+  await db
+    .delete(donorsTable)
+    .where(and(eq(donorsTable.userId, userId), eq(donorsTable.id, donorId)));
+
+  revalidatePath('/dashboard/donors');
+}
 
 export async function getAllDonors(userId: string): Promise<DonorRowData[]> {
   const donors = await db

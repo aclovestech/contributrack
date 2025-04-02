@@ -71,7 +71,7 @@ export const columns: ColumnDef<DonorRowData>[] = [
   {
     id: 'actions',
     cell: ({ row }) => {
-      return <DataTableActionsMenu row={row} />;
+      return <DataTableActionsMenu donorRow={row} />;
     },
   },
 ];

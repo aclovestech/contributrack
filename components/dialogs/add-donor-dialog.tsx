@@ -21,9 +21,7 @@ export function AddDonorDialog() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   async function handleFormSubmit(formData: DonorFormData) {
-    const result = await addDonor(user?.id, formData);
-
-    console.log(result);
+    await addDonor(user?.id, formData);
 
     setIsDialogOpen(false);
   }
