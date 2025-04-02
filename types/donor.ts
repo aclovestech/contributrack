@@ -5,4 +5,3 @@ export type DonorRowData = Pick<
   Donor,
   'id' | 'name' | 'email' | 'phoneNumber' | 'address' | 'notes'
 >;
-export type DonorName = Pick<Donor, 'name'>;

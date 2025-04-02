@@ -4,11 +4,11 @@ import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { DonationColumn } from '@/types/donations';
 import { DataTableActionsMenu } from '@/components/data-table/actions-menu';
 import { DonationDialog } from '@/components/dialogs/donation-dialog';
+import { DonationRowData } from '@/types/donations';
 
-export const columns: ColumnDef<DonationColumn>[] = [
+export const columns: ColumnDef<DonationRowData>[] = [
   {
     id: 'edit',
     cell: ({ row }) => {
@@ -119,7 +119,7 @@ export const columns: ColumnDef<DonationColumn>[] = [
   {
     id: 'actions',
     cell: ({ row }) => {
-      return <DataTableActionsMenu row={row} />;
+      return <DataTableActionsMenu donationRow={row} />;
     },
   },
 ];
