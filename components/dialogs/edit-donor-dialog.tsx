@@ -11,21 +11,28 @@ import React from 'react';
 import { Row } from '@tanstack/react-table';
 import { DonorRowData } from '@/types/donor';
 import { DonorForm, DonorFormData } from '@/components/donor-form';
+import { useUser } from '@stackframe/stack';
+import { editDonor } from '@/actions/donors.action';
 
 interface EditDonorDialogProps {
   row: Row<DonorRowData>;
 }
 
 export function EditDonorDialog({ row }: EditDonorDialogProps) {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const user = useUser({ or: 'redirect' });
 
-  function handleOnSubmit(formData: DonorFormData) {
-    setIsOpen(false);
-    console.log(formData);
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+
+  async function handleOnSubmit(formData: DonorFormData) {
+    const result = await editDonor(user?.id, row.original.id, formData);
+
+    console.log(result);
+
+    setIsDialogOpen(false);
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         <Edit className="h-4 w-4" />
       </DialogTrigger>
