@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Edit, Plus } from 'lucide-react';
 import { DonorName } from '@/types/donor';
 import { DonorSelector } from '@/components/donor-selector';
-import { DonorForm } from '@/components/donor-form';
+import { DonorForm, DonorFormData } from '@/components/donor-form';
 import { DonationForm } from '@/components/donation-form';
 import { Label } from '@/components/ui/label';
 import { Row } from '@tanstack/react-table';
@@ -78,8 +78,8 @@ export function DonationDialog({ donationData }: DonationDialogProps) {
     });
   }
 
-  function handleOnDonorAdd() {
-    setSelectedDonor({ name: '' });
+  function handleOnDonorAdd(formData: DonorFormData) {
+    setSelectedDonor({ name: formData.name });
     setDialogState('fillInDonation');
     setDialogContent({
       title: 'Donation Details',
@@ -136,7 +136,7 @@ export function DonationDialog({ donationData }: DonationDialogProps) {
         );
         break;
       case 'addDonor':
-        body = <DonorForm onSubmit={handleOnDonorAdd} />;
+        body = <DonorForm onFormSubmit={handleOnDonorAdd} />;
         break;
       case 'fillInDonation':
         body = (

@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { donorsTable } from '@/src/db/schema';
 import { createInsertSchema } from 'drizzle-zod';
+import { DonorRowData } from '@/types/donor';
 
 export const insertDonorSchema = createInsertSchema(donorsTable, {
   name: z.string().min(1, 'Donor name is required').max(100),
@@ -24,10 +25,26 @@ export const insertDonorSchema = createInsertSchema(donorsTable, {
     .email('Invalid email address')
     .max(254)
     .optional()
-    .or(z.literal('')),
-  phoneNumber: z.string().max(20).optional().or(z.literal('')),
-  address: z.string().max(200).optional().or(z.literal('')),
-  notes: z.string().max(1000).optional().or(z.literal('')),
+    .or(z.literal(''))
+    .transform((value) => (value === '' ? null : value)),
+  phoneNumber: z
+    .string()
+    .max(20)
+    .optional()
+    .or(z.literal(''))
+    .transform((value) => (value === '' ? null : value)),
+  address: z
+    .string()
+    .max(200)
+    .optional()
+    .or(z.literal(''))
+    .transform((value) => (value === '' ? null : value)),
+  notes: z
+    .string()
+    .max(1000)
+    .optional()
+    .or(z.literal(''))
+    .transform((value) => (value === '' ? null : value)),
 }).omit({
   id: true,
   createdAt: true,
@@ -35,36 +52,28 @@ export const insertDonorSchema = createInsertSchema(donorsTable, {
   deletedAt: true,
   userId: true,
 });
-
-export type NewDonorFormData = z.infer<typeof insertDonorSchema>;
+export type DonorFormData = z.infer<typeof insertDonorSchema>;
 
 interface DonorFormProps {
-  onSubmit: () => void;
-  initialData?: NewDonorFormData;
+  onFormSubmit: (formData: DonorFormData) => void;
+  initialData?: DonorRowData;
 }
 
-export function DonorForm({ initialData, onSubmit }: DonorFormProps) {
-  const form = useForm<NewDonorFormData>({
+export function DonorForm({ initialData, onFormSubmit }: DonorFormProps) {
+  const form = useForm<DonorFormData>({
     resolver: zodResolver(insertDonorSchema),
     defaultValues: {
-      name: initialData ? initialData.name : '',
-      email: initialData ? initialData.email : '',
-      phoneNumber: initialData ? initialData.phoneNumber : '',
-      address: initialData ? initialData.address : '',
-      notes: initialData ? initialData.notes : '',
+      name: initialData?.name ? initialData.name : '',
+      email: initialData?.email ? initialData?.email : '',
+      phoneNumber: initialData?.phoneNumber ? initialData?.phoneNumber : '',
+      address: initialData?.address ? initialData?.address : '',
+      notes: initialData?.notes ? initialData?.notes : '',
     },
   });
 
-  function handleFormSubmit() {
-    onSubmit();
-  }
-
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleFormSubmit)}
-        className="space-y-8"
-      >
+      <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-8">
         <FormField
           control={form.control}
           name="name"
@@ -87,7 +96,7 @@ export function DonorForm({ initialData, onSubmit }: DonorFormProps) {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} value={field.value ?? ''} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -100,7 +109,7 @@ export function DonorForm({ initialData, onSubmit }: DonorFormProps) {
             <FormItem>
               <FormLabel>Phone Number</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} value={field.value ?? ''} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -113,7 +122,7 @@ export function DonorForm({ initialData, onSubmit }: DonorFormProps) {
             <FormItem>
               <FormLabel>Address</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} value={field.value ?? ''} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -126,7 +135,11 @@ export function DonorForm({ initialData, onSubmit }: DonorFormProps) {
             <FormItem>
               <FormLabel>Notes</FormLabel>
               <FormControl>
-                <Textarea {...field} className="max-h-64 min-h-32" />
+                <Textarea
+                  {...field}
+                  value={field.value ?? ''}
+                  className="max-h-64 min-h-32"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
