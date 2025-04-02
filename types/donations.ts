@@ -1,12 +1,13 @@
 import { donationsTable, donationTypeEnum } from '@/src/db/schema';
-import { DonorName } from '@/types/donor';
+import { Donor } from '@/types/donor';
 
-export type DonationWithDonor = typeof donationsTable.$inferSelect & {
-  donorName: DonorName['name'];
+export type Donation = typeof donationsTable.$inferSelect & {
+  donorId: Donor['id'];
+  donorName: Donor['name'];
 };
-export type DonationColumn = Pick<
-  DonationWithDonor,
-  'donorName' | 'dateReceived' | 'amount' | 'donationType'
+export type DonationRowData = Pick<
+  Donation,
+  'id' | 'donorName' | 'donorId' | 'dateReceived' | 'amount' | 'donationType'
 >;
 
 export const DONATION_TYPES = donationTypeEnum.enumValues;
