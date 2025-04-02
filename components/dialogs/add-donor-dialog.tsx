@@ -11,10 +11,22 @@ import {
 } from '@/components/ui/dialog';
 import { Plus } from 'lucide-react';
 import React, { useState } from 'react';
-import { DonorForm } from '@/components/donor-form';
+import { DonorForm, DonorFormData } from '@/components/donor-form';
+import { addDonor } from '@/actions/donors.action';
+import { useUser } from '@stackframe/stack';
 
 export function AddDonorDialog() {
+  const user = useUser({ or: 'redirect' });
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  async function handleFormSubmit(formData: DonorFormData) {
+    const result = await addDonor(user?.id, formData);
+
+    console.log(result);
+
+    setIsDialogOpen(false);
+  }
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -31,7 +43,7 @@ export function AddDonorDialog() {
             Fill in the required details for the donor.
           </DialogDescription>
         </DialogHeader>
-        <DonorForm onSubmit={() => setIsDialogOpen(false)} />
+        <DonorForm onFormSubmit={handleFormSubmit} />
       </DialogContent>
     </Dialog>
   );

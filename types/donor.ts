@@ -1,7 +1,7 @@
 import { donorsTable } from '@/src/db/schema';
 
 export type Donor = typeof donorsTable.$inferSelect;
-export type DonorColumns = Pick<
+export type DonorRowData = Pick<
   Donor,
   'id' | 'name' | 'email' | 'phoneNumber' | 'address' | 'notes'
 >;

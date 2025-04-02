@@ -9,29 +9,19 @@ import {
 import { Edit } from 'lucide-react';
 import React from 'react';
 import { Row } from '@tanstack/react-table';
-import { DonorColumns } from '@/types/donor';
-import { DonorForm } from '@/components/donor-form';
+import { DonorRowData } from '@/types/donor';
+import { DonorForm, DonorFormData } from '@/components/donor-form';
 
 interface EditDonorDialogProps {
-  row: Row<DonorColumns>;
+  row: Row<DonorRowData>;
 }
 
 export function EditDonorDialog({ row }: EditDonorDialogProps) {
   const [isOpen, setIsOpen] = React.useState(false);
 
-  const rowData = {
-    name: row.original.name,
-    email: row.original.email ? row.original.email : undefined,
-    phoneNumber: row.original.phoneNumber
-      ? row.original.phoneNumber
-      : undefined,
-    address: row.original.address ? row.original.address : undefined,
-    notes: row.original.notes ? row.original.notes : undefined,
-  };
-
-  function handleOnSubmit() {
-    console.log('submitted');
+  function handleOnSubmit(formData: DonorFormData) {
     setIsOpen(false);
+    console.log(formData);
   }
 
   return (
@@ -46,7 +36,10 @@ export function EditDonorDialog({ row }: EditDonorDialogProps) {
             Fill in the required details for the donor.
           </DialogDescription>
         </DialogHeader>
-        <DonorForm initialData={rowData} onSubmit={handleOnSubmit} />
+        <DonorForm
+          initialData={row.original as DonorRowData}
+          onFormSubmit={handleOnSubmit}
+        />
       </DialogContent>
     </Dialog>
   );

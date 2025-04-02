@@ -1,13 +1,13 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { DonorColumns } from '@/types/donor';
+import { DonorRowData } from '@/types/donor';
 import { ArrowUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { EditDonorDialog } from '@/components/dialogs/edit-donor-dialog';
 import { DataTableActionsMenu } from '@/components/data-table/actions-menu';
 
-export const columns: ColumnDef<DonorColumns>[] = [
+export const columns: ColumnDef<DonorRowData>[] = [
   {
     id: 'edit',
     cell: ({ row }) => {
