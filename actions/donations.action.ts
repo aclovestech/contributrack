@@ -3,7 +3,7 @@
 import { db } from '@/src/db';
 import { donationsTable, donorsTable } from '@/src/db/schema';
 import { DonationRowData } from '@/types/donations';
-import { and, desc, eq, gte, lt } from 'drizzle-orm';
+import { and, desc, eq, gt, gte, lt, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
 export async function addDonation() {}
@@ -14,9 +14,26 @@ export async function deleteDonation() {}
 
 export async function getAllDonations(
   userId: string,
-  startDate: Date,
-  endDate: Date,
+  startDate?: string,
+  endDate?: string,
 ): Promise<DonationRowData[]> {
+  if (!startDate || !endDate) {
+    const latestDateReceived = await db
+      .select({
+        year: sql<number>`EXTRACT(YEAR FROM ${donationsTable.dateReceived})`,
+      })
+      .from(donationsTable)
+      .limit(1)
+      .orderBy(desc(donationsTable.dateReceived));
+
+    const year = latestDateReceived[0].year;
+
+    startDate = `${year}-01-01`;
+    endDate = `${year}-12-31`;
+
+    console.log(startDate, endDate);
+  }
+
   const donations = await db
     .select({
       id: donationsTable.id,
@@ -40,20 +57,17 @@ export async function getAllDonations(
   return donations;
 }
 
-export async function getLatestDonationDateRange() {
-  let startDate = new Date();
-  let endDate = new Date();
-
-  const latestDateReceived = await db
-    .select({ year: donationsTable.dateReceived })
+export async function getLatestAndOldestDates(userId: string) {
+  const result = await db
+    .select({
+      oldest: sql<Date>`MIN(${donationsTable.dateReceived})`,
+      latest: sql<Date>`MAX(${donationsTable.dateReceived})`,
+    })
     .from(donationsTable)
-    .limit(1)
-    .orderBy(desc(donationsTable.dateReceived));
+    .where(eq(donationsTable.userId, userId));
 
-  const year = latestDateReceived[0].year.getFullYear();
-
-  startDate = new Date(year, 0, 1);
-  endDate = new Date(year, 12, 31);
-
-  return { startDate, endDate };
+  return {
+    oldest: new Date(result[0].oldest),
+    latest: new Date(result[0].latest),
+  };
 }

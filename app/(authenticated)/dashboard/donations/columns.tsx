@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { DataTableActionsMenu } from '@/components/data-table/actions-menu';
 import { DonationDialog } from '@/components/dialogs/donation-dialog';
 import { DonationRowData } from '@/types/donations';
+import { format, parseISO } from 'date-fns';
 
 export const columns: ColumnDef<DonationRowData>[] = [
   {
@@ -32,7 +33,7 @@ export const columns: ColumnDef<DonationRowData>[] = [
       );
     },
     cell: ({ row }) => {
-      return <div className="text-center">{row.getValue('donorName')}</div>;
+      return <div className="text-center">{row.original.donorName}</div>;
     },
     enableHiding: false,
   },
@@ -52,12 +53,8 @@ export const columns: ColumnDef<DonationRowData>[] = [
       );
     },
     cell: ({ row }) => {
-      const date = new Date(row.getValue('dateReceived'));
-      const formattedDate = date.toLocaleDateString(undefined, {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
+      const date = row.original.dateReceived;
+      const formattedDate = format(parseISO(date), 'MMMM dd, yyyy');
 
       return <div className="text-center">{formattedDate}</div>;
     },
@@ -107,10 +104,15 @@ export const columns: ColumnDef<DonationRowData>[] = [
       );
     },
     cell: ({ row }) => {
+      const donationType = row.original.donationType
+        .split('_')
+        .map((word) => word.toUpperCase())
+        .join(' ');
+
       return (
         <div className="text-center">
           <Badge variant="secondary" className="uppercase">
-            {row.original.donationType}
+            {donationType}
           </Badge>
         </div>
       );
