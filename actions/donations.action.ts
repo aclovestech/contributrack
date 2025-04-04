@@ -12,7 +12,7 @@ export async function editDonation() {}
 
 export async function deleteDonation() {}
 
-export async function getAllDonations(
+export async function getAllDonationsWithinRange(
   userId: string,
   startDate?: string,
   endDate?: string,
@@ -30,8 +30,6 @@ export async function getAllDonations(
 
     startDate = `${year}-01-01`;
     endDate = `${year}-12-31`;
-
-    console.log(startDate, endDate);
   }
 
   const donations = await db
@@ -55,19 +53,4 @@ export async function getAllDonations(
     .innerJoin(donorsTable, eq(donationsTable.donorId, donorsTable.id));
 
   return donations;
-}
-
-export async function getLatestAndOldestDates(userId: string) {
-  const result = await db
-    .select({
-      oldest: sql<Date>`MIN(${donationsTable.dateReceived})`,
-      latest: sql<Date>`MAX(${donationsTable.dateReceived})`,
-    })
-    .from(donationsTable)
-    .where(eq(donationsTable.userId, userId));
-
-  return {
-    oldest: new Date(result[0].oldest),
-    latest: new Date(result[0].latest),
-  };
 }
