@@ -1,4 +1,6 @@
-import { useState } from 'react';
+'use client';
+
+import { useEffect, useState } from 'react';
 import { Check, ChevronsUpDown, UserPlus } from 'lucide-react';
 import { cn } from '@/lib/utils'; // Make sure you have this utility
 import { Button } from '@/components/ui/button';
@@ -16,19 +18,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { DonorName } from '@/types/donor';
-
-const MOCK_DONORS: DonorName[] = [
-  {
-    name: 'Alice Wonderland',
-  },
-  {
-    name: 'Bob The Builder',
-  },
-];
+import { Donor } from '@/types/donor';
+import { getDonorNames } from '@/actions/donors.action';
+import { useUser } from '@stackframe/stack';
 
 interface DonorSelectorProps {
-  selectedDonor: DonorName | null;
+  selectedDonor: Donor['name'] | null;
   onDonorSelect: (donorName: string) => void;
   onAddNewDonor: () => void;
 }
@@ -38,16 +33,46 @@ export function DonorSelector({
   onDonorSelect,
   onAddNewDonor,
 }: DonorSelectorProps) {
-  const [isSelectorOpen, setIsSelectorOpen] = useState(false);
+  const user = useUser({ or: 'redirect' });
 
-  const donors = MOCK_DONORS;
+  const [isSelectorOpen, setIsSelectorOpen] = useState(false);
+  const [donors, setDonors] = useState<Donor['name'][]>([]);
+
+  useEffect(() => {
+    async function fetchDonors() {
+      const donors = await getDonorNames(user.id);
+      setDonors(donors);
+    }
+
+    fetchDonors();
+  }, []);
+
+  function handleAddNewDonor() {
+    setIsSelectorOpen(false);
+    onAddNewDonor();
+  }
+
+  function handleOnSelect(currentValue: string) {
+    // currentValue is the display value (donor.name)
+    const selected = donors.find(
+      (d) => d.toLowerCase() === currentValue.toLowerCase(),
+    );
+    if (selected) {
+      onDonorSelect(selected);
+    }
+    setIsSelectorOpen(false);
+  }
 
   return (
     <div className="space-y-2">
       <p className="text-muted-foreground text-sm">
         Select an existing donor or add a new one.
       </p>
-      <Popover open={isSelectorOpen} onOpenChange={setIsSelectorOpen}>
+      <Popover
+        open={isSelectorOpen}
+        onOpenChange={setIsSelectorOpen}
+        modal={true}
+      >
         <PopoverTrigger asChild>
           <Button
             variant="outline"
@@ -55,11 +80,11 @@ export function DonorSelector({
             aria-expanded={isSelectorOpen}
             className="w-full justify-between"
           >
-            {selectedDonor ? selectedDonor.name : 'Select donor...'}
+            {selectedDonor ? selectedDonor : 'Select donor...'}
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="max-h-[--radix-popover-content-available-height] w-[--radix-popover-trigger-width] p-0">
+        <PopoverContent className="max-h-[--radix-popover-content-available-height] w-[--radix-popover-trigger-width] overflow-auto p-0">
           <Command>
             <CommandInput placeholder="Search donor..." />
             <CommandList>
@@ -69,10 +94,7 @@ export function DonorSelector({
                   <Button
                     variant="link"
                     className="ml-1 h-auto p-1 underline"
-                    onClick={() => {
-                      setIsSelectorOpen(false);
-                      onAddNewDonor();
-                    }}
+                    onClick={handleAddNewDonor}
                   >
                     Add New Donor?
                   </Button>
@@ -81,39 +103,24 @@ export function DonorSelector({
               <CommandGroup>
                 {donors.map((donor) => (
                   <CommandItem
-                    key={donor.name}
-                    value={donor.name} // Search uses this value
-                    onSelect={(currentValue) => {
-                      // currentValue is the display value (donor.name)
-                      const selected = donors.find(
-                        (d) =>
-                          d.name.toLowerCase() === currentValue.toLowerCase(),
-                      );
-                      if (selected) {
-                        onDonorSelect(selected.name);
-                      }
-                      setIsSelectorOpen(false);
-                    }}
+                    key={donor}
+                    value={donor} // Search uses this value
+                    onSelect={handleOnSelect}
                   >
                     <Check
                       className={cn(
                         'mr-2 h-4 w-4',
-                        selectedDonor?.name === donor.name
-                          ? 'opacity-100'
-                          : 'opacity-0',
+                        selectedDonor === donor ? 'opacity-100' : 'opacity-0',
                       )}
                     />
-                    {donor.name}
+                    {donor}
                   </CommandItem>
                 ))}
               </CommandGroup>
               <CommandSeparator />
               <CommandGroup>
                 <CommandItem
-                  onSelect={() => {
-                    setIsSelectorOpen(false);
-                    onAddNewDonor();
-                  }}
+                  onSelect={handleAddNewDonor}
                   className="cursor-pointer"
                 >
                   <UserPlus className="mr-2 h-4 w-4" />

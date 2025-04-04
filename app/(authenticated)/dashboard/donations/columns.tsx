@@ -1,13 +1,12 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DataTableActionsMenu } from '@/components/data-table/actions-menu';
 import { DonationDialog } from '@/components/dialogs/donation-dialog';
 import { DonationRowData } from '@/types/donations';
 import { format, parseISO } from 'date-fns';
+import { DataTableColumnHeader } from '@/components/data-table/column-header';
 
 export const columns: ColumnDef<DonationRowData>[] = [
   {
@@ -20,43 +19,23 @@ export const columns: ColumnDef<DonationRowData>[] = [
   {
     accessorKey: 'donorName',
     header: ({ column }) => {
-      return (
-        <div
-          className="text-center"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          <Button variant="ghost">
-            Donor Name
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
-      );
+      return <DataTableColumnHeader column={column} title={'Donor Name'} />;
     },
     cell: ({ row }) => {
-      return <div className="text-center">{row.original.donorName}</div>;
+      return <div>{row.original.donorName}</div>;
     },
     enableHiding: false,
   },
   {
     accessorKey: 'dateReceived',
     header: ({ column }) => {
-      return (
-        <div
-          className="text-center"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          <Button variant="ghost">
-            Date Received
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
-      );
+      return <DataTableColumnHeader column={column} title={'Date Received'} />;
     },
     cell: ({ row }) => {
       const date = row.original.dateReceived;
       const formattedDate = format(parseISO(date), 'MMMM dd, yyyy');
 
-      return <div className="text-center">{formattedDate}</div>;
+      return <div>{formattedDate}</div>;
     },
 
     enableHiding: false,
@@ -64,22 +43,12 @@ export const columns: ColumnDef<DonationRowData>[] = [
   {
     accessorKey: 'amount',
     header: ({ column }) => {
-      return (
-        <div
-          className="text-center"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          <Button variant="ghost">
-            Amount
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
-      );
+      return <DataTableColumnHeader column={column} title={'Amount'} />;
     },
     cell: ({ row }) => {
       const amount = parseFloat(row.original.amount);
       return (
-        <div className="text-center">
+        <div>
           {amount.toLocaleString('en-US', {
             style: 'currency',
             currency: 'CAD',
@@ -91,17 +60,7 @@ export const columns: ColumnDef<DonationRowData>[] = [
   {
     accessorKey: 'donationType',
     header: ({ column }) => {
-      return (
-        <div
-          className="text-center"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          <Button variant="ghost">
-            Donation Type
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
-      );
+      return <DataTableColumnHeader column={column} title={'Donation Type'} />;
     },
     cell: ({ row }) => {
       const donationType = row.original.donationType
@@ -110,11 +69,9 @@ export const columns: ColumnDef<DonationRowData>[] = [
         .join(' ');
 
       return (
-        <div className="text-center">
-          <Badge variant="secondary" className="uppercase">
-            {donationType}
-          </Badge>
-        </div>
+        <Badge variant="secondary" className="uppercase">
+          {donationType}
+        </Badge>
       );
     },
   },

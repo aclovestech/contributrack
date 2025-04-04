@@ -21,14 +21,15 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
-import { DonationColumn } from '@/types/donations';
+import { DonationRowData } from '@/types/donations';
 import { useState } from 'react';
 import { useUser } from '@stackframe/stack';
 import { deleteDonor } from '@/actions/donors.action';
+import { deleteDonation } from '@/actions/donations.action';
 
 interface DataTableActionsMenuProps {
   donorRow?: Row<DonorRowData>;
-  donationRow?: Row<DonationColumn>;
+  donationRow?: Row<DonationRowData>;
 }
 
 export function DataTableActionsMenu({
@@ -40,18 +41,36 @@ export function DataTableActionsMenu({
   const [isDropdownMenuOpen, setIsDropdownMenuOpen] = useState(false);
   const [isDeleteAlertDialogOpen, setIsDeleteAlertDialogOpen] = useState(false);
 
+  function handleDropdownMenuOpenChange() {
+    setIsDropdownMenuOpen(!isDropdownMenuOpen);
+  }
+
+  function handleAlertDialogOpenChange() {
+    setIsDeleteAlertDialogOpen(!isDeleteAlertDialogOpen);
+  }
+
   async function handleOnConfirmDelete() {
+    setIsDeleteAlertDialogOpen(false);
+    setIsDropdownMenuOpen(false);
+
     if (donorRow) {
       await deleteDonor(user?.id, donorRow.original.id);
     }
 
-    setIsDropdownMenuOpen(false);
+    if (donationRow) {
+      await deleteDonation(user?.id, donationRow.original.id);
+    }
+  }
+
+  function handleOnSelect(e: Event) {
+    e.preventDefault();
+    setIsDeleteAlertDialogOpen(true);
   }
 
   return (
     <DropdownMenu
       open={isDropdownMenuOpen}
-      onOpenChange={setIsDropdownMenuOpen}
+      onOpenChange={handleDropdownMenuOpenChange}
     >
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="h-8 w-8 p-0">
@@ -64,15 +83,10 @@ export function DataTableActionsMenu({
         <DropdownMenuSeparator />
         <AlertDialog
           open={isDeleteAlertDialogOpen}
-          onOpenChange={setIsDeleteAlertDialogOpen}
+          onOpenChange={handleAlertDialogOpenChange}
         >
           <AlertDialogTrigger asChild>
-            <DropdownMenuItem
-              onSelect={(e) => {
-                e.preventDefault();
-                setIsDeleteAlertDialogOpen(true);
-              }}
-            >
+            <DropdownMenuItem onSelect={handleOnSelect}>
               <span className="text-destructive cursor-pointer">Delete</span>
             </DropdownMenuItem>
           </AlertDialogTrigger>

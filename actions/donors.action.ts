@@ -53,6 +53,7 @@ export async function deleteDonor(userId: string, donorId: string) {
     .where(and(eq(donorsTable.userId, userId), eq(donorsTable.id, donorId)));
 
   revalidatePath('/dashboard/donors');
+  revalidatePath('/dashboard/donations');
 }
 
 export async function getAllDonors(userId: string): Promise<DonorRowData[]> {
@@ -62,4 +63,13 @@ export async function getAllDonors(userId: string): Promise<DonorRowData[]> {
     .where(eq(donorsTable.userId, userId));
 
   return donors;
+}
+
+export async function getDonorNames(userId: string): Promise<string[]> {
+  const donors = await db
+    .select({ name: donorsTable.name })
+    .from(donorsTable)
+    .where(eq(donorsTable.userId, userId));
+
+  return donors.map((donor) => donor.name);
 }

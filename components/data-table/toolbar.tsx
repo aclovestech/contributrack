@@ -8,6 +8,7 @@ import { DataTableViewOptions } from '@/components/data-table/view-options';
 import { AddDonorDialog } from '@/components/dialogs/add-donor-dialog';
 import { usePathname } from 'next/navigation';
 import { DonationDialog } from '@/components/dialogs/donation-dialog';
+import { useState } from 'react';
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -16,11 +17,12 @@ interface DataTableToolbarProps<TData> {
 export function DataTableToolbar<TData>({
   table,
 }: DataTableToolbarProps<TData>) {
+  const [filter, setFilter] = useState('');
   const isFiltered = table.getState().columnFilters.length > 0;
 
   const currentPage = usePathname().split('/')[2];
 
-  let columnToFilter;
+  let columnToFilter: string | undefined;
   let placeholder;
 
   switch (currentPage) {

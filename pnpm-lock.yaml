@@ -4486,7 +4486,7 @@ snapshots:
   '@babel/generator@7.26.10':
     dependencies:
       '@babel/parser': 7.26.10
-      '@babel/types': 7.26.10
+      '@babel/types': 7.27.0
       '@jridgewell/gen-mapping': 0.3.8
       '@jridgewell/trace-mapping': 0.3.25
       jsesc: 3.1.0
@@ -4557,7 +4557,7 @@ snapshots:
 
   '@babel/parser@7.26.10':
     dependencies:
-      '@babel/types': 7.26.10
+      '@babel/types': 7.27.0
 
   '@babel/parser@7.27.0':
     dependencies:
@@ -4583,7 +4583,7 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.26.2
       '@babel/parser': 7.26.10
-      '@babel/types': 7.26.10
+      '@babel/types': 7.27.0
 
   '@babel/template@7.27.0':
     dependencies:
@@ -4597,7 +4597,7 @@ snapshots:
       '@babel/generator': 7.26.10
       '@babel/parser': 7.26.10
       '@babel/template': 7.26.9
-      '@babel/types': 7.26.10
+      '@babel/types': 7.27.0
       debug: 4.4.0
       globals: 11.12.0
     transitivePeerDependencies:

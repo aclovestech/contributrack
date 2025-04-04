@@ -1,16 +1,84 @@
 'use server';
 
+import { DonationFormData } from '@/components/donation-form';
 import { db } from '@/src/db';
 import { donationsTable, donorsTable } from '@/src/db/schema';
 import { DonationRowData } from '@/types/donations';
-import { and, desc, eq, gt, gte, lt, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, lt, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
-export async function addDonation() {}
+export async function addDonation(
+  userId: string,
+  donorName: string,
+  formData: DonationFormData,
+) {
+  const donor = await db
+    .select({ id: donorsTable.id })
+    .from(donorsTable)
+    .where(
+      and(eq(donorsTable.userId, userId), eq(donorsTable.name, donorName)),
+    );
 
-export async function editDonation() {}
+  if (!donor) return;
 
-export async function deleteDonation() {}
+  const donation = await db
+    .insert(donationsTable)
+    .values({
+      userId: userId,
+      donorId: donor[0].id,
+      dateReceived: formData.dateReceived,
+      amount: formData.amount.toFixed(2),
+      donationType: formData.donationType,
+    })
+    .returning();
+
+  revalidatePath('/dashboard/donations');
+
+  return donation;
+}
+
+export async function editDonation(
+  userId: string,
+  donorName: string,
+  donationId: string,
+  formData: DonationFormData,
+) {
+  const donor = await db
+    .select({ id: donorsTable.id })
+    .from(donorsTable)
+    .where(
+      and(eq(donorsTable.userId, userId), eq(donorsTable.name, donorName)),
+    );
+
+  if (!donor) return;
+
+  const donation = await db
+    .update(donationsTable)
+    .set({
+      donorId: donor[0].id,
+      dateReceived: formData.dateReceived,
+      amount: formData.amount.toFixed(2),
+      donationType: formData.donationType,
+    })
+    .where(
+      and(eq(donationsTable.userId, userId), eq(donationsTable.id, donationId)),
+    )
+    .returning();
+
+  revalidatePath('/dashboard/donations');
+
+  return donation;
+}
+
+export async function deleteDonation(userId: string, donationId: string) {
+  await db
+    .delete(donationsTable)
+    .where(
+      and(eq(donationsTable.userId, userId), eq(donationsTable.id, donationId)),
+    );
+
+  revalidatePath('/dashboard/donations');
+}
 
 export async function getAllDonationsWithinRange(
   userId: string,

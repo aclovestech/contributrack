@@ -11,13 +11,16 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Edit, Plus } from 'lucide-react';
-import { DonorName } from '@/types/donor';
+import { Donor } from '@/types/donor';
 import { DonorSelector } from '@/components/donor-selector';
 import { DonorForm, DonorFormData } from '@/components/donor-form';
-import { DonationForm } from '@/components/donation-form';
+import { DonationForm, DonationFormData } from '@/components/donation-form';
 import { Label } from '@/components/ui/label';
 import { Row } from '@tanstack/react-table';
-import { DonationColumn } from '@/types/donations';
+import { DonationRowData } from '@/types/donations';
+import { addDonor } from '@/actions/donors.action';
+import { useUser } from '@stackframe/stack';
+import { addDonation, editDonation } from '@/actions/donations.action';
 
 type DialogState = 'loading' | 'selectDonor' | 'addDonor' | 'fillInDonation';
 
@@ -32,13 +35,17 @@ type DialogDescriptionState =
   | 'Fill in the required details for the donation.';
 
 interface DonationDialogProps {
-  donationData?: Row<DonationColumn>;
+  donationData?: Row<DonationRowData>;
 }
 
 export function DonationDialog({ donationData }: DonationDialogProps) {
+  const user = useUser({ or: 'redirect' });
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogState, setDialogState] = useState<DialogState>('selectDonor');
-  const [selectedDonor, setSelectedDonor] = useState<DonorName | null>(null);
+  const [selectedDonor, setSelectedDonor] = useState<Donor['name'] | null>(
+    null,
+  );
   const [dialogContent, setDialogContent] = useState({
     title: 'Select a Donor' as DialogTitleState,
     description:
@@ -49,13 +56,13 @@ export function DonationDialog({ donationData }: DonationDialogProps) {
     if (donationData) {
       const { original } = donationData;
       setDialogState('fillInDonation');
-      setSelectedDonor({ name: original.donorName });
+      setSelectedDonor(original.donorName);
       setDialogContent({
         title: 'Donation Details',
         description: 'Fill in the required details for the donation.',
       });
     }
-  }, []);
+  }, [donationData]);
 
   function handleResetDialogState() {
     setIsDialogOpen(!isDialogOpen);
@@ -70,7 +77,7 @@ export function DonationDialog({ donationData }: DonationDialogProps) {
   }
 
   function handleOnDonorSelect(donorName: string) {
-    setSelectedDonor({ name: donorName });
+    setSelectedDonor(donorName);
     setDialogState('fillInDonation');
     setDialogContent({
       title: 'Donation Details',
@@ -78,8 +85,12 @@ export function DonationDialog({ donationData }: DonationDialogProps) {
     });
   }
 
-  function handleOnDonorAdd(formData: DonorFormData) {
-    setSelectedDonor({ name: formData.name });
+  async function handleOnDonorAdd(formData: DonorFormData) {
+    const addedDonor = await addDonor(user?.id, formData);
+
+    if (!addedDonor) return;
+
+    setSelectedDonor(formData.name);
     setDialogState('fillInDonation');
     setDialogContent({
       title: 'Donation Details',
@@ -104,15 +115,35 @@ export function DonationDialog({ donationData }: DonationDialogProps) {
     setSelectedDonor(null);
   }
 
+  async function handleOnDonationSubmit(
+    formData: DonationFormData,
+    isEditing: boolean,
+  ) {
+    let donation;
+
+    if (!isEditing) {
+      donation = await addDonation(user?.id, selectedDonor as string, formData);
+    } else {
+      donation = await editDonation(
+        user?.id,
+        selectedDonor as string,
+        donationData?.original.id as string,
+        formData,
+      );
+    }
+
+    if (!donation) return;
+
+    handleResetDialogState();
+  }
+
   function DialogBody() {
     let body;
     let rowData;
 
     if (donationData) {
       rowData = {
-        dateReceived: donationData?.original.dateReceived
-          .toISOString()
-          .split('T')[0],
+        dateReceived: donationData?.original.dateReceived,
         amount: parseFloat(donationData?.original.amount),
         donationType: donationData?.original.donationType,
       };
@@ -146,7 +177,7 @@ export function DonationDialog({ donationData }: DonationDialogProps) {
                 <Label className="text-muted-foreground text-xs">
                   Donor Name
                 </Label>
-                <p className="font-semibold">{selectedDonor?.name}</p>
+                <p className="font-semibold">{selectedDonor}</p>
               </div>
               <Button
                 variant="outline"
@@ -158,7 +189,7 @@ export function DonationDialog({ donationData }: DonationDialogProps) {
               </Button>
             </div>
             <DonationForm
-              onSubmit={handleResetDialogState}
+              onSubmit={handleOnDonationSubmit}
               initialData={rowData ? rowData : undefined}
             />
           </div>
