@@ -37,7 +37,7 @@ export const donorsTable = table('donors', {
 
 export const donationsTable = table('donations', {
   id: t.uuid().defaultRandom().primaryKey(),
-  dateReceived: t.date('date_received', { mode: 'date' }).notNull(),
+  dateReceived: t.date('date_received', { mode: 'string' }).notNull(),
   amount: t.numeric({ precision: 10, scale: 2 }).notNull(),
   donationType: donationTypeEnum().notNull(),
   donorId: t
