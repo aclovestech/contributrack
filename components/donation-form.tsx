@@ -42,18 +42,18 @@ export const insertDonationSchema = createInsertSchema(donationsTable, {
   donorId: true,
   userId: true,
 });
-export type NewDonationFormData = z.infer<typeof insertDonationSchema>;
+export type DonationFormData = z.infer<typeof insertDonationSchema>;
 
 interface DonationDetailsFormProps {
-  onSubmit: () => void;
-  initialData?: NewDonationFormData;
+  onSubmit: (formData: DonationFormData, isEditing: boolean) => void;
+  initialData?: DonationFormData;
 }
 
 export function DonationForm({
   onSubmit,
   initialData,
 }: DonationDetailsFormProps) {
-  const form = useForm<NewDonationFormData>({
+  const form = useForm<DonationFormData>({
     resolver: zodResolver(insertDonationSchema),
     defaultValues: {
       dateReceived: initialData
@@ -64,8 +64,9 @@ export function DonationForm({
     },
   });
 
-  function handleFormSubmit() {
-    onSubmit();
+  function handleFormSubmit(formData: DonationFormData) {
+    const isEditing = !!initialData;
+    onSubmit(formData, isEditing);
   }
 
   return (
