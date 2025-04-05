@@ -162,3 +162,42 @@ export async function getTotalDonationsYtd(userId: string) {
     previousYear: previousYearResult[0].total || 0.0,
   };
 }
+
+export async function getTotalDonationCountYtd(userId: string) {
+  const currentYearToCheck = new Date().getFullYear();
+
+  const currentYearResult = await db
+    .select({
+      total: sql<number>`COUNT(${donationsTable.id})`.mapWith(Number),
+    })
+    .from(donationsTable)
+    .where(
+      and(
+        eq(donationsTable.userId, userId),
+        and(
+          gte(donationsTable.dateReceived, `${currentYearToCheck}-01-01`),
+          lte(donationsTable.dateReceived, `${currentYearToCheck}-12-31`),
+        ),
+      ),
+    );
+
+  const previousYearResult = await db
+    .select({
+      total: sql<number>`COUNT(${donationsTable.id})`.mapWith(Number),
+    })
+    .from(donationsTable)
+    .where(
+      and(
+        eq(donationsTable.userId, userId),
+        and(
+          gte(donationsTable.dateReceived, `${currentYearToCheck - 1}-01-01`),
+          lte(donationsTable.dateReceived, `${currentYearToCheck - 1}-12-31`),
+        ),
+      ),
+    );
+
+  return {
+    currentYear: currentYearResult[0].total || 0,
+    previousYear: previousYearResult[0].total || 0,
+  };
+}
