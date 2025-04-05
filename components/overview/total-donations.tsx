@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { IconTrendingUp, IconTrendingDown } from '@tabler/icons-react';
 import { stackServerApp } from '@/stack';
 import { getTotalDonationsYtd } from '@/actions/donations.action';
+import { calculateTrend } from '@/lib/utils';
 
 export default async function TotalDonations() {
   const user = await stackServerApp.getUser({ or: 'redirect' });
@@ -62,15 +63,4 @@ export default async function TotalDonations() {
       </CardFooter>
     </Card>
   );
-}
-
-function calculateTrend(currentYear: number, previousYear: number) {
-  const trend = ((currentYear - previousYear) / previousYear) * 100;
-
-  const isPositive = trend > 0;
-
-  return {
-    output: trend.toFixed(2) + '%',
-    isPositive,
-  };
 }
