@@ -1,6 +1,7 @@
 'use server';
 
 import { DonationFormData } from '@/components/donation-form';
+import { getMonthName } from '@/lib/utils';
 import { db } from '@/src/db';
 import { donationsTable, donorsTable } from '@/src/db/schema';
 import { DonationRowData } from '@/types/donations';
@@ -272,4 +273,38 @@ export async function getTopDonorYtd(userId: string) {
   } else {
     return null;
   }
+}
+
+export async function getTotalDonationsPerMonthYTD(userId: string) {
+  const currentYear = new Date().getFullYear();
+  const allMonths = Array.from({ length: 12 }, (_, i) => i + 1); // Array of months from 1 to 12
+
+  const result = await db
+    .select({
+      month:
+        sql<number>`EXTRACT(MONTH FROM ${donationsTable.dateReceived})`.mapWith(
+          Number,
+        ),
+      totalAmount: sql<number>`SUM(${donationsTable.amount})`.mapWith(Number),
+    })
+    .from(donationsTable)
+    .where(
+      and(
+        eq(donationsTable.userId, userId),
+        gte(donationsTable.dateReceived, `${currentYear}-01-01`),
+        lte(donationsTable.dateReceived, `${currentYear}-12-31`),
+      ),
+    )
+    .groupBy(sql`EXTRACT(MONTH FROM ${donationsTable.dateReceived})`)
+    .orderBy(sql`EXTRACT(MONTH FROM ${donationsTable.dateReceived})`);
+
+  const formattedResult = allMonths.map((month) => {
+    const foundMonth = result.find((item) => item.month === month);
+    return {
+      month: getMonthName(month),
+      totalAmount: foundMonth ? foundMonth.totalAmount : 0,
+    };
+  });
+
+  return formattedResult;
 }
