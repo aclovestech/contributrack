@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import {
   ColumnDef,
-  ColumnFiltersState,
   SortingState,
   flexRender,
   getCoreRowModel,
@@ -22,6 +21,7 @@ import {
 } from '@/components/ui/table';
 import { DataTablePagination } from '@/components/data-table/pagination';
 import { DataTableToolbar } from '@/components/data-table/toolbar';
+import { rankItem } from '@tanstack/match-sorter-utils';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -33,20 +33,27 @@ export function DataTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [globalFilter, setGlobalFilter] = useState<any>([]);
 
   const table = useReactTable({
-    data,
     columns,
+    data,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: (row, _id, value) => {
+      const columns = row.getAllCells();
+      return columns.some((cell) => {
+        const itemRank = rankItem(cell.getValue(), value);
+        return itemRank.passed;
+      });
+    },
     state: {
       sorting,
-      columnFilters,
+      globalFilter,
     },
   });
 
