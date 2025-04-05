@@ -240,3 +240,36 @@ export async function getAverageDonationYtd(userId: string) {
     previousYear: previousYearResult[0].total || 0.0,
   };
 }
+
+export async function getTopDonorYtd(userId: string) {
+  const currentYearToCheck = new Date().getFullYear();
+
+  const topDonorResult = await db
+    .select({
+      donorName: donorsTable.name,
+      totalAmount: sql<number>`SUM(${donationsTable.amount})`.mapWith(Number),
+    })
+    .from(donationsTable)
+    .innerJoin(donorsTable, eq(donorsTable.id, donationsTable.donorId))
+    .where(
+      and(
+        eq(donationsTable.userId, userId),
+        and(
+          gte(donationsTable.dateReceived, `${currentYearToCheck}-01-01`),
+          lte(donationsTable.dateReceived, `${currentYearToCheck}-12-31`),
+        ),
+      ),
+    )
+    .groupBy(donationsTable.donorId, donorsTable.name)
+    .orderBy(sql<number>`SUM(${donationsTable.amount}) DESC`)
+    .limit(1);
+
+  if (topDonorResult.length > 0) {
+    return {
+      name: topDonorResult[0].donorName,
+      amount: topDonorResult[0].totalAmount,
+    };
+  } else {
+    return null;
+  }
+}
