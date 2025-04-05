@@ -2,7 +2,7 @@ import { BarChartDonationTrend } from '@/components/bar-chart-donation-trend';
 import TotalDonations from '@/components/overview/total-donations';
 import TotalDonationCount from '@/components/overview/total-donation-count';
 import AverageDonation from '@/components/overview/average-donation';
-import { TopDonor } from '@/components/overview/top-donor';
+import TopDonor from '@/components/overview/top-donor';
 
 export default function DashboardOverview() {
   return (
