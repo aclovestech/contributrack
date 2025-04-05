@@ -4,8 +4,9 @@ import { DonationFormData } from '@/components/donation-form';
 import { db } from '@/src/db';
 import { donationsTable, donorsTable } from '@/src/db/schema';
 import { DonationRowData } from '@/types/donations';
-import { and, desc, eq, gte, lt, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, lte, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import { number } from 'zod';
 
 export async function addDonation(
   userId: string,
@@ -114,11 +115,50 @@ export async function getAllDonationsWithinRange(
       and(
         eq(donationsTable.userId, userId),
         gte(donationsTable.dateReceived, startDate),
-        lt(donationsTable.dateReceived, endDate),
+        lte(donationsTable.dateReceived, endDate),
       ),
     )
     .orderBy(desc(donationsTable.dateReceived))
     .innerJoin(donorsTable, eq(donationsTable.donorId, donorsTable.id));
 
   return donations;
+}
+
+export async function getTotalDonationsYtd(userId: string) {
+  const currentYearToCheck = new Date().getFullYear();
+
+  const currentYearResult = await db
+    .select({
+      total: sql<number>`SUM(${donationsTable.amount})`.mapWith(Number),
+    })
+    .from(donationsTable)
+    .where(
+      and(
+        eq(donationsTable.userId, userId),
+        and(
+          gte(donationsTable.dateReceived, `${currentYearToCheck}-01-01`),
+          lte(donationsTable.dateReceived, `${currentYearToCheck}-12-31`),
+        ),
+      ),
+    );
+
+  const previousYearResult = await db
+    .select({
+      total: sql<number>`SUM(${donationsTable.amount})`.mapWith(Number),
+    })
+    .from(donationsTable)
+    .where(
+      and(
+        eq(donationsTable.userId, userId),
+        and(
+          gte(donationsTable.dateReceived, `${currentYearToCheck - 1}-01-01`),
+          lte(donationsTable.dateReceived, `${currentYearToCheck - 1}-12-31`),
+        ),
+      ),
+    );
+
+  return {
+    currentYear: currentYearResult[0].total || 0.0,
+    previousYear: previousYearResult[0].total || 0.0,
+  };
 }
