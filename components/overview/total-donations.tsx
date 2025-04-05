@@ -19,7 +19,10 @@ export default async function TotalDonations() {
 
   const trend = calculateTrend(data.currentYear, data.previousYear);
 
-  const formattedTotalDonations = data.currentYear.toLocaleString();
+  const formattedTotalDonations = data.currentYear.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 
   return (
     <Card className="@container/card">
