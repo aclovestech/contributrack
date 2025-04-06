@@ -18,21 +18,6 @@ import { useState, useEffect } from 'react';
 import { getTotalDonationsPerMonthYTD } from '@/actions/donations.action';
 import { useUser } from '@stackframe/stack';
 
-// const chartData = [
-//   { month: 'January', donorCount: 100 },
-//   { month: 'February', donorCount: 200 },
-//   { month: 'March', donorCount: 150 },
-//   { month: 'April', donorCount: 300 },
-//   { month: 'May', donorCount: 250 },
-//   { month: 'June', donorCount: 400 },
-//   { month: 'July', donorCount: 350 },
-//   { month: 'August', donorCount: 500 },
-//   { month: 'September', donorCount: 450 },
-//   { month: 'October', donorCount: 600 },
-//   { month: 'November', donorCount: 550 },
-//   { month: 'December', donorCount: 700 },
-// ];
-
 const chartConfig = {
   totalAmount: {
     label: 'Total Amount',
@@ -54,7 +39,6 @@ export function BarChartDonationTrend() {
     async function fetchChartData() {
       const data = await getTotalDonationsPerMonthYTD(user.id);
       setChartData(data);
-      console.log(data);
     }
 
     fetchChartData();

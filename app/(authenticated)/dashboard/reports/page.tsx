@@ -7,6 +7,7 @@ import {
   getAllPossibleDonationYears,
   getYearlyDonationsSummary,
 } from '@/actions/donations.action';
+import { PrintAnnualReport } from '@/components/print-annual-report';
 
 export default async function Reports(props: { searchParams: SearchParams }) {
   const user = await stackServerApp.getUser({ or: 'redirect' });
@@ -17,17 +18,31 @@ export default async function Reports(props: { searchParams: SearchParams }) {
   const stringYears = years.map((year) => year.toString());
 
   let data;
+  let selectedYear;
 
   if (!searchParams.year) {
-    data = await getYearlyDonationsSummary(user.id, years[0]);
+    selectedYear = years[0];
+    data = await getYearlyDonationsSummary(user.id, selectedYear);
   } else {
-    const year = parseInt(searchParams.year as string);
-    data = await getYearlyDonationsSummary(user.id, year);
+    selectedYear = parseInt(searchParams.year as string);
+    data = await getYearlyDonationsSummary(user.id, selectedYear);
   }
+
+  const totalDonations = data.reduce(
+    (sum, donation) => sum + donation.amount,
+    0,
+  );
 
   return (
     <div className="flex flex-col gap-4 px-4 py-4 md:gap-6 md:py-6 lg:px-6">
-      <YearSelector years={stringYears} />
+      <div className="flex justify-between">
+        <YearSelector years={stringYears} />
+        <PrintAnnualReport
+          data={data}
+          year={selectedYear}
+          total={totalDonations}
+        />
+      </div>
       <DataTable columns={columns} data={data} />
     </div>
   );
