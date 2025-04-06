@@ -10,10 +10,7 @@ export const donationTypeEnum = pgEnum('donation_type', [
 
 const timestamps = {
   updatedAt: t.timestamp('updated_at', { withTimezone: true }),
-  createdAt: t
-    .timestamp('created_at', { withTimezone: true })
-    .defaultNow()
-    .notNull(),
+  createdAt: t.timestamp('created_at', { withTimezone: true }).defaultNow(),
   deletedAt: t.timestamp('deleted_at', { withTimezone: true }),
 };
 
@@ -30,7 +27,6 @@ export const donorsTable = table('donors', {
   notes: t.varchar({ length: 1000 }),
   userId: t
     .uuid('user_id')
-    .notNull()
     .references(() => usersTable.id, { onDelete: 'set null' }),
   ...timestamps,
 });
@@ -42,11 +38,9 @@ export const donationsTable = table('donations', {
   donationType: donationTypeEnum().notNull(),
   donorId: t
     .uuid('donor_id')
-    .notNull()
     .references(() => donorsTable.id, { onDelete: 'set null' }),
   userId: t
     .uuid('user_id')
-    .notNull()
     .references(() => usersTable.id, { onDelete: 'set null' }),
   ...timestamps,
 });
