@@ -19,7 +19,7 @@ export default async function Reports(props: { searchParams: SearchParams }) {
   if (years.length === 0) {
     return (
       <div className="flex h-48 items-center justify-center">
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground p-8">
           No data available. Add your first donation first to get started.
         </p>
       </div>
