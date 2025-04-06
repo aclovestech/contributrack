@@ -37,7 +37,6 @@ export const columns: ColumnDef<DonationRowData>[] = [
 
       return <div>{formattedDate}</div>;
     },
-
     enableHiding: false,
   },
   {

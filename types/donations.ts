@@ -10,4 +10,8 @@ export type DonationRowData = Pick<
   'id' | 'donorName' | 'donorId' | 'dateReceived' | 'amount' | 'donationType'
 >;
 
+export type ReportRowData = Pick<DonationRowData, 'donorName'> & {
+  amount: number;
+};
+
 export const DONATION_TYPES = donationTypeEnum.enumValues;

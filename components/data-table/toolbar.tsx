@@ -53,7 +53,9 @@ export function DataTableToolbar<TData>({
         )}
       </div>
       <div className="flex items-center space-x-2">
-        {currentPage !== 'donations' && <DataTableViewOptions table={table} />}
+        {table.getAllColumns().some((column) => column.getCanHide()) && (
+          <DataTableViewOptions table={table} />
+        )}
         {currentPage === 'donors' && <AddDonorDialog />}
         {currentPage === 'donations' && <DonationDialog />}
       </div>

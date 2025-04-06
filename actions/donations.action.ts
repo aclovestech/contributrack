@@ -5,9 +5,8 @@ import { getMonthName } from '@/lib/utils';
 import { db } from '@/src/db';
 import { donationsTable, donorsTable } from '@/src/db/schema';
 import { DonationRowData } from '@/types/donations';
-import { and, desc, eq, gte, lte, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, lte, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
-import { number } from 'zod';
 
 export async function addDonation(
   userId: string,
@@ -307,4 +306,43 @@ export async function getTotalDonationsPerMonthYTD(userId: string) {
   });
 
   return formattedResult;
+}
+
+export async function getAllPossibleDonationYears(userId: string) {
+  const result = await db
+    .select({
+      year: sql<number>`DISTINCT EXTRACT(YEAR FROM ${donationsTable.dateReceived})`.mapWith(
+        Number,
+      ),
+    })
+    .from(donationsTable)
+    .where(eq(donationsTable.userId, userId));
+
+  const years = result.map((row) => row.year).sort((a, b) => b - a);
+
+  return years;
+}
+
+export async function getYearlyDonationsSummary(userId: string, year: number) {
+  const startDate = `${year}-01-01`;
+  const endDate = `${year}-12-31`;
+
+  const result = await db
+    .select({
+      donorName: donorsTable.name,
+      amount: sql<number>`SUM(${donationsTable.amount})`.mapWith(Number),
+    })
+    .from(donationsTable)
+    .innerJoin(donorsTable, eq(donorsTable.id, donationsTable.donorId))
+    .where(
+      and(
+        eq(donationsTable.userId, userId),
+        gte(donationsTable.dateReceived, startDate),
+        lte(donationsTable.dateReceived, endDate),
+      ),
+    )
+    .groupBy(donorsTable.name)
+    .orderBy(asc(donorsTable.name));
+
+  return result;
 }
