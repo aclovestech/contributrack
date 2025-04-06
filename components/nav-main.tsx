@@ -11,7 +11,6 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
-import { useContext } from 'react';
 
 interface NavMainProps {
   items: {
