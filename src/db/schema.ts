@@ -31,7 +31,7 @@ export const donorsTable = table('donors', {
   userId: t
     .uuid('user_id')
     .notNull()
-    .references(() => usersTable.id),
+    .references(() => usersTable.id, { onDelete: 'set null' }),
   ...timestamps,
 });
 
@@ -43,10 +43,10 @@ export const donationsTable = table('donations', {
   donorId: t
     .uuid('donor_id')
     .notNull()
-    .references(() => donorsTable.id),
+    .references(() => donorsTable.id, { onDelete: 'set null' }),
   userId: t
     .uuid('user_id')
     .notNull()
-    .references(() => usersTable.id),
+    .references(() => usersTable.id, { onDelete: 'set null' }),
   ...timestamps,
 });
