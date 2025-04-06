@@ -1,49 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with
-[`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Contributrack
 
-## Getting Started
+## Overview
 
-First, run the development server:
+Contributrack is a Next.js application designed to help organizations manage and
+track donations effectively. It provides a user-friendly interface for managing
+donors, recording donations, generating reports, and visualizing donation
+trends.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the
-result.
+- **Donor Management:** Add, edit, and manage donor information.
+- **Donation Tracking:** Record and track donations with details such as date,
+  amount, and donor.
+- **Data Visualization:** Visualize donation trends using charts and graphs.
+- **PDF Report Generation:** Generate annual donation reports in PDF format.
+- **Customizable Date Ranges:** Filter data by custom date ranges for specific
+  reporting periods.
+- **Webhook Integration:** Integrate with other services using webhooks.
+- **Modern UI:** Built with shadcn/ui for a clean and responsive
+  user experience.
 
-You can start editing the page by modifying `app/page.tsx`. The page
-auto-updates as you edit the file.
+## Technologies Used
 
-This project uses
-[`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts)
-to automatically optimize and load [Geist](https://vercel.com/font), a new font
-family for Vercel.
+- [Next.js](https://nextjs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Drizzle ORM](https://orm.drizzle.team/)
+- [PostgreSQL](https://www.postgresql.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [shadcn/ui](https://ui.shadcn.com/)
+- [lucide-react](https://lucide.dev/)
 
-## Learn More
+## Setup Instructions
 
-To learn more about Next.js, take a look at the following resources:
+1.  **Clone the repository:**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js
-  features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+    ```bash
+    git clone https://github.com/your-username/contributrack.git
+    cd contributrack
+    ```
 
-You can check out
-[the Next.js GitHub repository](https://github.com/vercel/next.js) - your
-feedback and contributions are welcome!
+2.  **Install dependencies:**
 
-## Deploy on Vercel
+    ```bash
+    pnpm install
+    ```
 
-The easiest way to deploy your Next.js app is to use the
-[Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme)
-from the creators of Next.js.
+3.  **Set up your PostgreSQL database:**
 
-Check out our
-[Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying)
-for more details.
+    - Create a new PostgreSQL database.
+    - Update the database connection string in your `.env` file.
+
+4.  **Run database migrations:**
+
+    ```bash
+    pnpm drizzle-kit generate
+    pnpm drizzle-kit studio
+    ```
+
+5.  **Run the application:**
+
+    ```bash
+    pnpm dev
+    ```
+
+    Open your browser and navigate to `http://localhost:3000`.
+
+## Contributing
+
+We welcome contributions to Contributrack! If you'd like to contribute, please
+follow these steps:
+
+1.  Fork the repository.
+2.  Create a new branch for your feature or bug fix.
+3.  Make your changes and commit them with clear, concise messages.
+4.  Submit a pull request.
