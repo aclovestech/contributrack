@@ -3,8 +3,7 @@ import { columns } from '@/app/(authenticated)/dashboard/donations/columns';
 import { getAllDonationsWithinRange } from '@/actions/donations.action';
 import { stackServerApp } from '@/stack';
 import CustomDateRangePicker from '@/components/custom-date-range-picker';
-
-type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+import { SearchParams } from '@/types/searchparams';
 
 export default async function Donations(props: { searchParams: SearchParams }) {
   const user = await stackServerApp.getUser({ or: 'redirect' });
