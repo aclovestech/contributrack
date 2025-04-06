@@ -1,50 +1,123 @@
+import { NextResponse } from 'next/server';
 import { Webhook } from 'svix';
-import { StackAuthWebhookData } from './StackAuthWebhookData';
+import { z } from 'zod';
 import { usersTable } from '@/src/db/schema';
 import { db } from '@/src/db';
 import { eq } from 'drizzle-orm';
 
+const SelectedTeamSchema = z.object({
+  created_at_millis: z.number(),
+  id: z.string(),
+  display_name: z.string(),
+  profile_image_url: z.string().nullish(),
+});
+
+const UserIDSchema = z.string().describe('The unique identifier of this user');
+
+const UserCreatedEventPayloadSchema = z.object({
+  id: UserIDSchema,
+  primary_email_verified: z
+    .boolean()
+    .describe(
+      'Whether the primary email has been verified to belong to this user',
+    ),
+  signed_up_at_millis: z
+    .number()
+    .describe(
+      'The time the user signed up (the number of milliseconds since epoch, January 1, 1970, UTC)',
+    ),
+  has_password: z
+    .boolean()
+    .describe('Whether the user has a password associated with their account'),
+  primary_email: z.string().nullish().describe('Primary email'),
+  display_name: z
+    .string()
+    .nullish()
+    .describe(
+      'Human-readable user display name. This is not a unique identifier.',
+    ),
+  selected_team: SelectedTeamSchema.nullish(),
+  selected_team_id: z
+    .string()
+    .nullish()
+    .describe('ID of the team currently selected by the user'),
+  profile_image_url: z
+    .string()
+    .nullish()
+    .describe(
+      'URL of the profile image for user. Can be a Base64 encoded image. Please compress and crop to a square before passing in.',
+    ),
+  client_metadata: z
+    .record(z.string(), z.any())
+    .nullish()
+    .describe(
+      'Client metadata. Used as a data store, accessible from the client side. Do not store information that should not be exposed to the client.',
+    ),
+  server_metadata: z
+    .record(z.string(), z.any())
+    .nullish()
+    .describe(
+      'Server metadata. Used as a data store, only accessible from the server side. You can store secret information related to the user here.',
+    ),
+});
+
+const UserUpdatedEventPayloadSchema = UserCreatedEventPayloadSchema;
+
+const UserDeletedEventPayloadSchema = z.object({
+  id: UserIDSchema,
+});
+
+const StackAuthEventPayloadSchema = z.discriminatedUnion('type', [
+  z.object({
+    type: z.literal('user.created'),
+    data: UserCreatedEventPayloadSchema,
+  }),
+  z.object({
+    type: z.literal('user.updated'),
+    data: UserUpdatedEventPayloadSchema,
+  }),
+  z.object({
+    type: z.literal('user.deleted'),
+    data: UserDeletedEventPayloadSchema,
+  }),
+]);
+
 const secret = process.env.STACK_AUTH_WEBHOOK_SECRET!;
 
-export async function POST(req: Request) {
-  // get the needed headers from the request
-  const headers = {
-    'svix-id': req.headers.get('svix-id') ?? '',
-    'svix-timestamp': req.headers.get('svix-timestamp') ?? '',
-    'svix-signature': req.headers.get('svix-signature') ?? '',
-  };
+export async function POST(request: Request) {
+  const body = await request.text();
 
-  // get the payload
-  const payload = await req.text();
+  const headers: Record<string, string> = {};
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  request.headers.forEach((value, key, parent) => {
+    headers[key] = value;
+  });
 
-  // create a new Webhook
-  const sivx = new Webhook(secret);
+  const wh = new Webhook(secret);
 
-  let msg;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let payload: any = {};
 
   try {
-    // verify the webhook
-    msg = sivx.verify(payload, headers);
-
-    // get the data from the webhook
-    const { data, type: eventType } = (await JSON.parse(
-      payload,
-    )) as StackAuthWebhookData;
-
-    // if the event type is user.created, insert the user into the database
-    if (eventType === 'user.created') {
-      await db.insert(usersTable).values({
-        id: data.id,
-      });
-    }
-    // if the event type is user.deleted, delete the user from the database
-    else if (eventType === 'user.deleted') {
-      await db.delete(usersTable).where(eq(usersTable.id, data.id));
-    }
-  } catch (error) {
-    console.error(error);
-    return new Response(`Error processing webhook: ${error}`, { status: 400 });
+    payload = wh.verify(body, headers);
+  } catch (e) {
+    return NextResponse.json(
+      { error: `Unable to verify webhook: ${(e as Error).message}` },
+      { status: 500 },
+    );
   }
 
-  return new Response('Webhook received', { status: 200 });
+  const parsedPayload = StackAuthEventPayloadSchema.parse(payload);
+
+  if (parsedPayload.type === 'user.created') {
+    const data = parsedPayload.data;
+    await db.insert(usersTable).values({
+      id: data.id,
+    });
+  } else if (parsedPayload.type === 'user.deleted') {
+    const data = parsedPayload.data;
+    await db.delete(usersTable).where(eq(usersTable.id, data.id));
+  }
+
+  return NextResponse.json({ message: 'Webhook received' });
 }
