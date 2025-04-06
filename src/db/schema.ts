@@ -18,18 +18,26 @@ export const usersTable = table('users', {
   id: t.uuid().defaultRandom().primaryKey(),
 });
 
-export const donorsTable = table('donors', {
-  id: t.uuid().defaultRandom().primaryKey(),
-  name: t.varchar({ length: 100 }).notNull().unique(),
-  email: t.varchar({ length: 254 }),
-  phoneNumber: t.varchar('phone_number', { length: 20 }),
-  address: t.varchar({ length: 200 }),
-  notes: t.varchar({ length: 1000 }),
-  userId: t
-    .uuid('user_id')
-    .references(() => usersTable.id, { onDelete: 'set null' }),
-  ...timestamps,
-});
+export const donorsTable = table(
+  'donors',
+  {
+    id: t.uuid().defaultRandom().primaryKey(),
+    name: t.varchar({ length: 100 }).notNull(),
+    email: t.varchar({ length: 254 }),
+    phoneNumber: t.varchar('phone_number', { length: 20 }),
+    address: t.varchar({ length: 200 }),
+    notes: t.varchar({ length: 1000 }),
+    userId: t
+      .uuid('user_id')
+      .references(() => usersTable.id, { onDelete: 'set null' }),
+    ...timestamps,
+  },
+  (table) => ({
+    donorNameUniquePerUser: t
+      .unique('donor_name_unique_per_user')
+      .on(table.name, table.userId),
+  }),
+);
 
 export const donationsTable = table('donations', {
   id: t.uuid().defaultRandom().primaryKey(),
