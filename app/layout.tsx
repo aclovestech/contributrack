@@ -1,11 +1,9 @@
 import type { Metadata } from 'next';
 import { StackProvider, StackTheme } from '@stackframe/stack';
 import { stackServerApp } from '../stack';
-import { Inter } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
-
-const inter = Inter();
+import { inter } from '@/app/fonts';
 
 export const metadata: Metadata = {
   title: 'ContribuTrack',
