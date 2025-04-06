@@ -42,7 +42,7 @@ export function BarChartDonationTrend() {
     }
 
     fetchChartData();
-  }, []);
+  }, [user.id]);
 
   return (
     <Card className="@container/card">
