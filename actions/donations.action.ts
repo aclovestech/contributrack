@@ -5,7 +5,7 @@ import { getMonthName } from '@/lib/utils';
 import { db } from '@/src/db';
 import { donationsTable, donorsTable } from '@/src/db/schema';
 import { DonationRowData } from '@/types/donations';
-import { and, asc, desc, eq, gte, lte, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, isNotNull, lte, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
 export async function addDonation(
@@ -116,6 +116,7 @@ export async function getAllDonationsWithinRange(
         eq(donationsTable.userId, userId),
         gte(donationsTable.dateReceived, startDate),
         lte(donationsTable.dateReceived, endDate),
+        isNotNull(donationsTable.donorId),
       ),
     )
     .orderBy(desc(donationsTable.dateReceived))
@@ -135,10 +136,9 @@ export async function getTotalDonationsYtd(userId: string) {
     .where(
       and(
         eq(donationsTable.userId, userId),
-        and(
-          gte(donationsTable.dateReceived, `${currentYearToCheck}-01-01`),
-          lte(donationsTable.dateReceived, `${currentYearToCheck}-12-31`),
-        ),
+        gte(donationsTable.dateReceived, `${currentYearToCheck}-01-01`),
+        lte(donationsTable.dateReceived, `${currentYearToCheck}-12-31`),
+        isNotNull(donationsTable.donorId),
       ),
     );
 
@@ -150,10 +150,9 @@ export async function getTotalDonationsYtd(userId: string) {
     .where(
       and(
         eq(donationsTable.userId, userId),
-        and(
-          gte(donationsTable.dateReceived, `${currentYearToCheck - 1}-01-01`),
-          lte(donationsTable.dateReceived, `${currentYearToCheck - 1}-12-31`),
-        ),
+        gte(donationsTable.dateReceived, `${currentYearToCheck - 1}-01-01`),
+        lte(donationsTable.dateReceived, `${currentYearToCheck - 1}-12-31`),
+        isNotNull(donationsTable.donorId),
       ),
     );
 
@@ -174,10 +173,9 @@ export async function getTotalDonationCountYtd(userId: string) {
     .where(
       and(
         eq(donationsTable.userId, userId),
-        and(
-          gte(donationsTable.dateReceived, `${currentYearToCheck}-01-01`),
-          lte(donationsTable.dateReceived, `${currentYearToCheck}-12-31`),
-        ),
+        gte(donationsTable.dateReceived, `${currentYearToCheck}-01-01`),
+        lte(donationsTable.dateReceived, `${currentYearToCheck}-12-31`),
+        isNotNull(donationsTable.donorId),
       ),
     );
 
@@ -189,10 +187,9 @@ export async function getTotalDonationCountYtd(userId: string) {
     .where(
       and(
         eq(donationsTable.userId, userId),
-        and(
-          gte(donationsTable.dateReceived, `${currentYearToCheck - 1}-01-01`),
-          lte(donationsTable.dateReceived, `${currentYearToCheck - 1}-12-31`),
-        ),
+        gte(donationsTable.dateReceived, `${currentYearToCheck - 1}-01-01`),
+        lte(donationsTable.dateReceived, `${currentYearToCheck - 1}-12-31`),
+        isNotNull(donationsTable.donorId),
       ),
     );
 
@@ -213,10 +210,9 @@ export async function getAverageDonationYtd(userId: string) {
     .where(
       and(
         eq(donationsTable.userId, userId),
-        and(
-          gte(donationsTable.dateReceived, `${currentYearToCheck}-01-01`),
-          lte(donationsTable.dateReceived, `${currentYearToCheck}-12-31`),
-        ),
+        gte(donationsTable.dateReceived, `${currentYearToCheck}-01-01`),
+        lte(donationsTable.dateReceived, `${currentYearToCheck}-12-31`),
+        isNotNull(donationsTable.donorId),
       ),
     );
 
@@ -228,10 +224,9 @@ export async function getAverageDonationYtd(userId: string) {
     .where(
       and(
         eq(donationsTable.userId, userId),
-        and(
-          gte(donationsTable.dateReceived, `${currentYearToCheck - 1}-01-01`),
-          lte(donationsTable.dateReceived, `${currentYearToCheck - 1}-12-31`),
-        ),
+        gte(donationsTable.dateReceived, `${currentYearToCheck - 1}-01-01`),
+        lte(donationsTable.dateReceived, `${currentYearToCheck - 1}-12-31`),
+        isNotNull(donationsTable.donorId),
       ),
     );
 
@@ -254,10 +249,9 @@ export async function getTopDonorYtd(userId: string) {
     .where(
       and(
         eq(donationsTable.userId, userId),
-        and(
-          gte(donationsTable.dateReceived, `${currentYearToCheck}-01-01`),
-          lte(donationsTable.dateReceived, `${currentYearToCheck}-12-31`),
-        ),
+        gte(donationsTable.dateReceived, `${currentYearToCheck}-01-01`),
+        lte(donationsTable.dateReceived, `${currentYearToCheck}-12-31`),
+        isNotNull(donationsTable.donorId),
       ),
     )
     .groupBy(donationsTable.donorId, donorsTable.name)
@@ -292,6 +286,7 @@ export async function getTotalDonationsPerMonthYTD(userId: string) {
         eq(donationsTable.userId, userId),
         gte(donationsTable.dateReceived, `${currentYear}-01-01`),
         lte(donationsTable.dateReceived, `${currentYear}-12-31`),
+        isNotNull(donationsTable.donorId),
       ),
     )
     .groupBy(sql`EXTRACT(MONTH FROM ${donationsTable.dateReceived})`)
@@ -316,7 +311,9 @@ export async function getAllPossibleDonationYears(userId: string) {
       ),
     })
     .from(donationsTable)
-    .where(eq(donationsTable.userId, userId));
+    .where(
+      and(eq(donationsTable.userId, userId), isNotNull(donationsTable.donorId)),
+    );
 
   const years = result.map((row) => row.year).sort((a, b) => b - a);
 
@@ -339,6 +336,7 @@ export async function getYearlyDonationsSummary(userId: string, year: number) {
         eq(donationsTable.userId, userId),
         gte(donationsTable.dateReceived, startDate),
         lte(donationsTable.dateReceived, endDate),
+        isNotNull(donationsTable.donorId),
       ),
     )
     .groupBy(donorsTable.name)

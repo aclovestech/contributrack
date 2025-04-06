@@ -61,7 +61,7 @@ export default async function TotalDonations() {
           )}
         </div>
         <div className="text-muted-foreground">
-          From the beginning of the year to date
+          From the beginning of the year to date compared to the previous year
         </div>
       </CardFooter>
     </Card>
