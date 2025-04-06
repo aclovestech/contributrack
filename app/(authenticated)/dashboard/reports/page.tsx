@@ -15,6 +15,17 @@ export default async function Reports(props: { searchParams: SearchParams }) {
   const searchParams = await props.searchParams;
 
   const years = await getAllPossibleDonationYears(user.id);
+
+  if (years.length === 0) {
+    return (
+      <div className="flex h-48 items-center justify-center">
+        <p className="text-muted-foreground">
+          No data available. Add your first donation first to get started.
+        </p>
+      </div>
+    );
+  }
+
   const stringYears = years.map((year) => year.toString());
 
   let data;
