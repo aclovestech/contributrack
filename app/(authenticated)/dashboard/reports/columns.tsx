@@ -29,7 +29,7 @@ export const columns: ColumnDef<ReportRowData>[] = [
         </div>
       );
     },
-    sortingFn: (rowA, rowB, columnId) => {
+    sortingFn: (rowA, rowB) => {
       const amountA = rowA.original.amount;
       const amountB = rowB.original.amount;
 
