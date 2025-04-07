@@ -1,11 +1,8 @@
-# Contributrack
+# ContribuTrack
 
 ## Overview
 
-Contributrack is a Next.js application designed to help organizations manage and
-track donations effectively. It provides a user-friendly interface for managing
-donors, recording donations, generating reports, and visualizing donation
-trends.
+Contributrack is a Next.js application born out of a desire to help my aunt's organization, King's Chapel (Canada), manage and track their donations more effectively. This personal project allowed me to leverage my Next.js skills to create a practical tool with features like donor management, donation recording, report generation, and donation trend visualization. By addressing a real-world problem, Contributrack demonstrates my ability to translate needs into functional software and highlights my proficiency in full-stack development.
 
 ## Features
 
@@ -14,9 +11,9 @@ trends.
   amount, and donor.
 - **Data Visualization:** Visualize donation trends using charts and graphs.
 - **PDF Report Generation:** Generate annual donation reports in PDF format.
+- **Stack Auth Webhook Integration:** Integrate Stack Auth through a webhook.
 - **Customizable Date Ranges:** Filter data by custom date ranges for specific
   reporting periods.
-- **Webhook Integration:** Integrate with other services using webhooks.
 - **Modern UI:** Built with shadcn/ui for a clean and responsive
   user experience.
 
@@ -24,6 +21,7 @@ trends.
 
 - [Next.js](https://nextjs.org/)
 - [TypeScript](https://www.typescriptlang.org/)
+- [Stack Auth](https://stack-auth.com/)
 - [Drizzle ORM](https://orm.drizzle.team/)
 - [PostgreSQL](https://www.postgresql.org/)
 - [Tailwind CSS](https://tailwindcss.com/)
