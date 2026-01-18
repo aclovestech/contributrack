@@ -26,13 +26,13 @@ import { Input } from '@/components/ui/input';
 import { DONATION_TYPES } from '@/types/donations';
 
 export const insertDonationSchema = createInsertSchema(donationsTable, {
-  dateReceived: z.string({ required_error: 'Date is required' }),
+  dateReceived: z.string().min(1, { message: 'Date is required' }),
   amount: z.coerce
-    .number({ invalid_type_error: 'Invalid amount' })
+    .number({ message: 'Invalid amount' })
     .positive('Amount must be positive')
     .finite(),
   donationType: z.enum(donationTypeEnum.enumValues, {
-    required_error: 'Donation type is required',
+    message: 'Donation type is required',
   }),
 }).omit({
   id: true,
