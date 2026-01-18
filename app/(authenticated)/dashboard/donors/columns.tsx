@@ -9,7 +9,7 @@ import { DataTableActionsMenu } from '@/components/data-table/actions-menu';
 
 function formatCell(value: string | null) {
   return (
-    <div className="text-center break-words whitespace-pre-wrap">
+    <div className="text-center wrap-break-word whitespace-pre-wrap">
       {value ? value : '-'}
     </div>
   );

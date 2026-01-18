@@ -1,6 +1,6 @@
 import { ReportRowData } from '@/types/donations';
-import * as pdfMake from 'pdfmake/build/pdfmake';
-import * as pdfFonts from 'pdfmake/build/vfs_fonts';
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
 
 (<any>pdfMake).addVirtualFileSystem(pdfFonts);
