@@ -27,10 +27,7 @@ import { DONATION_TYPES } from '@/types/donations';
 
 export const insertDonationSchema = createInsertSchema(donationsTable, {
   dateReceived: z.string().min(1, { message: 'Date is required' }),
-  amount: z.coerce
-    .number({ message: 'Invalid amount' })
-    .positive('Amount must be positive')
-    .finite(),
+  amount: z.number().positive('Amount must be positive').finite(),
   donationType: z.enum(donationTypeEnum.enumValues, {
     message: 'Donation type is required',
   }),
@@ -113,6 +110,11 @@ export function DonationForm({
                       min="0.01"
                       className="pl-12"
                       {...field}
+                      value={field.value ?? ''}
+                      onChange={(e) => {
+                        const value = e.target.value === '' ? undefined : parseFloat(e.target.value);
+                        field.onChange(isNaN(value as number) ? undefined : value);
+                      }}
                     />
                   </div>
                 </FormControl>
