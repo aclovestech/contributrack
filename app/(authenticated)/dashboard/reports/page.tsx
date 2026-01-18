@@ -21,7 +21,7 @@ export default async function Reports(props: { searchParams: SearchParams }) {
   let selectedYear;
 
   if (!searchParams.year) {
-    selectedYear = years[0];
+    selectedYear = years.length > 0 ? years[0] : new Date().getFullYear();
     data = await getYearlyDonationsSummary(user.id, selectedYear);
   } else {
     selectedYear = parseInt(searchParams.year as string);
