@@ -6,6 +6,13 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function calculateTrend(current: number, previous: number) {
+  if (previous === 0) {
+    return {
+      output: current > 0 ? 'New' : '0.00%',
+      isPositive: current > 0,
+    };
+  }
+
   const trend = ((current - previous) / previous) * 100;
 
   const isPositive = trend > 0;

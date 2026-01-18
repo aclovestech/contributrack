@@ -132,6 +132,7 @@ export async function getTotalDonationsYtd(userId: string) {
       total: sql<number>`SUM(${donationsTable.amount})`.mapWith(Number),
     })
     .from(donationsTable)
+    .innerJoin(donorsTable, eq(donationsTable.donorId, donorsTable.id))
     .where(
       and(
         eq(donationsTable.userId, userId),
@@ -147,6 +148,7 @@ export async function getTotalDonationsYtd(userId: string) {
       total: sql<number>`SUM(${donationsTable.amount})`.mapWith(Number),
     })
     .from(donationsTable)
+    .innerJoin(donorsTable, eq(donationsTable.donorId, donorsTable.id))
     .where(
       and(
         eq(donationsTable.userId, userId),
@@ -171,6 +173,7 @@ export async function getTotalDonationCountYtd(userId: string) {
       total: sql<number>`COUNT(${donationsTable.id})`.mapWith(Number),
     })
     .from(donationsTable)
+    .innerJoin(donorsTable, eq(donationsTable.donorId, donorsTable.id))
     .where(
       and(
         eq(donationsTable.userId, userId),
@@ -186,6 +189,7 @@ export async function getTotalDonationCountYtd(userId: string) {
       total: sql<number>`COUNT(${donationsTable.id})`.mapWith(Number),
     })
     .from(donationsTable)
+    .innerJoin(donorsTable, eq(donationsTable.donorId, donorsTable.id))
     .where(
       and(
         eq(donationsTable.userId, userId),
@@ -210,6 +214,7 @@ export async function getAverageDonationYtd(userId: string) {
       total: sql<number>`AVG(${donationsTable.amount})`.mapWith(Number),
     })
     .from(donationsTable)
+    .innerJoin(donorsTable, eq(donationsTable.donorId, donorsTable.id))
     .where(
       and(
         eq(donationsTable.userId, userId),
@@ -225,6 +230,7 @@ export async function getAverageDonationYtd(userId: string) {
       total: sql<number>`AVG(${donationsTable.amount})`.mapWith(Number),
     })
     .from(donationsTable)
+    .innerJoin(donorsTable, eq(donationsTable.donorId, donorsTable.id))
     .where(
       and(
         eq(donationsTable.userId, userId),
@@ -287,6 +293,7 @@ export async function getTotalDonationsPerMonthYTD(userId: string) {
       totalAmount: sql<number>`SUM(${donationsTable.amount})`.mapWith(Number),
     })
     .from(donationsTable)
+    .innerJoin(donorsTable, eq(donationsTable.donorId, donorsTable.id))
     .where(
       and(
         eq(donationsTable.userId, userId),
@@ -316,6 +323,7 @@ export async function getAllPossibleDonationYears(userId: string) {
       ),
     })
     .from(donationsTable)
+    .innerJoin(donorsTable, eq(donationsTable.donorId, donorsTable.id))
     .where(eq(donationsTable.userId, userId));
 
   const years = result.map((row) => row.year).sort((a, b) => b - a);
