@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   ColumnDef,
   SortingState,
@@ -35,6 +35,14 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState<any>([]);
 
+  const globalFilterFn = useCallback((row: any, _id: any, value: any) => {
+    const columns = row.getAllCells();
+    return columns.some((cell: any) => {
+      const itemRank = rankItem(cell.getValue(), value);
+      return itemRank.passed;
+    });
+  }, [])
+
   const table = useReactTable({
     columns,
     data,
@@ -44,13 +52,7 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: (row, _id, value) => {
-      const columns = row.getAllCells();
-      return columns.some((cell) => {
-        const itemRank = rankItem(cell.getValue(), value);
-        return itemRank.passed;
-      });
-    },
+    globalFilterFn,
     state: {
       sorting,
       globalFilter,

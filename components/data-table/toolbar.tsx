@@ -8,7 +8,7 @@ import { DataTableViewOptions } from '@/components/data-table/view-options';
 import { AddDonorDialog } from '@/components/dialogs/add-donor-dialog';
 import { usePathname } from 'next/navigation';
 import { DonationDialog } from '@/components/dialogs/donation-dialog';
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -18,19 +18,27 @@ export function DataTableToolbar<TData>({
   table,
 }: DataTableToolbarProps<TData>) {
   const [filter, setFilter] = useState('');
+  const pathname = usePathname();
   const isFiltered = table.getState().columnFilters.length > 0;
 
-  const currentPage = usePathname().split('/')[2];
+  const currentPage = useMemo(
+    () => pathname.split('/')[2],
+    [pathname]
+  );
 
-  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setFilter(String(event.target.value));
-    table.setGlobalFilter(String(event.target.value));
-  }
+  const handleInputChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = String(event.target.value);
+      setFilter(value);
+      table.setGlobalFilter(value);
+    },
+    [table]
+  );
 
-  function handleResetFilter() {
+  const handleResetFilter = useCallback(() => {
     setFilter('');
     table.resetGlobalFilter();
-  }
+  }, [table]);
 
   return (
     <div className="flex items-center justify-between">

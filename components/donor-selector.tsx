@@ -45,7 +45,7 @@ export function DonorSelector({
     }
 
     fetchDonors();
-  }, []);
+  }, [user.id]);
 
   function handleAddNewDonor() {
     setIsSelectorOpen(false);
