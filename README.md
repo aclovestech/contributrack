@@ -58,6 +58,8 @@ owner approval.
   database workflow.
 - [`docs/production-baseline.md`](docs/production-baseline.md) — source, schema,
   backup, and deployment facts.
+- [`docs/deployment.md`](docs/deployment.md) — environment inventory, health
+  checks, and safe release/cutover checklist.
 
 ## Deployment
 
