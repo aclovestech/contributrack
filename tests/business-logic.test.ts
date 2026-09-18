@@ -49,6 +49,22 @@ test('donation validation rejects zero, malformed dates, and unknown types', () 
     }).success,
     false,
   );
+  assert.equal(
+    donationFormSchema.safeParse({
+      dateReceived: '2024-02-29',
+      amount: 0.001,
+      donationType: 'tithes',
+    }).success,
+    false,
+  );
+  assert.equal(
+    donationFormSchema.safeParse({
+      dateReceived: '2024-02-29',
+      amount: 99_999_999.995,
+      donationType: 'tithes',
+    }).success,
+    false,
+  );
 });
 
 test('server normalization trims donor fields and formats donation cents', () => {

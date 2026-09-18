@@ -83,13 +83,23 @@ export function normalizeDonorInput(input: unknown): NormalizedDonorData {
   };
 }
 
+const MAX_DONATION_CENTS = 9_999_999_999;
+
+function isPersistableDonationAmount(value: number) {
+  const cents = Math.round(value * 100);
+  return cents >= 1 && cents <= MAX_DONATION_CENTS;
+}
+
 export const donationFormSchema = z.object({
   dateReceived: dateSchema,
   amount: z
     .number({ error: 'Enter a donation amount.' })
     .finite('Enter a valid donation amount.')
     .positive('Amount must be greater than zero.')
-    .max(99_999_999.99, 'Amount is too large.'),
+    .max(99_999_999.99, 'Amount is too large.')
+    .refine(isPersistableDonationAmount, {
+      message: 'Amount must be between $0.01 and $99,999,999.99.',
+    }),
   donationType: donationTypeSchema,
 });
 
