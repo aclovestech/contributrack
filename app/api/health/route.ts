@@ -15,8 +15,10 @@ export async function GET() {
       { status: 'ok' },
       { headers: { 'Cache-Control': 'no-store' } },
     );
-  } catch (error) {
-    console.error('Health check failed', error);
+  } catch {
+    // Keep connection details out of logs and the response. Coolify only needs
+    // the status code to decide whether the process is ready.
+    console.error('Health check failed');
 
     return NextResponse.json(
       { status: 'error' },
