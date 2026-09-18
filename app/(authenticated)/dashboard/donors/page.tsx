@@ -1,11 +1,10 @@
-import { DataTable } from '@/components/data-table/data-table';
-import { getDonorColumns } from '@/app/(authenticated)/dashboard/donors/columns';
 import { getAllDonors } from '@/actions/donors.action';
 import { AddDonorDialog } from '@/components/dialogs/add-donor-dialog';
 import { PageHeader } from '@/components/page-header';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { SearchParams } from '@/types/searchparams';
+import { DonorsTable } from './donors-table';
 
 export default async function Donors({
   searchParams,
@@ -43,18 +42,7 @@ export default async function Donors({
         }
       />
       <div className="px-4 lg:px-6">
-        <DataTable
-          columns={getDonorColumns(showArchived)}
-          data={donors}
-          searchPlaceholder={
-            showArchived ? 'Search archived donors…' : 'Search donors…'
-          }
-          emptyMessage={
-            showArchived
-              ? 'No archived donors.'
-              : 'No donors yet. Add the first donor to get started.'
-          }
-        />
+        <DonorsTable data={donors} isArchived={showArchived} />
       </div>
     </div>
   );

@@ -1,5 +1,3 @@
-import { DataTable } from '@/components/data-table/data-table';
-import { getDonationColumns } from '@/app/(authenticated)/dashboard/donations/columns';
 import { getAllDonationsWithinRange } from '@/actions/donations.action';
 import CustomDateRangePicker from '@/components/custom-date-range-picker';
 import { SearchParams } from '@/types/searchparams';
@@ -7,6 +5,7 @@ import { PageHeader } from '@/components/page-header';
 import { DonationDialog } from '@/components/dialogs/donation-dialog';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { DonationsTable } from './donations-table';
 
 export default async function Donations(props: { searchParams: SearchParams }) {
   const searchParams = await props.searchParams;
@@ -56,18 +55,7 @@ export default async function Donations(props: { searchParams: SearchParams }) {
           initialEndDate={endDate}
           showArchived={showArchived}
         />
-        <DataTable
-          columns={getDonationColumns(showArchived)}
-          data={donations}
-          searchPlaceholder={
-            showArchived ? 'Search archived donations…' : 'Search donations…'
-          }
-          emptyMessage={
-            showArchived
-              ? 'No archived donations for this period.'
-              : 'No donations found for this period.'
-          }
-        />
+        <DonationsTable data={donations} isArchived={showArchived} />
       </div>
     </div>
   );
