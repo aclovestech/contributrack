@@ -1,77 +1,70 @@
 'use client';
 
-import { ColumnDef } from '@tanstack/react-table';
-import { DonorRowData } from '@/types/donor';
 import { ArrowUpDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { EditDonorDialog } from '@/components/dialogs/edit-donor-dialog';
+import { ColumnDef } from '@tanstack/react-table';
+
 import { DataTableActionsMenu } from '@/components/data-table/actions-menu';
+import { EditDonorDialog } from '@/components/dialogs/edit-donor-dialog';
+import { Button } from '@/components/ui/button';
+import { DonorRowData } from '@/types/donor';
 
 function formatCell(value: string | null) {
   return (
-    <div className="text-center wrap-break-word whitespace-pre-wrap">
-      {value ? value : '-'}
+    <div className="text-center break-words whitespace-pre-wrap">
+      {value || '-'}
     </div>
   );
 }
 
-export const columns: ColumnDef<DonorRowData>[] = [
-  {
-    id: 'edit',
-    cell: ({ row }) => {
-      return <EditDonorDialog row={row} />;
+export function getDonorColumns(isArchived = false): ColumnDef<DonorRowData>[] {
+  return [
+    {
+      id: 'edit',
+      cell: ({ row }) => <EditDonorDialog row={row} />,
+      enableHiding: false,
     },
-    enableHiding: false,
-  },
-  {
-    accessorKey: 'name',
-    header: ({ column }) => {
-      return (
-        <div
-          className="text-left"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          <Button variant="ghost">
+    {
+      accessorKey: 'name',
+      header: ({ column }) => (
+        <div className="text-left">
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
             Name
-            <ArrowUpDown className="ml-2 h-4 w-4" />
+            <ArrowUpDown className="ml-2 size-4" aria-hidden="true" />
           </Button>
         </div>
-      );
+      ),
+      enableHiding: false,
     },
-    enableHiding: false,
-  },
-  {
-    accessorKey: 'email',
-    header: () => <div className="text-center">Email</div>,
-    cell: ({ row }) => {
-      return formatCell(row.original.email);
+    {
+      accessorKey: 'email',
+      header: () => <div className="text-center">Email</div>,
+      cell: ({ row }) => formatCell(row.original.email),
     },
-  },
-  {
-    accessorKey: 'phoneNumber',
-    header: () => <div className="text-center">Phone Number</div>,
-    cell: ({ row }) => {
-      return formatCell(row.original.phoneNumber);
+    {
+      accessorKey: 'phoneNumber',
+      header: () => <div className="text-center">Phone</div>,
+      cell: ({ row }) => formatCell(row.original.phoneNumber),
     },
-  },
-  {
-    accessorKey: 'address',
-    header: () => <div className="text-center">Address</div>,
-    cell: ({ row }) => {
-      return formatCell(row.original.address);
+    {
+      accessorKey: 'address',
+      header: () => <div className="text-center">Address</div>,
+      cell: ({ row }) => formatCell(row.original.address),
     },
-  },
-  {
-    accessorKey: 'notes',
-    header: () => <div className="text-center">Notes</div>,
-    cell: ({ row }) => {
-      return formatCell(row.original.notes);
+    {
+      accessorKey: 'notes',
+      header: () => <div className="text-center">Notes</div>,
+      cell: ({ row }) => formatCell(row.original.notes),
     },
-  },
-  {
-    id: 'actions',
-    cell: ({ row }) => {
-      return <DataTableActionsMenu donorRow={row} />;
+    {
+      id: 'actions',
+      cell: ({ row }) => (
+        <DataTableActionsMenu donorRow={row} isArchived={isArchived} />
+      ),
     },
-  },
-];
+  ];
+}
+
+export const columns = getDonorColumns();

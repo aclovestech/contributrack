@@ -1,0 +1,56 @@
+name: Validate
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Audit production dependencies
+        run: pnpm audit --prod --audit-level high --ignore-registry-errors
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Focused tests
+        run: pnpm test
+
+      - name: Formatting
+        run: pnpm format:check
+
+      - name: Production build
+        env:
+          # Placeholder values exercise the build without exposing credentials
+          # or connecting to a real database.
+          NEXT_PUBLIC_STACK_PROJECT_ID: 123e4567-e89b-42d3-a456-426614174000
+          NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY: ci-placeholder
+          STACK_SECRET_SERVER_KEY: ci-placeholder
+          DATABASE_URL: postgresql://127.0.0.1:5432/contributrack
+        run: pnpm build

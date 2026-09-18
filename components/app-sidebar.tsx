@@ -22,6 +22,9 @@ import {
 } from '@/components/ui/sidebar';
 
 import Link from 'next/link';
+import { Toggle } from '@/components/ui/toggle';
+import { useTheme } from 'next-themes';
+import { Moon, Sun } from 'lucide-react';
 
 const data = {
   navMain: [
@@ -49,6 +52,12 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { theme, setTheme } = useTheme();
+
+  function handleOnToggleClick() {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  }
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -70,7 +79,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser />
+        <div className="flex items-center gap-2">
+          <NavUser />
+          <Toggle
+            onClick={handleOnToggleClick}
+            variant={'outline'}
+            aria-label="Toggle theme"
+          >
+            {theme === 'dark' ? <Sun /> : <Moon />}
+          </Toggle>
+        </div>
       </SidebarFooter>
     </Sidebar>
   );

@@ -1,49 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with
-[`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ContribuTrack
 
-## Getting Started
+ContribuTrack is a small donation-management application for a church
+administrator. It helps record donations, maintain donor records, review totals,
+and print an annual donor-total report for reconciliation.
 
-First, run the development server:
+The project is intentionally optimized for a simple, reliable workflow rather
+than a feature-heavy dashboard. It uses Next.js App Router, TypeScript,
+PostgreSQL, Drizzle ORM, StackAuth, and pdfmake.
+
+## Start locally
+
+1. Install Node.js and the pnpm version declared in `package.json`.
+2. Install dependencies:
+
+   ```bash
+   pnpm install --frozen-lockfile
+   ```
+
+3. Copy `.env.example` to `.env.local` and provide development-only values.
+4. Start the development server:
+
+   ```bash
+   pnpm dev
+   ```
+
+Use a local or restored test PostgreSQL database. Do not point local tooling at
+production except for an explicitly approved, read-only investigation.
+
+## Validation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the
-result.
+## Data and migration safety
 
-You can start editing the page by modifying `app/page.tsx`. The page
-auto-updates as you edit the file.
+Production contains real donor and donation data. The rebuild baseline is
+`release/v1.0.0`; historical Drizzle migrations `0000` through `0004` are
+preserved exactly. Production migration 0002 has a known hash mismatch, and some
+historical donations have no donor relationship. Both facts are recorded in
+[`docs/production-baseline.md`](docs/production-baseline.md) and must be handled
+without rewriting history or inventing data.
 
-This project uses
-[`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts)
-to automatically optimize and load [Geist](https://vercel.com/font), a new font
-family for Vercel.
+Production migrations and data changes are never automatic. A current backup
+must be restored and verified before any such operation, followed by explicit
+owner approval.
 
-## Learn More
+## Documentation
 
-To learn more about Next.js, take a look at the following resources:
+- [`AGENTS.md`](AGENTS.md) — durable instructions for coding agents.
+- [`docs/architecture.md`](docs/architecture.md) — application boundaries and
+  target architecture.
+- [`docs/development.md`](docs/development.md) — setup, validation, and local
+  database workflow.
+- [`docs/production-baseline.md`](docs/production-baseline.md) — source, schema,
+  backup, and deployment facts.
+- [`docs/deployment.md`](docs/deployment.md) — environment inventory, health
+  checks, and safe release/cutover checklist.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js
-  features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deployment
 
-You can check out
-[the Next.js GitHub repository](https://github.com/vercel/next.js) - your
-feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the
-[Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme)
-from the creators of Next.js.
-
-Check out our
-[Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying)
-for more details.
+The repository is deployed through Coolify using Nixpacks. The historical
+configuration was observed using ref `latest` and commit setting `HEAD`; the
+historical deployed SHA is unknown. Do not infer deployment success from a Git
+push. Coolify should be deliberately changed to a validated canonical `main`
+commit only during the planned production cutover.

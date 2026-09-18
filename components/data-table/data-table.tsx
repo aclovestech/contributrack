@@ -1,16 +1,20 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import {
   ColumnDef,
-  SortingState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  SortingState,
   useReactTable,
 } from '@tanstack/react-table';
+import { rankItem } from '@tanstack/match-sorter-utils';
+
+import { DataTablePagination } from '@/components/data-table/pagination';
+import { DataTableToolbar } from '@/components/data-table/toolbar';
 import {
   Table,
   TableBody,
@@ -19,76 +23,80 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { DataTablePagination } from '@/components/data-table/pagination';
-import { DataTableToolbar } from '@/components/data-table/toolbar';
-import { rankItem } from '@tanstack/match-sorter-utils';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  emptyMessage?: string;
+  searchPlaceholder?: string;
+  toolbarActions?: React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  emptyMessage = 'No records found.',
+  searchPlaceholder = 'Search records…',
+  toolbarActions,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [globalFilter, setGlobalFilter] = useState<any>([]);
+  const [globalFilter, setGlobalFilter] = useState('');
 
-  const globalFilterFn = useCallback((row: any, _id: any, value: any) => {
-    const columns = row.getAllCells();
-    return columns.some((cell: any) => {
-      const itemRank = rankItem(cell.getValue(), value);
-      return itemRank.passed;
-    });
-  }, [])
-
+  // TanStack Table owns this instance's lifecycle and is intentionally not
+  // memoized by the React compiler.
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     columns,
     data,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn,
-    state: {
-      sorting,
-      globalFilter,
+    globalFilterFn: (row, _columnId, value) => {
+      const query = String(value ?? '').trim();
+      if (!query) return true;
+
+      return row
+        .getAllCells()
+        .some((cell) => rankItem(String(cell.getValue() ?? ''), query).passed);
     },
+    initialState: {
+      pagination: { pageIndex: 0, pageSize: 10 },
+    },
+    state: { sorting, globalFilter },
   });
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
-      <div className="rounded-md border">
+      <DataTableToolbar
+        table={table}
+        searchPlaceholder={searchPlaceholder}
+        actions={toolbarActions}
+      />
+      <div className="bg-card overflow-hidden rounded-lg border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {table.getRowModel().rows.length > 0 ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                >
+                <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
@@ -103,18 +111,16 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-28 text-center"
                 >
-                  No results.
+                  <span className="text-muted-foreground">{emptyMessage}</span>
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <div className="py-2">
-        <DataTablePagination table={table} />
-      </div>
+      <DataTablePagination table={table} />
     </div>
   );
 }

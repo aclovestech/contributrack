@@ -1,6 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { Edit, Plus } from 'lucide-react';
+import { Row } from '@tanstack/react-table';
+import { toast } from 'sonner';
+
+import { addDonor } from '@/actions/donors.action';
+import { addDonation, editDonation } from '@/actions/donations.action';
+import { DonorSelector } from '@/components/donor-selector';
+import { DonationForm } from '@/components/donation-form';
+import { DonorForm } from '@/components/donor-form';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -9,220 +19,185 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Edit, Plus } from 'lucide-react';
-import { Donor } from '@/types/donor';
-import { DonorSelector } from '@/components/donor-selector';
-import { DonorForm, DonorFormData } from '@/components/donor-form';
-import { DonationForm, DonationFormData } from '@/components/donation-form';
 import { Label } from '@/components/ui/label';
-import { Row } from '@tanstack/react-table';
+import { DonationFormData, DonorFormData } from '@/lib/validation';
+import { DonorOption } from '@/types/donor';
 import { DonationRowData } from '@/types/donations';
-import { addDonor } from '@/actions/donors.action';
-import { useUser } from '@stackframe/stack';
-import { addDonation, editDonation } from '@/actions/donations.action';
 
-type DialogState = 'loading' | 'selectDonor' | 'addDonor' | 'fillInDonation';
-
-type DialogTitleState =
-  | 'Select a Donor'
-  | 'Add Donor Details'
-  | 'Donation Details';
-
-type DialogDescriptionState =
-  | 'Choose the donor who made the donation.'
-  | 'Fill in the required details of the donor.'
-  | 'Fill in the required details for the donation.';
+type DialogState = 'selectDonor' | 'addDonor' | 'fillInDonation';
 
 interface DonationDialogProps {
   donationData?: Row<DonationRowData>;
 }
 
 export function DonationDialog({ donationData }: DonationDialogProps) {
-  const user = useUser({ or: 'redirect' });
-
+  const isEditing = Boolean(donationData);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [dialogState, setDialogState] = useState<DialogState>('selectDonor');
-  const [selectedDonor, setSelectedDonor] = useState<Donor['name'] | null>(
-    null,
+  const [dialogState, setDialogState] = useState<DialogState>(
+    isEditing ? 'fillInDonation' : 'selectDonor',
   );
-  const [dialogContent, setDialogContent] = useState({
-    title: 'Select a Donor' as DialogTitleState,
-    description:
-      'Choose the donor who made the donation.' as DialogDescriptionState,
-  });
+  const [selectedDonor, setSelectedDonor] = useState<DonorOption | null>(
+    donationData?.original.donorId
+      ? {
+          id: donationData.original.donorId,
+          name: donationData.original.donorName,
+        }
+      : null,
+  );
 
-  useEffect(() => {
-    if (donationData) {
-      const { original } = donationData;
-      setDialogState('fillInDonation');
-      setSelectedDonor(original.donorName);
-      setDialogContent({
-        title: 'Donation Details',
-        description: 'Fill in the required details for the donation.',
-      });
-    }
-  }, [donationData]);
-
-  function handleResetDialogState() {
-    setIsDialogOpen(!isDialogOpen);
-    if (dialogState !== 'fillInDonation' || !donationData) {
-      setDialogContent({
-        title: 'Select a Donor',
-        description: 'Choose the donor who made the donation.',
-      });
-      setDialogState('selectDonor');
-      setSelectedDonor(null);
-    }
+  function resetForNextDonation() {
+    setDialogState('selectDonor');
+    setSelectedDonor(null);
   }
 
-  function handleOnDonorSelect(donorName: string) {
-    setSelectedDonor(donorName);
+  function handleOpenChange(open: boolean) {
+    setIsDialogOpen(open);
+    if (!open && !isEditing) resetForNextDonation();
+  }
+
+  function handleOnDonorSelect(donor: DonorOption) {
+    setSelectedDonor(donor);
     setDialogState('fillInDonation');
-    setDialogContent({
-      title: 'Donation Details',
-      description: 'Fill in the required details for the donation.',
-    });
   }
 
   async function handleOnDonorAdd(formData: DonorFormData) {
-    const addedDonor = await addDonor(user?.id, formData);
-
-    if (!addedDonor) return;
-
-    setSelectedDonor(formData.name);
-    setDialogState('fillInDonation');
-    setDialogContent({
-      title: 'Donation Details',
-      description: 'Fill in the required details for the donation.',
-    });
+    try {
+      const donor = await addDonor(formData);
+      setSelectedDonor({ id: donor.id, name: donor.name });
+      setDialogState('fillInDonation');
+      toast.success('Donor added.');
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Unable to add donor.',
+      );
+    }
   }
 
   function handleOpenAddDonorDialog() {
     setDialogState('addDonor');
-    setDialogContent({
-      title: 'Add Donor Details',
-      description: 'Fill in the required details of the donor.',
-    });
   }
 
-  function handleEditDonor() {
+  function handleChangeDonor() {
     setDialogState('selectDonor');
-    setDialogContent({
-      title: 'Select a Donor',
-      description: 'Choose the donor who made the donation.',
-    });
     setSelectedDonor(null);
   }
 
   async function handleOnDonationSubmit(
     formData: DonationFormData,
-    isEditing: boolean,
+    editing: boolean,
   ) {
-    let donation;
+    try {
+      if (editing && donationData) {
+        await editDonation(
+          donationData.original.id,
+          selectedDonor?.id ?? null,
+          formData,
+        );
+      } else {
+        if (!selectedDonor) {
+          toast.error('Choose a donor before saving the donation.');
+          return;
+        }
+        await addDonation(selectedDonor.id, formData);
+      }
 
-    if (!isEditing) {
-      donation = await addDonation(user?.id, selectedDonor as string, formData);
-    } else {
-      donation = await editDonation(
-        user?.id,
-        selectedDonor as string,
-        donationData?.original.id as string,
-        formData,
+      toast.success(editing ? 'Donation updated.' : 'Donation recorded.');
+      setIsDialogOpen(false);
+      if (!isEditing) resetForNextDonation();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Unable to save donation.',
       );
     }
-
-    if (!donation) return;
-
-    handleResetDialogState();
   }
 
-  function DialogBody() {
-    let body;
-    let rowData;
+  const initialData = donationData
+    ? {
+        dateReceived: donationData.original.dateReceived,
+        amount: Number(donationData.original.amount),
+        donationType: donationData.original.donationType,
+      }
+    : undefined;
 
-    if (donationData) {
-      rowData = {
-        dateReceived: donationData?.original.dateReceived,
-        amount: parseFloat(donationData?.original.amount),
-        donationType: donationData?.original.donationType,
-      };
-    }
+  const title =
+    dialogState === 'selectDonor'
+      ? 'Choose a donor'
+      : dialogState === 'addDonor'
+        ? 'Add a donor'
+        : isEditing
+          ? 'Edit donation'
+          : 'Donation details';
 
-    switch (dialogState) {
-      case 'loading':
-        body = (
-          <div className="flex h-40 items-center justify-center">
-            <p>Loading donors...</p>
-          </div>
-        );
-        break;
-      case 'selectDonor':
-        body = (
-          <DonorSelector
-            selectedDonor={selectedDonor}
-            onDonorSelect={handleOnDonorSelect}
-            onAddNewDonor={handleOpenAddDonorDialog}
-          />
-        );
-        break;
-      case 'addDonor':
-        body = <DonorForm onFormSubmit={handleOnDonorAdd} />;
-        break;
-      case 'fillInDonation':
-        body = (
-          <div className="space-y-6">
-            <div className="bg-muted/50 flex flex-row items-center justify-between rounded-md border p-3">
-              <div>
-                <Label className="text-muted-foreground text-xs">
-                  Donor Name
-                </Label>
-                <p className="font-semibold">{selectedDonor}</p>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleEditDonor}
-                className="mt-2 sm:mt-0"
-              >
-                Change Donor
-              </Button>
-            </div>
-            <DonationForm
-              onSubmit={handleOnDonationSubmit}
-              initialData={rowData ? rowData : undefined}
-            />
-          </div>
-        );
-        break;
-      default:
-        body = <p>Invalid dialog state.</p>; // Handle unexpected states
-    }
-
-    return body;
-  }
+  const description =
+    dialogState === 'selectDonor'
+      ? 'Choose who made this donation.'
+      : dialogState === 'addDonor'
+        ? 'Add the donor now, then continue recording the donation.'
+        : 'Enter the date, amount, and type of donation.';
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={handleResetDialogState}>
+    <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {donationData ? (
-          <div className="cursor-pointer hover:underline">
-            <Edit className="h-4 w-4" />
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={`Edit donation from ${donationData.original.donorName}`}
+          >
+            <Edit aria-hidden="true" />
+          </Button>
         ) : (
-          <Button variant="outline">
-            <Plus />
-            <span>Add Donation</span>
+          <Button>
+            <Plus aria-hidden="true" />
+            Add donation
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{dialogContent.title}</DialogTitle>
-          <DialogDescription>{dialogContent.description}</DialogDescription>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-2">
-          <DialogBody />
+        <div className="space-y-5 py-2">
+          {dialogState === 'selectDonor' && (
+            <DonorSelector
+              selectedDonor={selectedDonor}
+              onDonorSelect={handleOnDonorSelect}
+              onAddNewDonor={handleOpenAddDonorDialog}
+            />
+          )}
+          {dialogState === 'addDonor' && (
+            <DonorForm onFormSubmit={handleOnDonorAdd} />
+          )}
+          {dialogState === 'fillInDonation' && (
+            <div className="space-y-5">
+              <div className="bg-muted/50 flex items-center justify-between gap-3 rounded-lg border p-3">
+                <div className="min-w-0">
+                  <Label className="text-muted-foreground text-xs">Donor</Label>
+                  <p className="truncate font-medium">
+                    {selectedDonor?.name ?? 'Unassigned donor'}
+                  </p>
+                  {isEditing && !selectedDonor && (
+                    <p className="text-muted-foreground text-xs">
+                      This historical donation has no linked donor.
+                    </p>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleChangeDonor}
+                >
+                  {selectedDonor ? 'Change' : 'Assign donor'}
+                </Button>
+              </div>
+              <DonationForm
+                onSubmit={handleOnDonationSubmit}
+                initialData={initialData}
+              />
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

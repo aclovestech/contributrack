@@ -1,13 +1,13 @@
-// @ts-nocheck - Zod transform types with nullish() don't perfectly align with react-hook-form types, but runtime behavior is correct
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+
 import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -15,110 +15,89 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { donorsTable } from '@/src/db/schema';
-import { createInsertSchema } from 'drizzle-zod';
+import { donorFormSchema, DonorFormData } from '@/lib/validation';
 import { DonorRowData } from '@/types/donor';
 
-export const insertDonorSchema = createInsertSchema(donorsTable, {
-  name: z.string().min(1, 'Donor name is required').max(100),
-  email: z
-    .union([z.string().email('Invalid email address').max(254), z.literal('')])
-    .nullish()
-    .transform((value): string | null => {
-      if (value === '' || value === undefined || value === null) return null;
-      return value;
-    }),
-  phoneNumber: z
-    .union([z.string().max(20), z.literal('')])
-    .nullish()
-    .transform((value): string | null => {
-      if (value === '' || value === undefined || value === null) return null;
-      return value;
-    }),
-  address: z
-    .union([z.string().max(200), z.literal('')])
-    .nullish()
-    .transform((value): string | null => {
-      if (value === '' || value === undefined || value === null) return null;
-      return value;
-    }),
-  notes: z
-    .union([z.string().max(1000), z.literal('')])
-    .nullish()
-    .transform((value): string | null => {
-      if (value === '' || value === undefined || value === null) return null;
-      return value;
-    }),
-}).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  deletedAt: true,
-  userId: true,
-});
-export type DonorFormData = z.infer<typeof insertDonorSchema>;
-
 interface DonorFormProps {
-  onFormSubmit: (formData: DonorFormData) => void;
+  onFormSubmit: (formData: DonorFormData) => void | Promise<void>;
   initialData?: DonorRowData;
 }
 
 export function DonorForm({ initialData, onFormSubmit }: DonorFormProps) {
   const form = useForm<DonorFormData>({
-    resolver: zodResolver(insertDonorSchema),
+    resolver: zodResolver(donorFormSchema),
     defaultValues: {
-      name: initialData?.name ? initialData.name : '',
-      email: initialData?.email ?? null,
-      phoneNumber: initialData?.phoneNumber ?? null,
-      address: initialData?.address ?? null,
-      notes: initialData?.notes ?? null,
+      name: initialData?.name ?? '',
+      email: initialData?.email ?? '',
+      phoneNumber: initialData?.phoneNumber ?? '',
+      address: initialData?.address ?? '',
+      notes: initialData?.notes ?? '',
     },
   });
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onFormSubmit)} className="space-y-5">
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
               <FormLabel>
-                Name <span className="text-red-500">*</span>
+                Donor name <span className="text-destructive">*</span>
               </FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input
+                  {...field}
+                  placeholder="e.g. Alex Smith"
+                  autoComplete="name"
+                  autoFocus={!initialData}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input {...field} value={field.value ?? ''} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="phoneNumber"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Phone Number</FormLabel>
-              <FormControl>
-                <Input {...field} value={field.value ?? ''} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="email"
+                    placeholder="name@example.com"
+                    autoComplete="email"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="phoneNumber"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Phone</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="tel"
+                    placeholder="Optional"
+                    autoComplete="tel"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
         <FormField
           control={form.control}
           name="address"
@@ -126,12 +105,17 @@ export function DonorForm({ initialData, onFormSubmit }: DonorFormProps) {
             <FormItem>
               <FormLabel>Address</FormLabel>
               <FormControl>
-                <Input {...field} value={field.value ?? ''} />
+                <Input
+                  {...field}
+                  placeholder="Optional"
+                  autoComplete="street-address"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={form.control}
           name="notes"
@@ -141,16 +125,27 @@ export function DonorForm({ initialData, onFormSubmit }: DonorFormProps) {
               <FormControl>
                 <Textarea
                   {...field}
-                  value={field.value ?? ''}
-                  className="max-h-64 min-h-32"
+                  placeholder="Optional notes about this donor"
+                  className="min-h-24 resize-y"
                 />
               </FormControl>
+              <FormDescription>
+                Keep notes brief and limited to information needed for donation
+                administration.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <div className="flex justify-center">
-          <Button type="submit">Submit</Button>
+
+        <div className="flex justify-end gap-2 pt-2">
+          <Button type="submit" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting
+              ? 'Saving…'
+              : initialData
+                ? 'Save changes'
+                : 'Add donor'}
+          </Button>
         </div>
       </form>
     </Form>

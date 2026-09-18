@@ -1,5 +1,11 @@
 'use client';
 
+import { Plus } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+
+import { addDonor } from '@/actions/donors.action';
+import { DonorForm } from '@/components/donor-form';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -9,36 +15,36 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Plus } from 'lucide-react';
-import React, { useState } from 'react';
-import { DonorForm, DonorFormData } from '@/components/donor-form';
-import { addDonor } from '@/actions/donors.action';
-import { useUser } from '@stackframe/stack';
+import { DonorFormData } from '@/lib/validation';
 
 export function AddDonorDialog() {
-  const user = useUser({ or: 'redirect' });
-
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   async function handleFormSubmit(formData: DonorFormData) {
-    await addDonor(user?.id, formData);
-
-    setIsDialogOpen(false);
+    try {
+      await addDonor(formData);
+      toast.success('Donor added.');
+      setIsDialogOpen(false);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Unable to add donor.',
+      );
+    }
   }
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
-          <Plus />
-          <span>Add Donor</span>
+        <Button>
+          <Plus aria-hidden="true" />
+          Add donor
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add Donor Details</DialogTitle>
+          <DialogTitle>Add a donor</DialogTitle>
           <DialogDescription>
-            Fill in the required details for the donor.
+            Add the donor once, then select them when recording a donation.
           </DialogDescription>
         </DialogHeader>
         <DonorForm onFormSubmit={handleFormSubmit} />
