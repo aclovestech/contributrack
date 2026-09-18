@@ -404,6 +404,9 @@ export async function getYearlyDonationsSummary(
   const { startDate, endDate } = yearBounds(year);
   const donorName = sql<string>`COALESCE(${donorsTable.name}, ${unassignedDonorName})`;
 
+  // Group by the underlying nullable column. Reusing the COALESCE SQL
+  // fragment here would bind the fallback label as a separate parameter,
+  // which PostgreSQL does not treat as the same grouping expression.
   return db
     .select({
       donorName,
@@ -424,6 +427,6 @@ export async function getYearlyDonationsSummary(
         lte(donationsTable.dateReceived, endDate),
       ),
     )
-    .groupBy(donorName)
+    .groupBy(donorsTable.name)
     .orderBy(asc(donorName));
 }
