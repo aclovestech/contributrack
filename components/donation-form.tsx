@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
@@ -49,11 +50,17 @@ export function DonationForm({
   const form = useForm<DonationFormData>({
     resolver: zodResolver(donationFormSchema),
     defaultValues: {
-      dateReceived: initialData?.dateReceived ?? getLocalDateInputValue(),
+      dateReceived: initialData?.dateReceived ?? '',
       amount: initialData?.amount ?? undefined,
       donationType: initialData?.donationType ?? undefined,
     },
   });
+
+  useEffect(() => {
+    if (!initialData && !form.getValues('dateReceived')) {
+      form.setValue('dateReceived', getLocalDateInputValue());
+    }
+  }, [form, initialData]);
 
   async function handleFormSubmit(formData: DonationFormData) {
     await onSubmit(formData, Boolean(initialData));
