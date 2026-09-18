@@ -8,19 +8,16 @@
   },
   "scripts": {
     "dev": "next dev --turbopack",
+    "prebuild": "node scripts/check-env.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/**/*.test.ts",
-    "format:check": "prettier --check 'actions/**/*.ts' 'app/**/*.{ts,tsx,css}' 'components/**/*.tsx' 'lib/**/*.ts' 'src/**/*.ts' 'types/**/*.ts' 'tests/**/*.ts' '*.md' 'docs/**/*.md' '.env.example' 'package.json' 'eslint.config.mjs' 'next.config.ts' 'drizzle.config.ts'",
+    "format:check": "prettier --check 'actions/**/*.ts' 'app/**/*.{ts,tsx,css}' 'components/**/*.tsx' 'lib/**/*.ts' 'src/**/*.ts' 'types/**/*.ts' 'tests/**/*.ts' 'scripts/**/*.mjs' '*.md' 'docs/**/*.md' '.env.example' 'package.json' 'eslint.config.mjs' 'next.config.ts' 'drizzle.config.ts'",
     "format": "prettier --write ."
   },
   "dependencies": {
-    "@dnd-kit/core": "^6.3.1",
-    "@dnd-kit/modifiers": "^9.0.0",
-    "@dnd-kit/sortable": "^10.0.0",
-    "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^4.1.3",
     "@radix-ui/react-alert-dialog": "^1.1.6",
     "@radix-ui/react-avatar": "^1.1.3",
@@ -45,9 +42,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
-    "dotenv": "^16.4.7",
     "drizzle-orm": "^0.41.0",
-    "drizzle-zod": "^0.7.0",
     "lucide-react": "^0.483.0",
     "next": "15.2.3",
     "next-themes": "^0.4.6",
@@ -80,7 +75,6 @@
     "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^4.0.15",
     "tsx": "^4.19.3",
-    "typescript": "^5.8.2",
-    "xlsx": "^0.18.5"
+    "typescript": "^5.8.2"
   }
 }
