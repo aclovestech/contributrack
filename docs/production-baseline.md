@@ -29,6 +29,20 @@ constraint `donor_name_unique_per_user`. Existing donations whose donor
 relationship was nulled are valid historical records and must remain available
 to the owning account as unassigned donations.
 
+## Branch reconciliation decision
+
+- `release/v1.0.0` at `f1aacea` is the chosen application and migration baseline
+  for the rebuild.
+- `develop` at `4b3c212` is an ancestor of that release line and contributes no
+  later independent work that needs to be carried forward separately.
+- `main` and the local `latest` tag point at `e77c7ed`. That line has the older
+  migration history, but its later dependency, reporting, and UI commits were
+  reviewed; compatible dependency/tooling improvements and corrected behavior
+  are carried forward deliberately rather than by merging the branch blindly.
+- The current rebuild work is isolated on a temporary `codex/rebuild/*` branch.
+  Historical branches remain untouched until the rebuilt application is
+  validated and the canonical `main` transition is approved.
+
 ## Baseline values
 
 The owner should keep the non-sensitive snapshot collected during the Phase 0
