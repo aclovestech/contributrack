@@ -16,7 +16,7 @@ export default async function TopDonor() {
       <CardHeader>
         <CardDescription>Top Donor</CardDescription>
         <CardTitle className="text-2xl font-semibold tabular-nums">
-          {data?.name ?? 'No donor yet'}
+          {data?.name ?? 'No named donor yet'}
         </CardTitle>
       </CardHeader>
       <CardFooter className="flex-col items-start gap-1.5 text-sm">
@@ -30,7 +30,7 @@ export default async function TopDonor() {
               in total
             </>
           ) : (
-            'Add a donation to see your top donor.'
+            'Record a donation with a donor to see your top donor.'
           )}
         </div>
         <div className="text-muted-foreground">
