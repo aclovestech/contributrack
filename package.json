@@ -14,7 +14,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/**/*.test.ts",
-    "format:check": "prettier --check 'actions/**/*.ts' 'app/**/*.{ts,tsx,css}' 'components/**/*.tsx' 'lib/**/*.ts' 'src/**/*.ts' 'types/**/*.ts' 'tests/**/*.ts' 'scripts/**/*.mjs' '*.md' 'docs/**/*.md' '.env.example' 'package.json' 'eslint.config.mjs' 'next.config.ts' 'drizzle.config.ts'",
+    "format:check": "prettier --check 'actions/**/*.ts' 'app/**/*.{ts,tsx,css}' 'components/**/*.tsx' 'lib/**/*.ts' 'src/**/*.ts' 'types/**/*.ts' 'tests/**/*.ts' 'scripts/**/*.mjs' '.github/**/*.yml' '*.md' 'docs/**/*.md' '.env.example' 'package.json' 'eslint.config.mjs' 'next.config.ts' 'drizzle.config.ts'",
     "format": "prettier --write ."
   },
   "dependencies": {

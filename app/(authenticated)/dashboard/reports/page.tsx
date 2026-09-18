@@ -8,6 +8,8 @@ import {
 } from '@/actions/donations.action';
 import { PrintAnnualReport } from '@/components/print-annual-report';
 import { PageHeader } from '@/components/page-header';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 
 export default async function Reports(props: { searchParams: SearchParams }) {
   const searchParams = await props.searchParams;
@@ -16,10 +18,22 @@ export default async function Reports(props: { searchParams: SearchParams }) {
 
   if (years.length === 0) {
     return (
-      <div className="flex h-48 items-center justify-center">
-        <p className="text-muted-foreground p-8">
-          No data available. Add your first donation first to get started.
-        </p>
+      <div className="flex flex-col gap-6 py-5 md:gap-8 md:py-6">
+        <PageHeader
+          title="Reports"
+          description="See annual totals by donor and print a copy for reconciliation."
+        />
+        <div className="bg-card mx-4 flex min-h-48 flex-col items-center justify-center gap-4 rounded-lg border p-8 text-center lg:mx-6">
+          <div>
+            <p className="font-medium">No donations to report yet</p>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Record a donation to create your first annual summary.
+            </p>
+          </div>
+          <Button asChild>
+            <Link href="/dashboard/donations">Record a donation</Link>
+          </Button>
+        </div>
       </div>
     );
   }
