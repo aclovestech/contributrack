@@ -1,3 +1,13 @@
+'use client';
+
+import { Edit } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { Row } from '@tanstack/react-table';
+
+import { editDonor } from '@/actions/donors.action';
+import { DonorForm } from '@/components/donor-form';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -6,45 +16,47 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Edit } from 'lucide-react';
-import React from 'react';
-import { Row } from '@tanstack/react-table';
+import { DonorFormData } from '@/lib/validation';
 import { DonorRowData } from '@/types/donor';
-import { DonorForm, DonorFormData } from '@/components/donor-form';
-import { useUser } from '@stackframe/stack';
-import { editDonor } from '@/actions/donors.action';
 
 interface EditDonorDialogProps {
   row: Row<DonorRowData>;
 }
 
 export function EditDonorDialog({ row }: EditDonorDialogProps) {
-  const user = useUser({ or: 'redirect' });
-
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   async function handleOnSubmit(formData: DonorFormData) {
-    await editDonor(user?.id, row.original.id, formData);
-
-    setIsDialogOpen(false);
+    try {
+      await editDonor(row.original.id, formData);
+      toast.success('Donor details saved.');
+      setIsDialogOpen(false);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Unable to save donor.',
+      );
+    }
   }
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Edit className="h-4 w-4" />
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={`Edit ${row.original.name}`}
+        >
+          <Edit aria-hidden="true" />
+        </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Edit Donor Details</DialogTitle>
+          <DialogTitle>Edit donor</DialogTitle>
           <DialogDescription>
-            Fill in the required details for the donor.
+            Update the details used to identify and contact this donor.
           </DialogDescription>
         </DialogHeader>
-        <DonorForm
-          initialData={row.original as DonorRowData}
-          onFormSubmit={handleOnSubmit}
-        />
+        <DonorForm initialData={row.original} onFormSubmit={handleOnSubmit} />
       </DialogContent>
     </Dialog>
   );

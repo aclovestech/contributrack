@@ -1,5 +1,4 @@
 import { DataTable } from '@/components/data-table/data-table';
-import { stackServerApp } from '@/stack';
 import { SearchParams } from '@/types/searchparams';
 import { columns } from '@/app/(authenticated)/dashboard/reports/columns';
 import YearSelector from '@/components/year-selector';
@@ -8,13 +7,12 @@ import {
   getYearlyDonationsSummary,
 } from '@/actions/donations.action';
 import { PrintAnnualReport } from '@/components/print-annual-report';
+import { PageHeader } from '@/components/page-header';
 
 export default async function Reports(props: { searchParams: SearchParams }) {
-  const user = await stackServerApp.getUser({ or: 'redirect' });
-
   const searchParams = await props.searchParams;
 
-  const years = await getAllPossibleDonationYears(user.id);
+  const years = await getAllPossibleDonationYears();
 
   if (years.length === 0) {
     return (
@@ -28,33 +26,41 @@ export default async function Reports(props: { searchParams: SearchParams }) {
 
   const stringYears = years.map((year) => year.toString());
 
-  let data;
-  let selectedYear;
-
-  if (!searchParams.year) {
-    selectedYear = years[0];
-    data = await getYearlyDonationsSummary(user.id, selectedYear);
-  } else {
-    selectedYear = parseInt(searchParams.year as string);
-    data = await getYearlyDonationsSummary(user.id, selectedYear);
-  }
-
-  const totalDonations = data.reduce(
-    (sum, donation) => sum + donation.amount,
-    0,
-  );
+  const requestedYear =
+    typeof searchParams.year === 'string'
+      ? Number.parseInt(searchParams.year, 10)
+      : undefined;
+  const selectedYear =
+    requestedYear && years.includes(requestedYear) ? requestedYear : years[0];
+  const data = await getYearlyDonationsSummary(selectedYear);
 
   return (
-    <div className="flex flex-col gap-4 px-4 py-4 md:gap-6 md:py-6 lg:px-6">
-      <div className="flex justify-between">
-        <YearSelector years={stringYears} />
-        <PrintAnnualReport
+    <div className="flex flex-col gap-6 py-5 md:gap-8 md:py-6">
+      <PageHeader
+        title="Reports"
+        description="See annual totals by donor and print a copy for reconciliation."
+      />
+      <div className="space-y-4 px-4 lg:px-6">
+        <div className="bg-card flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-sm font-medium">Annual donor totals</p>
+            <p className="text-muted-foreground text-sm">
+              Archived donations are left out. Unassigned historical donations
+              remain visible.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <YearSelector years={stringYears} />
+            <PrintAnnualReport data={data} year={selectedYear} />
+          </div>
+        </div>
+        <DataTable
+          columns={columns}
           data={data}
-          year={selectedYear}
-          total={totalDonations}
+          searchPlaceholder="Search report…"
+          emptyMessage="No donations recorded for this year."
         />
       </div>
-      <DataTable columns={columns} data={data} />
     </div>
   );
 }

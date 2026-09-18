@@ -1,103 +1,103 @@
 'use client';
 
-import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
-export default function CustomDateRangePicker() {
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [isDateInvalid, setIsDateInvalid] = useState(false);
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
+interface CustomDateRangePickerProps {
+  initialStartDate?: string;
+  initialEndDate?: string;
+}
+
+export default function CustomDateRangePicker({
+  initialStartDate = '',
+  initialEndDate = '',
+}: CustomDateRangePickerProps) {
+  const [startDate, setStartDate] = useState(initialStartDate);
+  const [endDate, setEndDate] = useState(initialEndDate);
+  const [error, setError] = useState('');
   const router = useRouter();
   const pathname = usePathname();
 
-  function handleStartDateChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setStartDate(e.target.value);
-  }
+  useEffect(() => {
+    setStartDate(initialStartDate);
+    setEndDate(initialEndDate);
+  }, [initialEndDate, initialStartDate]);
 
-  function handleEndDateChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setEndDate(e.target.value);
-  }
-
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
 
     if (!startDate || !endDate) {
+      setError('Choose both a start date and an end date.');
       return;
     }
 
-    if (new Date(startDate) > new Date(endDate)) {
-      return setIsDateInvalid(true);
+    if (startDate > endDate) {
+      setError('Start date cannot be after the end date.');
+      return;
     }
 
-    router.push(`${pathname}?startDate=${startDate}&endDate=${endDate}`);
+    setError('');
+    router.push(
+      `${pathname}?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`,
+    );
   }
 
   function handleClear() {
     setStartDate('');
     setEndDate('');
-    router.push(`${pathname}`);
+    setError('');
+    router.push(pathname);
   }
 
   return (
-    <div>
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col items-center gap-1.5 md:flex-row md:items-end"
-      >
-        <div className="grid max-w-sm items-center gap-1.5">
-          <Label htmlFor="start-date">Start Date</Label>
+    <form
+      onSubmit={handleSubmit}
+      className="bg-card rounded-lg border p-4"
+      aria-label="Filter donations by date"
+    >
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div className="grid min-w-0 flex-1 gap-1.5">
+          <Label htmlFor="start-date">From</Label>
           <Input
             type="date"
             id="start-date"
-            placeholder="YYYY-MM-DD"
             value={startDate}
-            onChange={handleStartDateChange}
+            onChange={(event) => setStartDate(event.target.value)}
           />
         </div>
-        <div className="grid max-w-sm items-center gap-1.5">
-          <Label htmlFor="end-date">End Date</Label>
+        <div className="grid min-w-0 flex-1 gap-1.5">
+          <Label htmlFor="end-date">To</Label>
           <Input
             type="date"
             id="end-date"
-            placeholder="YYYY-MM-DD"
             value={endDate}
-            onChange={handleEndDateChange}
+            onChange={(event) => setEndDate(event.target.value)}
           />
         </div>
-        <Button type="submit">Apply</Button>
-        <Button type="button" onClick={handleClear}>
-          Clear
-        </Button>
-      </form>
-      {isDateInvalid && (
-        <AlertDialog open={isDateInvalid}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Invalid Date Range</AlertDialogTitle>
-              <AlertDialogDescription>
-                Start date cannot be after the end date.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogAction asChild>
-                <Button onClick={() => setIsDateInvalid(false)}>OK</Button>
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <div className="flex gap-2 sm:shrink-0">
+          <Button type="submit">Apply dates</Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleClear}
+            disabled={!startDate && !endDate}
+          >
+            Clear
+          </Button>
+        </div>
+      </div>
+      <p className="text-muted-foreground mt-2 text-xs">
+        Leave the dates blank to show the latest year with donations.
+      </p>
+      {error && (
+        <p className="text-destructive mt-2 text-sm" role="alert">
+          {error}
+        </p>
       )}
-    </div>
+    </form>
   );
 }

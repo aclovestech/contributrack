@@ -29,6 +29,8 @@ pnpm build
 The build may require non-production StackAuth environment variables because the
 application is authenticated. A missing local configuration should produce a
 clear setup error; it must never cause a deployment to run a migration.
+`pnpm build` checks the three StackAuth build variables before invoking Next.js;
+the values themselves are never printed.
 
 ## Database workflow
 

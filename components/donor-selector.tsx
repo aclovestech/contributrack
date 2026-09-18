@@ -1,8 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Check, ChevronsUpDown, UserPlus } from 'lucide-react';
-import { cn } from '@/lib/utils'; // Make sure you have this utility
+import { Check, ChevronsUpDown, Loader2, UserPlus } from 'lucide-react';
+import { toast } from 'sonner';
+
+import { getDonorsForSelection } from '@/actions/donors.action';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
   Command,
@@ -18,13 +21,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { Donor } from '@/types/donor';
-import { getDonorNames } from '@/actions/donors.action';
-import { useUser } from '@stackframe/stack';
+import { DonorOption } from '@/types/donor';
 
 interface DonorSelectorProps {
-  selectedDonor: Donor['name'] | null;
-  onDonorSelect: (donorName: string) => void;
+  selectedDonor: DonorOption | null;
+  onDonorSelect: (donor: DonorOption) => void;
   onAddNewDonor: () => void;
 }
 
@@ -33,109 +34,113 @@ export function DonorSelector({
   onDonorSelect,
   onAddNewDonor,
 }: DonorSelectorProps) {
-  const user = useUser({ or: 'redirect' });
-
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
-  const [donors, setDonors] = useState<Donor['name'][]>([]);
+  const [donors, setDonors] = useState<DonorOption[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     async function fetchDonors() {
-      const donors = await getDonorNames(user.id);
-      setDonors(donors);
+      try {
+        const result = await getDonorsForSelection();
+        if (isMounted) setDonors(result);
+      } catch (error) {
+        if (isMounted) {
+          toast.error(
+            error instanceof Error ? error.message : 'Unable to load donors.',
+          );
+        }
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
     }
 
-    fetchDonors();
-  }, [user.id]);
+    void fetchDonors();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   function handleAddNewDonor() {
     setIsSelectorOpen(false);
     onAddNewDonor();
   }
 
-  function handleOnSelect(currentValue: string) {
-    // currentValue is the display value (donor.name)
-    const selected = donors.find(
-      (d) => d.toLowerCase() === currentValue.toLowerCase(),
-    );
-    if (selected) {
-      onDonorSelect(selected);
-    }
+  function handleOnSelect(value: string) {
+    const donor = donors.find((item) => item.id === value);
+    if (donor) onDonorSelect(donor);
     setIsSelectorOpen(false);
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <p className="text-muted-foreground text-sm">
-        Select an existing donor or add a new one.
+        Choose an existing donor or add a new one.
       </p>
-      <Popover
-        open={isSelectorOpen}
-        onOpenChange={setIsSelectorOpen}
-        modal={true}
-      >
+      <Popover open={isSelectorOpen} onOpenChange={setIsSelectorOpen} modal>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"
             aria-expanded={isSelectorOpen}
-            className="w-full justify-between"
+            className="h-11 w-full justify-between"
+            disabled={isLoading}
           >
-            {selectedDonor ? selectedDonor : 'Select donor...'}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            {isLoading ? (
+              <span className="text-muted-foreground flex items-center gap-2">
+                <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                Loading donors…
+              </span>
+            ) : (
+              (selectedDonor?.name ?? 'Choose a donor')
+            )}
+            <ChevronsUpDown
+              className="text-muted-foreground size-4"
+              aria-hidden="true"
+            />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="max-h-[--radix-popover-content-available-height] w-[--radix-popover-trigger-width] overflow-auto p-0">
+        <PopoverContent
+          className="w-[--radix-popover-trigger-width] p-0"
+          align="start"
+        >
           <Command>
-            <CommandInput placeholder="Search donor..." />
+            <CommandInput placeholder="Search by donor name…" />
             <CommandList>
-              <CommandEmpty>
-                <div className="flex flex-col py-4 text-center text-sm">
-                  No donor found.
-                  <Button
-                    variant="link"
-                    className="ml-1 h-auto p-1 underline"
-                    onClick={handleAddNewDonor}
-                  >
-                    Add New Donor?
-                  </Button>
-                </div>
-              </CommandEmpty>
+              <CommandEmpty>No active donor found.</CommandEmpty>
               <CommandGroup>
                 {donors.map((donor) => (
                   <CommandItem
-                    key={donor}
-                    value={donor} // Search uses this value
+                    key={donor.id}
+                    value={donor.id}
+                    keywords={[donor.name]}
                     onSelect={handleOnSelect}
                   >
                     <Check
                       className={cn(
-                        'mr-2 h-4 w-4',
-                        selectedDonor === donor ? 'opacity-100' : 'opacity-0',
+                        'mr-2 size-4',
+                        selectedDonor?.id === donor.id
+                          ? 'opacity-100'
+                          : 'opacity-0',
                       )}
+                      aria-hidden="true"
                     />
-                    {donor}
+                    {donor.name}
                   </CommandItem>
                 ))}
               </CommandGroup>
               <CommandSeparator />
               <CommandGroup>
-                <CommandItem
-                  onSelect={handleAddNewDonor}
-                  className="cursor-pointer"
-                >
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  Add New Donor
+                <CommandItem onSelect={handleAddNewDonor}>
+                  <UserPlus className="mr-2 size-4" aria-hidden="true" />
+                  Add a new donor
                 </CommandItem>
               </CommandGroup>
             </CommandList>
           </Command>
         </PopoverContent>
       </Popover>
-
-      {/* Alternative explicit Add New Donor Button */}
-      {/* <Button variant="outline" className="w-full" onClick={onAddNewDonor}>
-        <UserPlus className="mr-2 h-4 w-4" /> Add New Donor
-      </Button> */}
     </div>
   );
 }

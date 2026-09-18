@@ -6,7 +6,14 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function calculateTrend(current: number, previous: number) {
-  const trend = ((current - previous) / previous) * 100;
+  if (previous === 0) {
+    return {
+      output: current === 0 ? '0.00%' : 'New',
+      isPositive: current > 0,
+    };
+  }
+
+  const trend = ((current - previous) / Math.abs(previous)) * 100;
 
   const isPositive = trend > 0;
 
@@ -14,6 +21,17 @@ export function calculateTrend(current: number, previous: number) {
     output: trend.toFixed(2) + '%',
     isPositive,
   };
+}
+
+export function formatCurrency(amount: number | string) {
+  const value = typeof amount === 'string' ? Number(amount) : amount;
+
+  return value.toLocaleString('en-CA', {
+    style: 'currency',
+    currency: 'CAD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 }
 
 export function getMonthName(monthNumber: number) {

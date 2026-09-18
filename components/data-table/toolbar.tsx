@@ -1,64 +1,60 @@
 'use client';
 
+import { ReactNode, useState } from 'react';
 import { Table } from '@tanstack/react-table';
 import { X } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { DataTableViewOptions } from '@/components/data-table/view-options';
-import { AddDonorDialog } from '@/components/dialogs/add-donor-dialog';
-import { usePathname } from 'next/navigation';
-import { DonationDialog } from '@/components/dialogs/donation-dialog';
-import { useState } from 'react';
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
+  searchPlaceholder: string;
+  actions?: ReactNode;
 }
 
 export function DataTableToolbar<TData>({
   table,
+  searchPlaceholder,
+  actions,
 }: DataTableToolbarProps<TData>) {
   const [filter, setFilter] = useState('');
-  const isFiltered = table.getState().columnFilters.length > 0;
-
-  const currentPage = usePathname().split('/')[2];
+  const isFiltered = Boolean(table.getState().globalFilter);
 
   function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setFilter(String(event.target.value));
-    table.setGlobalFilter(String(event.target.value));
+    const value = event.target.value;
+    setFilter(value);
+    table.setGlobalFilter(value);
   }
 
   function handleResetFilter() {
     setFilter('');
-    table.resetGlobalFilter();
+    table.setGlobalFilter('');
   }
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex flex-1 items-center space-x-2">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex min-w-0 flex-1 items-center gap-2">
         <Input
-          placeholder="Filter table..."
+          type="search"
+          placeholder={searchPlaceholder}
           value={filter}
           onChange={handleInputChange}
-          className="h-8 w-[150px] lg:w-[250px]"
+          className="h-10 w-full max-w-sm"
+          aria-label={searchPlaceholder}
         />
         {isFiltered && (
           <Button
             variant="ghost"
             onClick={handleResetFilter}
-            className="h-8 px-2 lg:px-3"
+            className="h-10 shrink-0 px-2 sm:px-3"
           >
-            Reset
-            <X />
+            Clear
+            <X aria-hidden="true" />
           </Button>
         )}
       </div>
-      <div className="flex items-center space-x-2">
-        {table.getAllColumns().some((column) => column.getCanHide()) && (
-          <DataTableViewOptions table={table} />
-        )}
-        {currentPage === 'donors' && <AddDonorDialog />}
-        {currentPage === 'donations' && <DonationDialog />}
-      </div>
+      {actions && <div className="flex items-center gap-2">{actions}</div>}
     </div>
   );
 }

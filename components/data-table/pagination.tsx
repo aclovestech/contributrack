@@ -32,7 +32,8 @@ export function DataTablePagination<TData>({
   return (
     <div className="flex flex-col items-center justify-between gap-4 px-2 md:flex-row">
       <div className="text-muted-foreground text-sm">
-        {visibleRowCount} of {rowCount} row(s) displayed.
+        Showing {visibleRowCount} of {rowCount} record
+        {rowCount === 1 ? '' : 's'}
       </div>
 
       <div className="flex flex-col items-center gap-2 md:flex-row">
@@ -94,7 +95,7 @@ export function DataTablePagination<TData>({
         </div>
 
         <div className="text-sm font-medium whitespace-nowrap">
-          Page {currentPage} of {pageCount}
+          Page {pageCount === 0 ? 0 : currentPage} of {pageCount}
         </div>
       </div>
     </div>

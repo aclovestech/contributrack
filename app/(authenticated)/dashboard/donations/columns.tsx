@@ -7,6 +7,7 @@ import { DonationDialog } from '@/components/dialogs/donation-dialog';
 import { DonationRowData } from '@/types/donations';
 import { format, parseISO } from 'date-fns';
 import { DataTableColumnHeader } from '@/components/data-table/column-header';
+import { formatCurrency } from '@/lib/utils';
 
 export const columns: ColumnDef<DonationRowData>[] = [
   {
@@ -22,7 +23,12 @@ export const columns: ColumnDef<DonationRowData>[] = [
       return <DataTableColumnHeader column={column} title={'Donor Name'} />;
     },
     cell: ({ row }) => {
-      return <div>{row.original.donorName}</div>;
+      const isUnassigned = row.original.donorId === null;
+      return (
+        <div className={isUnassigned ? 'text-muted-foreground italic' : ''}>
+          {row.original.donorName}
+        </div>
+      );
     },
     enableHiding: false,
   },
@@ -45,14 +51,8 @@ export const columns: ColumnDef<DonationRowData>[] = [
       return <DataTableColumnHeader column={column} title={'Amount'} />;
     },
     cell: ({ row }) => {
-      const amount = parseFloat(row.original.amount);
       return (
-        <div>
-          {amount.toLocaleString('en-US', {
-            style: 'currency',
-            currency: 'CAD',
-          })}
-        </div>
+        <div className="font-medium">{formatCurrency(row.original.amount)}</div>
       );
     },
   },

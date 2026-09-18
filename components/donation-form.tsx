@@ -1,5 +1,19 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -7,46 +21,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { createInsertSchema } from 'drizzle-zod';
-import { donationsTable } from '@/src/db/schema';
-import { donationTypeEnum } from '@/src/db/schema';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from '@/components/ui/button';
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { DONATION_TYPES } from '@/types/donations';
-
-export const insertDonationSchema = createInsertSchema(donationsTable, {
-  dateReceived: z.string({ required_error: 'Date is required' }),
-  amount: z.coerce
-    .number({ invalid_type_error: 'Invalid amount' })
-    .positive('Amount must be positive')
-    .finite(),
-  donationType: z.enum(donationTypeEnum.enumValues, {
-    required_error: 'Donation type is required',
-  }),
-}).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-  deletedAt: true,
-  donorId: true,
-  userId: true,
-});
-export type DonationFormData = z.infer<typeof insertDonationSchema>;
+  donationFormSchema,
+  DonationFormData,
+  DONATION_TYPES,
+} from '@/lib/validation';
 
 interface DonationDetailsFormProps {
-  onSubmit: (formData: DonationFormData, isEditing: boolean) => void;
+  onSubmit: (
+    formData: DonationFormData,
+    isEditing: boolean,
+  ) => void | Promise<void>;
   initialData?: DonationFormData;
+}
+
+function formatDonationType(type: string) {
+  return type
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
 export function DonationForm({
@@ -54,36 +46,33 @@ export function DonationForm({
   initialData,
 }: DonationDetailsFormProps) {
   const form = useForm<DonationFormData>({
-    resolver: zodResolver(insertDonationSchema),
+    resolver: zodResolver(donationFormSchema),
     defaultValues: {
-      dateReceived: initialData
-        ? initialData.dateReceived
-        : new Date().toISOString().split('T')[0],
-      amount: initialData ? initialData.amount : 0.0,
-      donationType: initialData ? initialData.donationType : undefined,
+      dateReceived:
+        initialData?.dateReceived ?? new Date().toISOString().slice(0, 10),
+      amount: initialData?.amount ?? undefined,
+      donationType: initialData?.donationType ?? undefined,
     },
   });
 
-  function handleFormSubmit(formData: DonationFormData) {
-    const isEditing = !!initialData;
-    onSubmit(formData, isEditing);
+  async function handleFormSubmit(formData: DonationFormData) {
+    await onSubmit(formData, Boolean(initialData));
   }
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleFormSubmit)}
-        className="space-y-6"
+        className="space-y-5"
       >
-        <div className="grid grid-cols-2 gap-4">
-          {/* Date Received */}
+        <div className="grid gap-5 sm:grid-cols-2">
           <FormField
             control={form.control}
             name="dateReceived"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  Date Received <span className="text-red-500">*</span>
+                  Date received <span className="text-destructive">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input {...field} type="date" />
@@ -92,78 +81,76 @@ export function DonationForm({
               </FormItem>
             )}
           />
-          {/* Amount */}
+
           <FormField
             control={form.control}
             name="amount"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  Amount <span className="text-red-500">*</span>
+                  Amount <span className="text-destructive">*</span>
                 </FormLabel>
                 <FormControl>
                   <div className="relative">
-                    <span className="text-muted-foreground absolute inset-y-0 left-0 flex items-center pl-3 text-sm">
+                    <span className="text-muted-foreground pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-sm">
                       CA$
                     </span>
                     <Input
                       type="number"
-                      placeholder="0.00"
-                      step="0.01"
                       min="0.01"
+                      max="99999999.99"
+                      step="0.01"
+                      inputMode="decimal"
+                      placeholder="0.00"
                       className="pl-12"
                       {...field}
+                      value={field.value ?? ''}
+                      onChange={(event) => field.onChange(event.target.value)}
                     />
                   </div>
                 </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {/* Donation Type */}
-          <FormField
-            control={form.control}
-            name="donationType"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Donation Type <span className="text-red-500">*</span>
-                </FormLabel>
-                <FormControl>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    defaultValue={field.value}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue
-                        placeholder="Select donation type"
-                        className="capitalize"
-                      />
-                    </SelectTrigger>
-
-                    <SelectContent>
-                      {DONATION_TYPES.map((type) => (
-                        <SelectItem
-                          key={type}
-                          value={type}
-                          className="capitalize"
-                        >
-                          {type
-                            .replace(/_/g, ' ')
-                            .replace(/\b\w/g, (char) => char.toUpperCase())}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormControl>
+                <FormDescription>Canadian dollars.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
-        <div className="flex items-center justify-center">
-          <Button type="submit">Submit</Button>
+
+        <FormField
+          control={form.control}
+          name="donationType"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Donation type <span className="text-destructive">*</span>
+              </FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Choose a type" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {DONATION_TYPES.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {formatDonationType(type)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <div className="flex justify-end gap-2 pt-2">
+          <Button type="submit" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting
+              ? 'Saving…'
+              : initialData
+                ? 'Save changes'
+                : 'Add donation'}
+          </Button>
         </div>
       </form>
     </Form>

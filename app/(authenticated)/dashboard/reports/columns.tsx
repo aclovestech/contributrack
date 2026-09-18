@@ -3,6 +3,7 @@
 import { DataTableColumnHeader } from '@/components/data-table/column-header';
 import { ReportRowData } from '@/types/donations';
 import { ColumnDef } from '@tanstack/react-table';
+import { formatCurrency } from '@/lib/utils';
 
 export const columns: ColumnDef<ReportRowData>[] = [
   {
@@ -19,14 +20,8 @@ export const columns: ColumnDef<ReportRowData>[] = [
       <DataTableColumnHeader column={column} title="Total Amount" />
     ),
     cell: ({ row }) => {
-      const amount = row.original.amount;
       return (
-        <div>
-          {amount.toLocaleString('en-US', {
-            style: 'currency',
-            currency: 'CAD',
-          })}
-        </div>
+        <div className="font-medium">{formatCurrency(row.original.amount)}</div>
       );
     },
     sortingFn: (rowA, rowB) => {

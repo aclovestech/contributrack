@@ -8,28 +8,20 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { IconTrendingUp, IconTrendingDown } from '@tabler/icons-react';
-import { stackServerApp } from '@/stack';
 import { getTotalDonationsYtd } from '@/actions/donations.action';
-import { calculateTrend } from '@/lib/utils';
+import { calculateTrend, formatCurrency } from '@/lib/utils';
 
 export default async function TotalDonations() {
-  const user = await stackServerApp.getUser({ or: 'redirect' });
-
-  const data = await getTotalDonationsYtd(user.id);
+  const data = await getTotalDonationsYtd();
 
   const trend = calculateTrend(data.currentYear, data.previousYear);
-
-  const formattedTotalDonations = data.currentYear.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
 
   return (
     <Card className="@container/card">
       <CardHeader>
         <CardDescription>Total Donations</CardDescription>
         <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-          ${formattedTotalDonations}
+          {formatCurrency(data.currentYear)}
         </CardTitle>
         <CardAction>
           <Badge variant="outline">

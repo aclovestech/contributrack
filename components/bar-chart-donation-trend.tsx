@@ -16,7 +16,6 @@ import {
 } from '@/components/ui/chart';
 import { useState, useEffect } from 'react';
 import { getTotalDonationsPerMonthYTD } from '@/actions/donations.action';
-import { useUser } from '@stackframe/stack';
 
 const chartConfig = {
   totalAmount: {
@@ -31,18 +30,16 @@ type BarChartData = {
 };
 
 export function BarChartDonationTrend() {
-  const user = useUser({ or: 'redirect' });
-
   const [chartData, setChartData] = useState<BarChartData[]>([]);
 
   useEffect(() => {
     async function fetchChartData() {
-      const data = await getTotalDonationsPerMonthYTD(user.id);
+      const data = await getTotalDonationsPerMonthYTD();
       setChartData(data);
     }
 
     fetchChartData();
-  }, [user.id]);
+  }, []);
 
   return (
     <Card className="@container/card">

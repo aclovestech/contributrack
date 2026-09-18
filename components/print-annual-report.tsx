@@ -8,22 +8,17 @@ import { Printer } from 'lucide-react';
 interface PrintAnnualReportProps {
   data: ReportRowData[];
   year: number;
-  total: number;
 }
 
-export function PrintAnnualReport({
-  data,
-  year,
-  total,
-}: PrintAnnualReportProps) {
+export function PrintAnnualReport({ data, year }: PrintAnnualReportProps) {
   function handleOnClick() {
-    generatePdf(data, year, total);
+    generatePdf(data, year);
   }
 
   return (
     <Button onClick={handleOnClick}>
-      <Printer />
-      Print
+      <Printer aria-hidden="true" />
+      Print PDF
     </Button>
   );
 }

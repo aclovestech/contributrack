@@ -2,12 +2,15 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { SiteHeader } from '@/components/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { DashboardContent } from '@/components/dashboard-content';
+import { stackServerApp } from '@/stack';
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  await stackServerApp.getUser({ or: 'redirect' });
+
   return (
     <SidebarProvider
       style={

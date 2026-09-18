@@ -1,122 +1,96 @@
 import { NextResponse } from 'next/server';
 import { Webhook } from 'svix';
 import { z } from 'zod';
-import { usersTable } from '@/src/db/schema';
-import { db } from '@/src/db';
 import { eq } from 'drizzle-orm';
 
-const SelectedTeamSchema = z.object({
+import { db } from '@/src/db';
+import { usersTable } from '@/src/db/schema';
+
+const selectedTeamSchema = z.object({
   created_at_millis: z.number(),
   id: z.string(),
   display_name: z.string(),
   profile_image_url: z.string().nullish(),
 });
 
-const UserIDSchema = z.string().describe('The unique identifier of this user');
+const userIdSchema = z.string().min(1);
 
-const UserCreatedEventPayloadSchema = z.object({
-  id: UserIDSchema,
-  primary_email_verified: z
-    .boolean()
-    .describe(
-      'Whether the primary email has been verified to belong to this user',
-    ),
-  signed_up_at_millis: z
-    .number()
-    .describe(
-      'The time the user signed up (the number of milliseconds since epoch, January 1, 1970, UTC)',
-    ),
-  has_password: z
-    .boolean()
-    .describe('Whether the user has a password associated with their account'),
-  primary_email: z.string().nullish().describe('Primary email'),
-  display_name: z
-    .string()
-    .nullish()
-    .describe(
-      'Human-readable user display name. This is not a unique identifier.',
-    ),
-  selected_team: SelectedTeamSchema.nullish(),
-  selected_team_id: z
-    .string()
-    .nullish()
-    .describe('ID of the team currently selected by the user'),
-  profile_image_url: z
-    .string()
-    .nullish()
-    .describe(
-      'URL of the profile image for user. Can be a Base64 encoded image. Please compress and crop to a square before passing in.',
-    ),
-  client_metadata: z
-    .record(z.string(), z.any())
-    .nullish()
-    .describe(
-      'Client metadata. Used as a data store, accessible from the client side. Do not store information that should not be exposed to the client.',
-    ),
-  server_metadata: z
-    .record(z.string(), z.any())
-    .nullish()
-    .describe(
-      'Server metadata. Used as a data store, only accessible from the server side. You can store secret information related to the user here.',
-    ),
+const userPayloadSchema = z.object({
+  id: userIdSchema,
+  primary_email_verified: z.boolean(),
+  signed_up_at_millis: z.number(),
+  has_password: z.boolean(),
+  primary_email: z.string().nullish(),
+  display_name: z.string().nullish(),
+  selected_team: selectedTeamSchema.nullish(),
+  selected_team_id: z.string().nullish(),
+  profile_image_url: z.string().nullish(),
+  client_metadata: z.record(z.string(), z.unknown()).nullish(),
+  server_metadata: z.record(z.string(), z.unknown()).nullish(),
 });
 
-const UserUpdatedEventPayloadSchema = UserCreatedEventPayloadSchema;
-
-const UserDeletedEventPayloadSchema = z.object({
-  id: UserIDSchema,
-});
-
-const StackAuthEventPayloadSchema = z.discriminatedUnion('type', [
-  z.object({
-    type: z.literal('user.created'),
-    data: UserCreatedEventPayloadSchema,
-  }),
-  z.object({
-    type: z.literal('user.updated'),
-    data: UserUpdatedEventPayloadSchema,
-  }),
+const stackAuthEventSchema = z.discriminatedUnion('type', [
+  z.object({ type: z.literal('user.created'), data: userPayloadSchema }),
+  z.object({ type: z.literal('user.updated'), data: userPayloadSchema }),
   z.object({
     type: z.literal('user.deleted'),
-    data: UserDeletedEventPayloadSchema,
+    data: z.object({ id: userIdSchema }),
   }),
 ]);
 
-const secret = process.env.STACK_AUTH_WEBHOOK_SECRET!;
-
 export async function POST(request: Request) {
-  const body = await request.text();
+  const secret = process.env.STACK_AUTH_WEBHOOK_SECRET;
 
-  const headers: Record<string, string> = {};
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  request.headers.forEach((value, key, parent) => {
-    headers[key] = value;
-  });
-
-  const wh = new Webhook(secret);
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let payload: any = {};
-
-  try {
-    payload = wh.verify(body, headers);
-  } catch (e) {
+  if (!secret) {
     return NextResponse.json(
-      { error: `Unable to verify webhook: ${(e as Error).message}` },
-      { status: 500 },
+      { error: 'Webhook is not configured.' },
+      { status: 503 },
     );
   }
 
-  const parsedPayload = StackAuthEventPayloadSchema.parse(payload);
+  const body = await request.text();
+  let payload: unknown;
 
-  if (parsedPayload.type === 'user.created') {
-    const data = parsedPayload.data;
-    await db.insert(usersTable).values({
-      id: data.id,
-    });
-  } else if (parsedPayload.type === 'user.deleted') {
-    const data = parsedPayload.data;
-    await db.delete(usersTable).where(eq(usersTable.id, data.id));
+  try {
+    payload = new Webhook(secret).verify(
+      body,
+      Object.fromEntries(request.headers.entries()),
+    );
+  } catch {
+    // Do not echo signature or provider details to callers. A bad signature is
+    // a client error and should not trigger repeated provider retries as a 500.
+    return NextResponse.json(
+      { error: 'Invalid webhook signature.' },
+      { status: 400 },
+    );
+  }
+
+  const parsed = stackAuthEventSchema.safeParse(payload);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: 'Invalid webhook payload.' },
+      { status: 400 },
+    );
+  }
+
+  try {
+    if (parsed.data.type === 'user.deleted') {
+      // The database foreign keys intentionally SET NULL so historical donors
+      // and donations survive account deletion.
+      await db.delete(usersTable).where(eq(usersTable.id, parsed.data.data.id));
+    } else {
+      // StackAuth may retry events or deliver an update before the create event;
+      // both cases are safe with an idempotent insert.
+      await db
+        .insert(usersTable)
+        .values({ id: parsed.data.data.id })
+        .onConflictDoNothing({ target: usersTable.id });
+    }
+  } catch {
+    return NextResponse.json(
+      { error: 'Unable to process webhook.' },
+      { status: 500 },
+    );
   }
 
   return NextResponse.json({ message: 'Webhook received' });

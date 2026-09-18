@@ -8,14 +8,11 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
-import { stackServerApp } from '@/stack';
 import { getTotalDonationCountYtd } from '@/actions/donations.action';
 import { calculateTrend } from '@/lib/utils';
 
 export default async function TotalDonationCount() {
-  const user = await stackServerApp.getUser({ or: 'redirect' });
-
-  const data = await getTotalDonationCountYtd(user.id);
+  const data = await getTotalDonationCountYtd();
 
   const trend = calculateTrend(data.currentYear, data.previousYear);
 
