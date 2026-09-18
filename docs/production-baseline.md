@@ -39,9 +39,10 @@ to the owning account as unassigned donations.
   migration history, but its later dependency, reporting, and UI commits were
   reviewed; compatible dependency/tooling improvements and corrected behavior
   are carried forward deliberately rather than by merging the branch blindly.
-- The current rebuild work is isolated on a temporary `codex/rebuild/*` branch.
-  Historical branches remain untouched until the rebuilt application is
-  validated and the canonical `main` transition is approved.
+- The validated rebuild is now canonical on `main` and `origin/main` at
+  `337c770`. Temporary integration branches were removed after validation.
+  `develop` and `release/v1.0.0` remain untouched as historical references; do
+  not delete them until any remaining unmerged value is reviewed.
 
 ## Baseline values
 
