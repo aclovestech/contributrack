@@ -46,7 +46,7 @@ jobs:
         env:
           # Placeholder values exercise the build without exposing credentials
           # or connecting to a real database.
-          NEXT_PUBLIC_STACK_PROJECT_ID: ci-placeholder
+          NEXT_PUBLIC_STACK_PROJECT_ID: 123e4567-e89b-42d3-a456-426614174000
           NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY: ci-placeholder
           STACK_SECRET_SERVER_KEY: ci-placeholder
           DATABASE_URL: postgresql://127.0.0.1:5432/contributrack
