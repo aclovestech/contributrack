@@ -18,6 +18,23 @@ export function getLocalDateInputValue(date = new Date()) {
   return `${year}-${month}-${day}`;
 }
 
+/**
+ * Return the local-calendar Monday–Sunday range ending on the most recent
+ * Sunday. If today is Sunday, that includes today as the range end.
+ */
+export function getMostRecentSundayDateRange(date = new Date()) {
+  const sunday = new Date(date);
+  sunday.setDate(date.getDate() - date.getDay());
+
+  const monday = new Date(sunday);
+  monday.setDate(sunday.getDate() - 6);
+
+  return {
+    startDate: getLocalDateInputValue(monday),
+    endDate: getLocalDateInputValue(sunday),
+  };
+}
+
 export function calculateTrend(current: number, previous: number) {
   if (previous === 0) {
     return {
