@@ -64,6 +64,8 @@ export function getDonationColumns(
       cell: ({ row }) => (
         <div className="font-medium">{formatCurrency(row.original.amount)}</div>
       ),
+      sortingFn: (rowA, rowB) =>
+        Number(rowA.original.amount) - Number(rowB.original.amount),
     },
     {
       accessorKey: 'donationType',
