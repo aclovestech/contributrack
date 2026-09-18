@@ -38,6 +38,55 @@ const stackAuthEventSchema = z.discriminatedUnion('type', [
   }),
 ]);
 
+// StackAuth events are small JSON documents. Reject unexpectedly large bodies
+// before signature verification and parsing so this public endpoint cannot be
+// used to make the application hold arbitrary request data in memory.
+const MAX_WEBHOOK_BODY_BYTES = 256 * 1024;
+
+export const runtime = 'nodejs';
+
+function isBodyTooLarge(request: Request) {
+  const contentLength = request.headers.get('content-length');
+  if (!contentLength) return false;
+
+  const parsedLength = Number(contentLength);
+  return Number.isFinite(parsedLength) && parsedLength > MAX_WEBHOOK_BODY_BYTES;
+}
+
+async function readBodyWithinLimit(request: Request) {
+  if (!request.body) return '';
+
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      totalBytes += value.byteLength;
+      if (totalBytes > MAX_WEBHOOK_BODY_BYTES) {
+        await reader.cancel();
+        return null;
+      }
+
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bodyBytes = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bodyBytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+
+  return new TextDecoder().decode(bodyBytes);
+}
+
 export async function POST(request: Request) {
   const secret = process.env.STACK_AUTH_WEBHOOK_SECRET;
 
@@ -48,7 +97,21 @@ export async function POST(request: Request) {
     );
   }
 
-  const body = await request.text();
+  if (isBodyTooLarge(request)) {
+    return NextResponse.json(
+      { error: 'Webhook payload is too large.' },
+      { status: 413 },
+    );
+  }
+
+  const body = await readBodyWithinLimit(request);
+  if (body === null) {
+    return NextResponse.json(
+      { error: 'Webhook payload is too large.' },
+      { status: 413 },
+    );
+  }
+
   let payload: unknown;
 
   try {

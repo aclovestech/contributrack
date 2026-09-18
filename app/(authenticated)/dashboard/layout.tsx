@@ -4,6 +4,11 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { DashboardContent } from '@/components/dashboard-content';
 import { stackServerApp } from '@/stack';
 
+// Every dashboard page contains account-scoped data. Keep the route dynamic so
+// a framework or platform cache can never reuse one account's rendered page for
+// another authenticated account.
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardLayout({
   children,
 }: {

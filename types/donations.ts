@@ -1,5 +1,5 @@
-import { donationsTable } from '@/src/db/schema';
-import { Donor } from '@/types/donor';
+import type { donationsTable } from '@/src/db/schema';
+import type { Donor } from '@/types/donor';
 import { DONATION_TYPES } from '@/lib/validation';
 
 export type Donation = typeof donationsTable.$inferSelect & {

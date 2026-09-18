@@ -59,3 +59,7 @@ Server actions obtain the authenticated StackAuth user themselves and scope
 every query by that account. Client code passes record identifiers and form
 values, never an account id. Active lists/reports ignore archived rows. A
 donation with no donor relationship is retained and shown as “Unassigned donor”.
+The authenticated dashboard is forced dynamic, and `src/db/index.ts` is
+server-only. Public webhook requests are signature-verified and capped at 256
+KiB before parsing; mutation failures returned to the browser use generic
+messages rather than database details.

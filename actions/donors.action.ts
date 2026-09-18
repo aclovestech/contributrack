@@ -97,17 +97,22 @@ export async function archiveDonor(donorId: string) {
   const userId = await requireCurrentUserId();
   const id = uuidSchema.parse(donorId);
 
-  const [archived] = await db
-    .update(donorsTable)
-    .set({ deletedAt: new Date(), updatedAt: new Date() })
-    .where(
-      and(
-        eq(donorsTable.id, id),
-        eq(donorsTable.userId, userId),
-        isNull(donorsTable.deletedAt),
-      ),
-    )
-    .returning({ id: donorsTable.id });
+  let archived;
+  try {
+    [archived] = await db
+      .update(donorsTable)
+      .set({ deletedAt: new Date(), updatedAt: new Date() })
+      .where(
+        and(
+          eq(donorsTable.id, id),
+          eq(donorsTable.userId, userId),
+          isNull(donorsTable.deletedAt),
+        ),
+      )
+      .returning({ id: donorsTable.id });
+  } catch {
+    throw new Error('The donor could not be archived.');
+  }
 
   if (!archived) {
     throw new Error('Donor not found or already archived.');

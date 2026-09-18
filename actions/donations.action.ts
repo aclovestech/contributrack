@@ -115,11 +115,16 @@ export async function editDonation(
   const donor = donorId === null ? null : uuidSchema.parse(donorId);
   await ensureOwnedDonor(userId, donor, { allowArchived: true });
 
-  const [updated] = await db
-    .update(donationsTable)
-    .set({ donorId: donor, ...donation, updatedAt: new Date() })
-    .where(and(eq(donationsTable.id, id), eq(donationsTable.userId, userId)))
-    .returning();
+  let updated;
+  try {
+    [updated] = await db
+      .update(donationsTable)
+      .set({ donorId: donor, ...donation, updatedAt: new Date() })
+      .where(and(eq(donationsTable.id, id), eq(donationsTable.userId, userId)))
+      .returning();
+  } catch {
+    throw new Error('The donation could not be updated.');
+  }
 
   if (!updated) {
     throw new Error('Donation not found or no longer available.');
@@ -134,17 +139,22 @@ export async function archiveDonation(donationId: string) {
   const userId = await requireCurrentUserId();
   const id = uuidSchema.parse(donationId);
 
-  const [archived] = await db
-    .update(donationsTable)
-    .set({ deletedAt: new Date(), updatedAt: new Date() })
-    .where(
-      and(
-        eq(donationsTable.id, id),
-        eq(donationsTable.userId, userId),
-        isNull(donationsTable.deletedAt),
-      ),
-    )
-    .returning({ id: donationsTable.id });
+  let archived;
+  try {
+    [archived] = await db
+      .update(donationsTable)
+      .set({ deletedAt: new Date(), updatedAt: new Date() })
+      .where(
+        and(
+          eq(donationsTable.id, id),
+          eq(donationsTable.userId, userId),
+          isNull(donationsTable.deletedAt),
+        ),
+      )
+      .returning({ id: donationsTable.id });
+  } catch {
+    throw new Error('The donation could not be archived.');
+  }
 
   if (!archived) {
     throw new Error('Donation not found or already archived.');
@@ -158,11 +168,16 @@ export async function restoreDonation(donationId: string) {
   const userId = await requireCurrentUserId();
   const id = uuidSchema.parse(donationId);
 
-  const [restored] = await db
-    .update(donationsTable)
-    .set({ deletedAt: null, updatedAt: new Date() })
-    .where(and(eq(donationsTable.id, id), eq(donationsTable.userId, userId)))
-    .returning({ id: donationsTable.id });
+  let restored;
+  try {
+    [restored] = await db
+      .update(donationsTable)
+      .set({ deletedAt: null, updatedAt: new Date() })
+      .where(and(eq(donationsTable.id, id), eq(donationsTable.userId, userId)))
+      .returning({ id: donationsTable.id });
+  } catch {
+    throw new Error('The donation could not be restored.');
+  }
 
   if (!restored) {
     throw new Error('Donation not found.');

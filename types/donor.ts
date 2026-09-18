@@ -1,4 +1,4 @@
-import { donorsTable } from '@/src/db/schema';
+import type { donorsTable } from '@/src/db/schema';
 
 export type Donor = typeof donorsTable.$inferSelect;
 export type DonorRowData = Pick<
