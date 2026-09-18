@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { calculateTrend } from '@/lib/utils';
+import { buildAnnualReportDocument } from '@/lib/pdf-generator';
 import {
   amountToCents,
   groupAmountsByDonor,
@@ -30,6 +31,21 @@ test('report rows are grouped by donor and sorted for a stable PDF', () => {
       { donorName: 'Zoe', amount: 6 },
     ],
   );
+});
+
+test('annual PDF data includes unassigned rows and the exact report total', () => {
+  const document = buildAnnualReportDocument(
+    [
+      { donorName: 'Unassigned donor', amount: 0.1 },
+      { donorName: 'Alex', amount: 0.2 },
+    ],
+    2024,
+  );
+  const serialized = JSON.stringify(document);
+
+  assert.match(serialized, /Annual Donation Summary for 2024/);
+  assert.match(serialized, /Unassigned donor/);
+  assert.match(serialized, /Total donated: \$0\.30/);
 });
 
 test('donation validation rejects zero, malformed dates, and unknown types', () => {
