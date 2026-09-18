@@ -1,6 +1,4 @@
-import { DataTable } from '@/components/data-table/data-table';
 import { SearchParams } from '@/types/searchparams';
-import { columns } from '@/app/(authenticated)/dashboard/reports/columns';
 import YearSelector from '@/components/year-selector';
 import {
   getAllPossibleDonationYears,
@@ -12,6 +10,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
 import { sumAmounts } from '@/lib/reporting';
+import { ReportsTable } from './reports-table';
 
 export default async function Reports(props: { searchParams: SearchParams }) {
   const searchParams = await props.searchParams;
@@ -77,12 +76,7 @@ export default async function Reports(props: { searchParams: SearchParams }) {
             <PrintAnnualReport data={data} year={selectedYear} />
           </div>
         </div>
-        <DataTable
-          columns={columns}
-          data={data}
-          searchPlaceholder="Search report…"
-          emptyMessage="No donations recorded for this year."
-        />
+        <ReportsTable data={data} />
       </div>
     </div>
   );
