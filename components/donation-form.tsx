@@ -34,6 +34,7 @@ interface DonationDetailsFormProps {
     formData: DonationFormData,
     isEditing: boolean,
   ) => void | Promise<void>;
+  onCancel?: () => void;
   initialData?: DonationFormData;
 }
 
@@ -45,6 +46,7 @@ function formatDonationType(type: string) {
 
 export function DonationForm({
   onSubmit,
+  onCancel,
   initialData,
 }: DonationDetailsFormProps) {
   const form = useForm<DonationFormData>({
@@ -154,7 +156,12 @@ export function DonationForm({
           )}
         />
 
-        <div className="flex justify-end gap-2 pt-2">
+        <div className="flex flex-col-reverse justify-end gap-2 pt-2 sm:flex-row">
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+          )}
           <Button type="submit" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting
               ? 'Saving…'
