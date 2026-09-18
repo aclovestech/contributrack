@@ -1,7 +1,7 @@
 'use client';
 
-import * as pdfMake from 'pdfmake/build/pdfmake';
-import * as pdfFonts from 'pdfmake/build/vfs_fonts';
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
 import { TDocumentDefinitions } from 'pdfmake/interfaces';
 
 import { formatCurrency } from '@/lib/utils';
@@ -10,7 +10,11 @@ import { ReportRowData } from '@/types/donations';
 
 // pdfmake's browser bundle exposes the virtual file system through a runtime
 // method rather than a strongly typed property in the published declarations.
-(pdfMake as any).addVirtualFileSystem(pdfFonts);
+type PdfMakeWithVirtualFileSystem = typeof pdfMake & {
+  addVirtualFileSystem(vfs: Record<string, string>): void;
+};
+
+(pdfMake as PdfMakeWithVirtualFileSystem).addVirtualFileSystem(pdfFonts);
 
 export function buildAnnualReportDocument(
   data: readonly ReportRowData[],
