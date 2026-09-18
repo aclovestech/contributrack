@@ -1,20 +1,17 @@
 import {
   Card,
-  CardAction,
   CardDescription,
+  CardAction,
   CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { IconTrendingUp, IconTrendingDown } from '@tabler/icons-react';
 import { getTotalDonationsYtd } from '@/actions/donations.action';
-import { calculateTrend, formatCurrency } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
+import { TrendBadge, TrendDescription } from './trend-summary';
 
 export default async function TotalDonations() {
   const data = await getTotalDonationsYtd();
-
-  const trend = calculateTrend(data.currentYear, data.previousYear);
 
   return (
     <Card className="@container/card">
@@ -24,34 +21,14 @@ export default async function TotalDonations() {
           {formatCurrency(data.currentYear)}
         </CardTitle>
         <CardAction>
-          <Badge variant="outline">
-            {trend.isPositive ? (
-              <>
-                <IconTrendingUp className="text-green-500" />+{trend.output}
-              </>
-            ) : (
-              <>
-                <IconTrendingDown className="text-red-500" />
-                {trend.output}
-              </>
-            )}
-          </Badge>
+          <TrendBadge current={data.currentYear} previous={data.previousYear} />
         </CardAction>
       </CardHeader>
       <CardFooter className="flex-col items-start gap-1.5 text-sm">
-        <div className="line-clamp-1 flex gap-2 font-medium">
-          {trend.isPositive ? (
-            <>
-              <IconTrendingUp className="size-4 text-green-500" />
-              Trending up this year
-            </>
-          ) : (
-            <>
-              <IconTrendingDown className="size-4 text-red-500" />
-              Trending down this year
-            </>
-          )}
-        </div>
+        <TrendDescription
+          current={data.currentYear}
+          previous={data.previousYear}
+        />
         <div className="text-muted-foreground">
           January 1 to today, compared with the same period last year
         </div>
