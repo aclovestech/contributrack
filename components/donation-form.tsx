@@ -26,6 +26,7 @@ import {
   DonationFormData,
   DONATION_TYPES,
 } from '@/lib/validation';
+import { getLocalDateInputValue } from '@/lib/utils';
 
 interface DonationDetailsFormProps {
   onSubmit: (
@@ -48,8 +49,7 @@ export function DonationForm({
   const form = useForm<DonationFormData>({
     resolver: zodResolver(donationFormSchema),
     defaultValues: {
-      dateReceived:
-        initialData?.dateReceived ?? new Date().toISOString().slice(0, 10),
+      dateReceived: initialData?.dateReceived ?? getLocalDateInputValue(),
       amount: initialData?.amount ?? undefined,
       donationType: initialData?.donationType ?? undefined,
     },

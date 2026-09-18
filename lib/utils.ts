@@ -5,6 +5,19 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Return a date in the format expected by an HTML date input using the
+ * browser's local calendar date. Using `toISOString()` here can show the
+ * previous day for users west of UTC late in the evening.
+ */
+export function getLocalDateInputValue(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+
 export function calculateTrend(current: number, previous: number) {
   if (previous === 0) {
     return {

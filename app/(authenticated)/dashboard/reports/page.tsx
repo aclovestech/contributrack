@@ -72,7 +72,10 @@ export default async function Reports(props: { searchParams: SearchParams }) {
                 {formatCurrency(totalDonations)}
               </p>
             </div>
-            <YearSelector years={stringYears} />
+            <YearSelector
+              years={stringYears}
+              selectedYear={selectedYear.toString()}
+            />
             <PrintAnnualReport data={data} year={selectedYear} />
           </div>
         </div>

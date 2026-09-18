@@ -53,15 +53,8 @@ export function BarChartDonationTrend() {
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardTitle>Monthly Donation Trend</CardTitle>
-        <CardDescription>
-          <span className="hidden @[540px]/card:block">
-            From the beginning of the year to date
-          </span>
-          <span className="@[540px]/card:hidden">
-            From the beginning of the year to date
-          </span>
-        </CardDescription>
+        <CardTitle>Monthly donations</CardTitle>
+        <CardDescription>Monthly totals for the current year</CardDescription>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
         {isLoading ? (

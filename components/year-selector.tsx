@@ -11,9 +11,13 @@ import { usePathname, useRouter } from 'next/navigation';
 
 interface YearSelectorProps {
   years: string[];
+  selectedYear: string;
 }
 
-export default function YearSelector({ years }: YearSelectorProps) {
+export default function YearSelector({
+  years,
+  selectedYear,
+}: YearSelectorProps) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -30,7 +34,7 @@ export default function YearSelector({ years }: YearSelectorProps) {
   }
 
   return (
-    <Select onValueChange={handleOnSelect} defaultValue={years[0]}>
+    <Select value={selectedYear} onValueChange={handleOnSelect}>
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Select a year" />
       </SelectTrigger>

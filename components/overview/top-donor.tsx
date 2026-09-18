@@ -14,7 +14,7 @@ export default async function TopDonor() {
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardDescription>Top Donor</CardDescription>
+        <CardDescription>Top donor this year</CardDescription>
         <CardTitle className="text-2xl font-semibold tabular-nums">
           {data?.name ?? 'No named donor yet'}
         </CardTitle>
@@ -34,7 +34,7 @@ export default async function TopDonor() {
           )}
         </div>
         <div className="text-muted-foreground">
-          From the beginning of the year to date
+          Highest total among named donors this year
         </div>
       </CardFooter>
     </Card>

@@ -19,7 +19,7 @@ export default async function AverageDonation() {
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardDescription>Average Donation</CardDescription>
+        <CardDescription>Average gift</CardDescription>
         <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
           {formatCurrency(data.currentYear)}
         </CardTitle>
@@ -53,7 +53,7 @@ export default async function AverageDonation() {
           )}
         </div>
         <div className="text-muted-foreground">
-          From the beginning of the year to date compared to the previous year
+          Average gift this year, compared with the same period last year
         </div>
       </CardFooter>
     </Card>
