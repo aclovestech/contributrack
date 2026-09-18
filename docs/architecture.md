@@ -14,7 +14,7 @@ The target shape keeps this stack and makes the boundaries explicit:
 - Form schemas are shared as pure validation modules and are enforced again on
   the server.
 - Donation totals use decimal-safe normalization and the same active-record
-  rules for cards, tables, reports, charts, and PDFs.
+  rules for cards, tables, annual and weekly reports, charts, and PDFs.
 - `deleted_at` is used for reversible archive/restore behavior; no historical
   migration is rewritten.
 

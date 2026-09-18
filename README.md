@@ -1,8 +1,8 @@
 # ContribuTrack
 
 ContribuTrack is a small donation-management application for a church
-administrator. It helps record donations, maintain donor records, review totals,
-and print an annual donor-total report for reconciliation.
+administrator. It helps record donations, maintain donor records, review annual
+and weekly totals, and print an annual donor-total report for reconciliation.
 
 The project is intentionally optimized for a simple, reliable workflow rather
 than a feature-heavy dashboard. It uses Next.js App Router, TypeScript,

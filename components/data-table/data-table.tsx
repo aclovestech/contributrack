@@ -73,6 +73,11 @@ export function DataTable<TData, TValue>({
     state: { sorting, globalFilter },
   });
 
+  const hasSearch = Boolean(globalFilter.trim());
+  const visibleEmptyMessage = hasSearch
+    ? 'No matching records. Try a different search.'
+    : emptyMessage;
+
   return (
     <div className="space-y-4">
       <DataTableToolbar
@@ -124,7 +129,9 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-28 text-center"
                 >
-                  <span className="text-muted-foreground">{emptyMessage}</span>
+                  <span className="text-muted-foreground">
+                    {visibleEmptyMessage}
+                  </span>
                 </TableCell>
               </TableRow>
             )}

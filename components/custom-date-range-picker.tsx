@@ -51,6 +51,21 @@ export default function CustomDateRangePicker({
     router.push(showArchived ? `${pathname}?archived=1` : pathname);
   }
 
+  function applyYear(year: number) {
+    const nextStartDate = `${year}-01-01`;
+    const nextEndDate = `${year}-12-31`;
+    const archiveQuery = showArchived ? 'archived=1&' : '';
+
+    setStartDate(nextStartDate);
+    setEndDate(nextEndDate);
+    setError('');
+    router.push(
+      `${pathname}?${archiveQuery}startDate=${nextStartDate}&endDate=${nextEndDate}`,
+    );
+  }
+
+  const currentYear = new Date().getFullYear();
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -88,8 +103,28 @@ export default function CustomDateRangePicker({
           </Button>
         </div>
       </div>
+      <div className="flex flex-wrap items-center gap-2 pt-1">
+        <span className="text-muted-foreground text-xs">Quick ranges:</span>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => applyYear(currentYear)}
+        >
+          This year
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => applyYear(currentYear - 1)}
+        >
+          Last year
+        </Button>
+      </div>
       <p className="text-muted-foreground mt-2 text-xs">
-        Leave the dates blank to show the latest year with donations.
+        Choose a quick range or enter custom dates. Leaving the dates blank
+        shows the latest year with donations.
       </p>
       {error && (
         <p className="text-destructive mt-2 text-sm" role="alert">
