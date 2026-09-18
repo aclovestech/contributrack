@@ -63,8 +63,9 @@ owner approval.
 
 ## Deployment
 
-The repository is deployed through Coolify using Nixpacks. The historical
-configuration was observed using ref `latest` and commit setting `HEAD`; the
-historical deployed SHA is unknown. Do not infer deployment success from a Git
-push. Coolify should be deliberately changed to a validated canonical `main`
-commit only during the planned production cutover.
+The repository is deployed through Coolify using Railpack. The previous Coolify
+application used ref `latest` and commit setting `HEAD`; its historical deployed
+SHA is unknown. A replacement application has since been deployed with Railpack,
+but the active source ref and resolved commit must be verified in Coolify. Do
+not infer deployment success from a Git push. The long-term source ref should be
+the validated canonical `main` state after an owner-controlled cutover.

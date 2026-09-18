@@ -69,12 +69,17 @@ Repository-only work is not blocked by this gate. It becomes mandatory again
 immediately before a production migration, data repair, or other production
 write.
 
-## Deployment uncertainty
+## Deployment uncertainty and current build pack
 
-Coolify is configured to use repository `aclovestech/contributrack`, ref
-`latest`, and commit setting `HEAD`. The historical deployed commit is unknown,
-and a later redeploy is not evidence of the old deployment. The owner must
-verify the current running commit, runtime versions, commands, environment
-variable names, health checks, restart behavior, and rollback options in Coolify
-before production cutover. A push to `main` must not be treated as a deployment
-signal until Coolify is intentionally changed to `main`.
+The previous Coolify application used repository `aclovestech/contributrack`,
+ref `latest`, and commit setting `HEAD`. The historical deployed commit is
+unknown, and a later redeploy is not evidence of the old deployment. A
+replacement Coolify application has since been created with the Railpack build
+pack and has deployed successfully. Its exact source ref and resolved commit
+must be recorded from Coolify rather than inferred from Git history.
+
+The owner must verify the current running commit, runtime versions, commands,
+environment variable names, health checks, restart behavior, and rollback
+options in Coolify before production cutover. A push to `main` must not be
+treated as a deployment signal until Coolify is intentionally configured to
+deploy canonical `main`.
