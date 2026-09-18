@@ -21,7 +21,7 @@ export default async function TotalDonationCount() {
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardDescription>Gifts recorded</CardDescription>
+        <CardDescription>Donations recorded</CardDescription>
         <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
           {formattedTotalDonationCount}
         </CardTitle>
@@ -55,7 +55,7 @@ export default async function TotalDonationCount() {
           )}
         </div>
         <div className="text-muted-foreground">
-          Number of gifts this year, compared with the same period last year
+          Number of donations this year, compared with the same period last year
         </div>
       </CardFooter>
     </Card>

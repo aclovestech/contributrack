@@ -2,6 +2,7 @@ import { SearchParams } from '@/types/searchparams';
 import YearSelector from '@/components/year-selector';
 import {
   getAllPossibleDonationYears,
+  getWeeklyDonationsSummary,
   getYearlyDonationsSummary,
 } from '@/actions/donations.action';
 import { PrintAnnualReport } from '@/components/print-annual-report';
@@ -11,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
 import { sumAmounts } from '@/lib/reporting';
 import { ReportsTable } from './reports-table';
+import { WeeklyDonationTotals } from '@/components/weekly-donation-totals';
 
 export default async function Reports(props: { searchParams: SearchParams }) {
   const searchParams = await props.searchParams;
@@ -47,7 +49,10 @@ export default async function Reports(props: { searchParams: SearchParams }) {
       : undefined;
   const selectedYear =
     requestedYear && years.includes(requestedYear) ? requestedYear : years[0];
-  const data = await getYearlyDonationsSummary(selectedYear);
+  const [data, weeklyData] = await Promise.all([
+    getYearlyDonationsSummary(selectedYear),
+    getWeeklyDonationsSummary(selectedYear),
+  ]);
   const totalDonations = sumAmounts(data.map((row) => row.amount));
 
   return (
@@ -80,6 +85,7 @@ export default async function Reports(props: { searchParams: SearchParams }) {
           </div>
         </div>
         <ReportsTable data={data} />
+        <WeeklyDonationTotals data={weeklyData} year={selectedYear} />
       </div>
     </div>
   );
