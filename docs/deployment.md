@@ -3,8 +3,10 @@
 ## Current deployment shape
 
 The application is a single Next.js service built and started by Coolify using
-Nixpacks. The repository does not run Drizzle migrations as part of `build` or
-`start`; migration execution is a separate, reviewed operational step.
+Railpack. The repository declares Node.js 24.x and pnpm 10.30.3; the expected
+application commands are `pnpm install --frozen-lockfile`, `pnpm build`, and
+`pnpm start`. The repository does not run Drizzle migrations as part of `build`
+or `start`; migration execution is a separate, reviewed operational step.
 
 The health endpoint is `GET /api/health`. It performs only `SELECT 1` and
 returns `{ "status": "ok" }` or HTTP 503 with `{ "status": "error" }`; it never
@@ -44,12 +46,17 @@ commit an environment file.
    and PDF generation after deployment. Compare aggregate totals with the
    recorded production baseline; do not export donor personal information.
 
-## Coolify cutover
+## Coolify source and cutover
 
-The historical configuration used repository `aclovestech/contributrack`, ref
-`latest`, and commit setting `HEAD`; the historical deployed SHA is unknown. Do
-not assume a push to `main` deploys production. Before cutover, the owner should
-verify the current source ref, resolved commit, Node/pnpm versions, build and
-start commands, environment names, health/restart policy, and rollback options.
-Change the ref from `latest` to `main` only after a validated canonical `main`
-commit is ready and the owner has confirmed the deployment plan.
+The previous Coolify application used repository `aclovestech/contributrack`,
+ref `latest`, and commit setting `HEAD`; its historical deployed SHA is unknown.
+A replacement Coolify application has since been created with the Railpack build
+pack and has deployed successfully. The exact source ref and resolved commit for
+the replacement application must still be recorded from Coolify; do not infer
+them from a Git push or from the old configuration.
+
+Before any production cutover or rollback, the owner should verify the current
+source ref, resolved commit, Node/pnpm versions, build and start commands,
+environment names, `/api/health` probe, restart policy, and rollback options.
+The intended long-term source ref is canonical `main`, but changing Coolify's
+ref is an explicit owner-controlled production action.

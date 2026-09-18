@@ -34,7 +34,7 @@ with the administrator's own calculations.
   not silently change the database.
 - Authentication and ownership are server responsibilities. Never accept a
   client-supplied account/user id as authority for a database operation.
-- Keep StackAuth, PostgreSQL, Drizzle, pdfmake, and Nixpacks unless evidence and
+- Keep StackAuth, PostgreSQL, Drizzle, pdfmake, and Railpack unless evidence and
   an approved plan justify a change.
 - Do not commit secrets, `.env` files, donor personal information, database
   URLs, or StackAuth keys.
@@ -54,8 +54,9 @@ with the administrator's own calculations.
   predicates, webhook idempotency, and data transformations. Avoid tests that
   merely duplicate framework or component-library behavior.
 - Use Conventional Commits. Keep commits small and logically scoped. Validate
-  before merging into `main`; `main` is production-affecting even though the
-  current Coolify configuration points at `latest`.
+  before merging into `main`; `main` is production-affecting. Do not infer a
+  deployment from a push until Coolify's current source configuration is
+  verified.
 
 ## Useful commands
 
@@ -75,9 +76,11 @@ unless a read-only investigation is explicitly required.
 
 ## Deployment context
 
-The repository is deployed through Coolify/Nixpacks. The last known production
-configuration used ref `latest` with commit setting `HEAD`; the historical
-deployed SHA is unknown. Do not assume a push to `main` deploys production.
-Before the eventual cutover, the owner must verify Coolify's current source,
-runtime, environment, health-check, and rollback settings, then change the ref
-to a validated canonical `main` commit deliberately.
+The replacement production application was created in Coolify with Railpack and
+has deployed successfully. The previous application used ref `latest` with
+commit setting `HEAD`; its historical deployed SHA is unknown. Do not assume a
+push to `main` deploys production or that the replacement application's source
+ref is already canonical. Before any cutover, the owner must verify Coolify's
+current source, resolved commit, runtime, environment, health-check, and
+rollback settings, then change the ref to a validated canonical `main` commit
+deliberately.
