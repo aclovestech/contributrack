@@ -11,6 +11,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 interface NavMainProps {
   items: {
@@ -22,6 +23,7 @@ interface NavMainProps {
 
 export function NavMain({ items }: NavMainProps) {
   const { toggleSidebar, isMobile } = useSidebar();
+  const pathname = usePathname();
 
   function handleNavItemClick() {
     if (isMobile) toggleSidebar();
@@ -34,7 +36,14 @@ export function NavMain({ items }: NavMainProps) {
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <Link href={item.url} onClick={handleNavItemClick}>
-                <SidebarMenuButton tooltip={item.title}>
+                <SidebarMenuButton
+                  tooltip={item.title}
+                  isActive={
+                    item.url === '/dashboard'
+                      ? pathname === item.url
+                      : pathname.startsWith(item.url)
+                  }
+                >
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
                 </SidebarMenuButton>

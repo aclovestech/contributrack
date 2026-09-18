@@ -52,10 +52,10 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
 
   function handleOnToggleClick() {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
+    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
   }
 
   return (
@@ -86,7 +86,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             variant={'outline'}
             aria-label="Toggle theme"
           >
-            {theme === 'dark' ? <Sun /> : <Moon />}
+            {resolvedTheme === 'dark' ? <Sun /> : <Moon />}
           </Toggle>
         </div>
       </SidebarFooter>
