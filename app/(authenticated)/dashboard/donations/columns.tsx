@@ -23,7 +23,12 @@ export function getDonationColumns(
   return [
     {
       id: 'edit',
-      cell: ({ row }) => <DonationDialog donationData={row} />,
+      cell: ({ row }) => (
+        <DonationDialog
+          key={`${row.original.id}:${row.original.dateReceived}:${row.original.amount}:${row.original.donationType}:${row.original.donorId ?? ''}`}
+          donationData={row}
+        />
+      ),
       enableHiding: false,
     },
     {

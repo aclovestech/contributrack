@@ -10,7 +10,6 @@ import { ReportRowData } from '@/types/donations';
 
 // pdfmake's browser bundle exposes the virtual file system through a runtime
 // method rather than a strongly typed property in the published declarations.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (pdfMake as any).addVirtualFileSystem(pdfFonts);
 
 export function buildAnnualReportDocument(

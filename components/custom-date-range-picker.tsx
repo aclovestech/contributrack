@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -23,11 +23,6 @@ export default function CustomDateRangePicker({
   const [error, setError] = useState('');
   const router = useRouter();
   const pathname = usePathname();
-
-  useEffect(() => {
-    setStartDate(initialStartDate);
-    setEndDate(initialEndDate);
-  }, [initialEndDate, initialStartDate]);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

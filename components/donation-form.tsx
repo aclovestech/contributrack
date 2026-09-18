@@ -105,7 +105,12 @@ export function DonationForm({
                       className="pl-12"
                       {...field}
                       value={field.value ?? ''}
-                      onChange={(event) => field.onChange(event.target.value)}
+                      onChange={(event) => {
+                        const value = event.target.value;
+                        field.onChange(
+                          value === '' ? undefined : Number(value),
+                        );
+                      }}
                     />
                   </div>
                 </FormControl>

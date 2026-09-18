@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Edit, Plus } from 'lucide-react';
 import { Row } from '@tanstack/react-table';
 import { toast } from 'sonner';
@@ -44,20 +44,6 @@ export function DonationDialog({ donationData }: DonationDialogProps) {
         }
       : null,
   );
-
-  useEffect(() => {
-    if (donationData) {
-      setDialogState('fillInDonation');
-      setSelectedDonor(
-        donationData.original.donorId
-          ? {
-              id: donationData.original.donorId,
-              name: donationData.original.donorName,
-            }
-          : null,
-      );
-    }
-  }, [donationData]);
 
   function resetForNextDonation() {
     setDialogState('selectDonor');

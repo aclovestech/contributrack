@@ -8,7 +8,7 @@ export const DONATION_TYPES = [
 ] as const;
 
 export const donationTypeSchema = z.enum(DONATION_TYPES, {
-  required_error: 'Donation type is required',
+  error: 'Donation type is required',
 });
 
 const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
@@ -27,12 +27,12 @@ function isValidIsoDate(value: string) {
 }
 
 export const dateSchema = z
-  .string({ required_error: 'Date is required' })
+  .string({ error: 'Date is required' })
   .refine(isValidIsoDate, 'Enter a valid date.');
 
 export const donorFormSchema = z.object({
   name: z
-    .string({ required_error: 'Donor name is required' })
+    .string({ error: 'Donor name is required' })
     .trim()
     .min(1, 'Donor name is required')
     .max(100, 'Donor name must be 100 characters or fewer.'),
@@ -85,8 +85,8 @@ export function normalizeDonorInput(input: unknown): NormalizedDonorData {
 
 export const donationFormSchema = z.object({
   dateReceived: dateSchema,
-  amount: z.coerce
-    .number({ invalid_type_error: 'Enter a donation amount.' })
+  amount: z
+    .number({ error: 'Enter a donation amount.' })
     .finite('Enter a valid donation amount.')
     .positive('Amount must be greater than zero.')
     .max(99_999_999.99, 'Amount is too large.'),

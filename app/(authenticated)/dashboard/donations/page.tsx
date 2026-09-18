@@ -51,6 +51,7 @@ export default async function Donations(props: { searchParams: SearchParams }) {
       />
       <div className="space-y-4 px-4 lg:px-6">
         <CustomDateRangePicker
+          key={`${startDate ?? ''}:${endDate ?? ''}:${showArchived ? 'archived' : 'active'}`}
           initialStartDate={startDate}
           initialEndDate={endDate}
           showArchived={showArchived}
