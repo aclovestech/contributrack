@@ -3,7 +3,7 @@ import { StackProvider, StackTheme } from '@stackframe/stack';
 import { stackServerApp } from '../stack';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
-import { inter } from '@/app/fonts';
+import { Toaster } from '@/components/ui/sonner';
 
 export const metadata: Metadata = {
   title: 'ContribuTrack',
@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} antialiased`}>
+      <body className="antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -27,6 +27,7 @@ export default function RootLayout({
           <StackProvider app={stackServerApp}>
             <StackTheme>{children}</StackTheme>
           </StackProvider>
+          <Toaster position="bottom-right" />
         </ThemeProvider>
       </body>
     </html>
