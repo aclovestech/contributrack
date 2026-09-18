@@ -52,12 +52,14 @@ commit an environment file.
 The previous Coolify application used repository `aclovestech/contributrack`,
 ref `latest`, and commit setting `HEAD`; its historical deployed SHA is unknown.
 A replacement Coolify application has since been created with the Railpack build
-pack and has deployed successfully. The exact source ref and resolved commit for
-the replacement application must still be recorded from Coolify; do not infer
-them from a Git push or from the old configuration.
+pack and is now confirmed by the owner to deploy canonical `main` at commit
+`95825256bb36befd7c7ba74a36ec1a60ea4dacb3`. The previous application's
+historical deployed SHA remains unknown. Treat the confirmed SHA as the current
+production baseline; later repository commits require a deliberate deployment.
 
 Before any production cutover or rollback, the owner should verify the current
 source ref, resolved commit, Node/pnpm versions, build and start commands,
 environment names, `/api/health` probe, restart policy, and rollback options.
-The intended long-term source ref is canonical `main`, but changing Coolify's
-ref is an explicit owner-controlled production action.
+The active source ref is canonical `main`. Any later source-ref, commit,
+runtime, environment, health-check, restart-policy, or rollback change remains
+an explicit owner-controlled production action.

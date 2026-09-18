@@ -65,7 +65,7 @@ owner approval.
 
 The repository is deployed through Coolify using Railpack. The previous Coolify
 application used ref `latest` and commit setting `HEAD`; its historical deployed
-SHA is unknown. A replacement application has since been deployed with Railpack,
-but the active source ref and resolved commit must be verified in Coolify. Do
-not infer deployment success from a Git push. The long-term source ref should be
-the validated canonical `main` state after an owner-controlled cutover.
+SHA is unknown. The replacement application is confirmed to deploy canonical
+`main` at `95825256bb36befd7c7ba74a36ec1a60ea4dacb3`. Do not infer deployment
+success from a Git push; later commits still require owner-controlled deployment
+verification.
