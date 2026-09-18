@@ -42,21 +42,25 @@ export function getDonorColumns(isArchived = false): ColumnDef<DonorRowData>[] {
       accessorKey: 'email',
       header: () => <div className="text-center">Email</div>,
       cell: ({ row }) => formatCell(row.original.email),
+      meta: { className: 'hidden sm:table-cell' },
     },
     {
       accessorKey: 'phoneNumber',
       header: () => <div className="text-center">Phone</div>,
       cell: ({ row }) => formatCell(row.original.phoneNumber),
+      meta: { className: 'hidden sm:table-cell' },
     },
     {
       accessorKey: 'address',
       header: () => <div className="text-center">Address</div>,
       cell: ({ row }) => formatCell(row.original.address),
+      meta: { className: 'hidden lg:table-cell' },
     },
     {
       accessorKey: 'notes',
       header: () => <div className="text-center">Notes</div>,
       cell: ({ row }) => formatCell(row.original.notes),
+      meta: { className: 'hidden lg:table-cell' },
     },
     {
       id: 'actions',

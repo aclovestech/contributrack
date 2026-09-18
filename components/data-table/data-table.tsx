@@ -12,6 +12,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { rankItem } from '@tanstack/match-sorter-utils';
+import { cn } from '@/lib/utils';
 
 import { DataTablePagination } from '@/components/data-table/pagination';
 import { DataTableToolbar } from '@/components/data-table/toolbar';
@@ -30,6 +31,10 @@ interface DataTableProps<TData, TValue> {
   emptyMessage?: string;
   searchPlaceholder?: string;
   toolbarActions?: React.ReactNode;
+}
+
+function getColumnClassName<TData, TValue>(column: ColumnDef<TData, TValue>) {
+  return (column.meta as { className?: string } | undefined)?.className;
 }
 
 export function DataTable<TData, TValue>({
@@ -81,7 +86,10 @@ export function DataTable<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className={cn(getColumnClassName(header.column.columnDef))}
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -98,7 +106,10 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      className={cn(getColumnClassName(cell.column.columnDef))}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext(),

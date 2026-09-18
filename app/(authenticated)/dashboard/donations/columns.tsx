@@ -77,6 +77,7 @@ export function getDonationColumns(
           {formatDonationType(row.original.donationType)}
         </Badge>
       ),
+      meta: { className: 'hidden sm:table-cell' },
     },
     {
       id: 'actions',
