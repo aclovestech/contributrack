@@ -20,10 +20,15 @@ import { DonorRowData } from '@/types/donor';
 
 interface DonorFormProps {
   onFormSubmit: (formData: DonorFormData) => void | Promise<void>;
+  onCancel?: () => void;
   initialData?: DonorRowData;
 }
 
-export function DonorForm({ initialData, onFormSubmit }: DonorFormProps) {
+export function DonorForm({
+  initialData,
+  onFormSubmit,
+  onCancel,
+}: DonorFormProps) {
   const form = useForm<DonorFormData>({
     resolver: zodResolver(donorFormSchema),
     defaultValues: {
@@ -138,7 +143,12 @@ export function DonorForm({ initialData, onFormSubmit }: DonorFormProps) {
           )}
         />
 
-        <div className="flex justify-end gap-2 pt-2">
+        <div className="flex flex-col-reverse justify-end gap-2 pt-2 sm:flex-row">
+          {onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+          )}
           <Button type="submit" disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting
               ? 'Saving…'

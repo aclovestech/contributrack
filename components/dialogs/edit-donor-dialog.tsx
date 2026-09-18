@@ -56,7 +56,11 @@ export function EditDonorDialog({ row }: EditDonorDialogProps) {
             Update the details used to identify and contact this donor.
           </DialogDescription>
         </DialogHeader>
-        <DonorForm initialData={row.original} onFormSubmit={handleOnSubmit} />
+        <DonorForm
+          initialData={row.original}
+          onFormSubmit={handleOnSubmit}
+          onCancel={() => setIsDialogOpen(false)}
+        />
       </DialogContent>
     </Dialog>
   );

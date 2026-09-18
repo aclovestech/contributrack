@@ -82,6 +82,11 @@ export function DonationDialog({ donationData }: DonationDialogProps) {
     setSelectedDonor(null);
   }
 
+  function handleCancelDonationForm() {
+    setIsDialogOpen(false);
+    if (!isEditing) resetForNextDonation();
+  }
+
   async function handleOnDonationSubmit(
     formData: DonationFormData,
     editing: boolean,
@@ -176,7 +181,10 @@ export function DonationDialog({ donationData }: DonationDialogProps) {
               >
                 ← Back to donor search
               </Button>
-              <DonorForm onFormSubmit={handleOnDonorAdd} />
+              <DonorForm
+                onFormSubmit={handleOnDonorAdd}
+                onCancel={() => setDialogState('selectDonor')}
+              />
             </div>
           )}
           {dialogState === 'fillInDonation' && (
@@ -204,6 +212,7 @@ export function DonationDialog({ donationData }: DonationDialogProps) {
               </div>
               <DonationForm
                 onSubmit={handleOnDonationSubmit}
+                onCancel={handleCancelDonationForm}
                 initialData={initialData}
               />
             </div>

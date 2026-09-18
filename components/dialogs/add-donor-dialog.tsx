@@ -47,7 +47,10 @@ export function AddDonorDialog() {
             Add the donor once, then select them when recording a donation.
           </DialogDescription>
         </DialogHeader>
-        <DonorForm onFormSubmit={handleFormSubmit} />
+        <DonorForm
+          onFormSubmit={handleFormSubmit}
+          onCancel={() => setIsDialogOpen(false)}
+        />
       </DialogContent>
     </Dialog>
   );
