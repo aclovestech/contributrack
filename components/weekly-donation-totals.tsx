@@ -1,4 +1,5 @@
 import { formatCurrency } from '@/lib/utils';
+import { sumAmounts } from '@/lib/reporting';
 import { WeeklyReportRowData } from '@/types/donations';
 import {
   Table,
@@ -6,6 +7,7 @@ import {
   TableCell,
   TableHead,
   TableHeader,
+  TableFooter,
   TableRow,
 } from '@/components/ui/table';
 
@@ -18,6 +20,8 @@ export function WeeklyDonationTotals({
   data,
   year,
 }: WeeklyDonationTotalsProps) {
+  const total = sumAmounts(data.map((row) => row.amount));
+
   return (
     <section className="space-y-4" aria-labelledby="weekly-donation-totals">
       <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
@@ -59,6 +63,14 @@ export function WeeklyDonationTotals({
                 </TableRow>
               ))}
             </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TableCell>Total for {year}</TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {formatCurrency(total)}
+                </TableCell>
+              </TableRow>
+            </TableFooter>
           </Table>
         )}
       </div>

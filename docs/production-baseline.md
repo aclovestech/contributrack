@@ -39,10 +39,13 @@ to the owning account as unassigned donations.
   migration history, but its later dependency, reporting, and UI commits were
   reviewed; compatible dependency/tooling improvements and corrected behavior
   are carried forward deliberately rather than by merging the branch blindly.
-- The validated rebuild is now canonical on `main` and `origin/main` at
-  `337c770`. Temporary integration branches were removed after validation.
-  `develop` and `release/v1.0.0` remain untouched as historical references; do
-  not delete them until any remaining unmerged value is reviewed.
+- The validated rebuild was initially merged into canonical `main` at `337c770`.
+  Subsequent reviewed repository-only fixes for reporting, security, and the
+  aunt-focused UI are also now incorporated into `main`; use
+  `git rev-parse main` and `git rev-parse origin/main` for the current canonical
+  commit. Temporary implementation branches are removed after validation.
+  `develop` and `release/v1.0.0` remain historical references until their
+  ancestry and remaining value are explicitly accounted for.
 
 ## Baseline values
 

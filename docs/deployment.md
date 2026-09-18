@@ -42,9 +42,10 @@ commit an environment file.
    restore it into an isolated database, and record the restore verification.
 4. Apply an approved migration manually through the documented release process;
    never add it to `build`, `start`, or an automatic webhook.
-5. Confirm the health endpoint, login, donor lookup, donation entry, reports,
-   and PDF generation after deployment. Compare aggregate totals with the
-   recorded production baseline; do not export donor personal information.
+5. Confirm the health endpoint, login, donor lookup, donation entry, annual and
+   weekly reports, and PDF generation after deployment. Compare aggregate totals
+   with the recorded production baseline; do not export donor personal
+   information.
 
 ## Coolify source and cutover
 

@@ -22,8 +22,9 @@ export default function DashboardError({
       <div>
         <h2 className="text-lg font-semibold">We couldn’t load this page</h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          Try again. If the problem continues, check the connection and contact
-          the person who maintains ContribuTrack.
+          Try again. Your data has not been changed. If the problem continues,
+          check the connection and contact the person who maintains
+          ContribuTrack.
         </p>
       </div>
       <Button onClick={() => reset()}>Try again</Button>
