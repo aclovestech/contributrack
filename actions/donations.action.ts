@@ -1,6 +1,16 @@
 'use server';
 
-import { and, asc, desc, eq, gte, isNull, lte, sql } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gte,
+  isNotNull,
+  isNull,
+  lte,
+  sql,
+} from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
 import { requireCurrentUserId } from '@/lib/auth';
@@ -34,20 +44,21 @@ function yearBounds(year: number) {
   };
 }
 
-async function ensureOwnedDonor(userId: string, donorId: string | null) {
+async function ensureOwnedDonor(
+  userId: string,
+  donorId: string | null,
+  options: { allowArchived?: boolean } = {},
+) {
   if (donorId === null) return;
 
   const id = uuidSchema.parse(donorId);
+  const predicates = [eq(donorsTable.id, id), eq(donorsTable.userId, userId)];
+  if (!options.allowArchived) predicates.push(isNull(donorsTable.deletedAt));
+
   const [donor] = await db
     .select({ id: donorsTable.id })
     .from(donorsTable)
-    .where(
-      and(
-        eq(donorsTable.id, id),
-        eq(donorsTable.userId, userId),
-        isNull(donorsTable.deletedAt),
-      ),
-    )
+    .where(and(...predicates))
     .limit(1);
 
   if (!donor) {
@@ -97,18 +108,12 @@ export async function editDonation(
   const donation = normalizeDonationInput(input);
 
   const donor = donorId === null ? null : uuidSchema.parse(donorId);
-  await ensureOwnedDonor(userId, donor);
+  await ensureOwnedDonor(userId, donor, { allowArchived: true });
 
   const [updated] = await db
     .update(donationsTable)
     .set({ donorId: donor, ...donation, updatedAt: new Date() })
-    .where(
-      and(
-        eq(donationsTable.id, id),
-        eq(donationsTable.userId, userId),
-        isNull(donationsTable.deletedAt),
-      ),
-    )
+    .where(and(eq(donationsTable.id, id), eq(donationsTable.userId, userId)))
     .returning();
 
   if (!updated) {
@@ -161,17 +166,24 @@ export async function restoreDonation(donationId: string) {
   revalidateDonationViews();
 }
 
-function activeDonationPredicate(userId: string) {
+function donationVisibilityPredicate(userId: string, includeArchived: boolean) {
   return and(
     eq(donationsTable.userId, userId),
-    isNull(donationsTable.deletedAt),
+    includeArchived
+      ? isNotNull(donationsTable.deletedAt)
+      : isNull(donationsTable.deletedAt),
   );
+}
+
+function activeDonationPredicate(userId: string) {
+  return donationVisibilityPredicate(userId, false);
 }
 
 async function resolveDateRange(
   userId: string,
   startDate?: string,
   endDate?: string,
+  includeArchived = false,
 ) {
   if (startDate && endDate) {
     const parsed = dateRangeSchema.safeParse({ startDate, endDate });
@@ -184,7 +196,7 @@ async function resolveDateRange(
   const [latest] = await db
     .select({ dateReceived: donationsTable.dateReceived })
     .from(donationsTable)
-    .where(activeDonationPredicate(userId))
+    .where(donationVisibilityPredicate(userId, includeArchived))
     .orderBy(desc(donationsTable.dateReceived))
     .limit(1);
 
@@ -206,9 +218,15 @@ async function resolveDateRange(
 export async function getAllDonationsWithinRange(
   startDate?: string,
   endDate?: string,
+  includeArchived = false,
 ): Promise<DonationRowData[]> {
   const userId = await requireCurrentUserId();
-  const range = await resolveDateRange(userId, startDate, endDate);
+  const range = await resolveDateRange(
+    userId,
+    startDate,
+    endDate,
+    includeArchived,
+  );
 
   if (!range) return [];
 
@@ -233,7 +251,7 @@ export async function getAllDonationsWithinRange(
     )
     .where(
       and(
-        activeDonationPredicate(userId),
+        donationVisibilityPredicate(userId, includeArchived),
         gte(donationsTable.dateReceived, range.startDate),
         lte(donationsTable.dateReceived, range.endDate),
       ),

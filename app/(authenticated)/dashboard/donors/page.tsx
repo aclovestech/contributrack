@@ -1,25 +1,59 @@
 import { DataTable } from '@/components/data-table/data-table';
-import { columns } from '@/app/(authenticated)/dashboard/donors/columns';
+import { getDonorColumns } from '@/app/(authenticated)/dashboard/donors/columns';
 import { getAllDonors } from '@/actions/donors.action';
 import { AddDonorDialog } from '@/components/dialogs/add-donor-dialog';
 import { PageHeader } from '@/components/page-header';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { SearchParams } from '@/types/searchparams';
 
-export default async function Donors() {
-  const donors = await getAllDonors();
+export default async function Donors({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const params = await searchParams;
+  const showArchived = params.archived === '1';
+  const donors = await getAllDonors(showArchived);
 
   return (
     <div className="flex flex-col gap-6 py-5 md:gap-8 md:py-6">
       <PageHeader
-        title="Donors"
-        description="Keep one clear record for each person or household who gives."
-        actions={<AddDonorDialog />}
+        title={showArchived ? 'Archived donors' : 'Donors'}
+        description={
+          showArchived
+            ? 'Review donors you have archived and restore one when needed.'
+            : 'Keep one clear record for each person or household who gives.'
+        }
+        actions={
+          <>
+            <Button asChild variant="outline">
+              <Link
+                href={
+                  showArchived
+                    ? '/dashboard/donors'
+                    : '/dashboard/donors?archived=1'
+                }
+              >
+                {showArchived ? 'Back to donors' : 'View archived'}
+              </Link>
+            </Button>
+            {!showArchived && <AddDonorDialog />}
+          </>
+        }
       />
       <div className="px-4 lg:px-6">
         <DataTable
-          columns={columns}
+          columns={getDonorColumns(showArchived)}
           data={donors}
-          searchPlaceholder="Search donors…"
-          emptyMessage="No donors yet. Add the first donor to get started."
+          searchPlaceholder={
+            showArchived ? 'Search archived donors…' : 'Search donors…'
+          }
+          emptyMessage={
+            showArchived
+              ? 'No archived donors.'
+              : 'No donors yet. Add the first donor to get started.'
+          }
         />
       </div>
     </div>

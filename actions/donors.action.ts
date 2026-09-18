@@ -1,6 +1,6 @@
 'use server';
 
-import { and, asc, eq, isNull } from 'drizzle-orm';
+import { and, asc, eq, isNotNull, isNull } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
 import { requireCurrentUserId } from '@/lib/auth';
@@ -50,7 +50,7 @@ export async function addDonor(input: unknown): Promise<DonorRowData> {
   return created;
 }
 
-/** Update an active donor owned by the authenticated account. */
+/** Update an account-owned donor, including one currently in the archive. */
 export async function editDonor(
   donorId: string,
   input: unknown,
@@ -62,13 +62,7 @@ export async function editDonor(
   const [updated] = await db
     .update(donorsTable)
     .set({ ...donor, updatedAt: new Date() })
-    .where(
-      and(
-        eq(donorsTable.id, id),
-        eq(donorsTable.userId, userId),
-        isNull(donorsTable.deletedAt),
-      ),
-    )
+    .where(and(eq(donorsTable.id, id), eq(donorsTable.userId, userId)))
     .returning({
       id: donorsTable.id,
       name: donorsTable.name,
@@ -132,9 +126,14 @@ export async function restoreDonor(donorId: string) {
   revalidateDonorViews();
 }
 
-/** Return active donors for the account's donor directory. */
-export async function getAllDonors(): Promise<DonorRowData[]> {
+/** Return account-owned donors, optionally limited to archived records. */
+export async function getAllDonors(
+  includeArchived = false,
+): Promise<DonorRowData[]> {
   const userId = await requireCurrentUserId();
+  const visibility = includeArchived
+    ? isNotNull(donorsTable.deletedAt)
+    : isNull(donorsTable.deletedAt);
 
   return db
     .select({
@@ -146,7 +145,7 @@ export async function getAllDonors(): Promise<DonorRowData[]> {
       notes: donorsTable.notes,
     })
     .from(donorsTable)
-    .where(and(eq(donorsTable.userId, userId), isNull(donorsTable.deletedAt)))
+    .where(and(eq(donorsTable.userId, userId), visibility))
     .orderBy(asc(donorsTable.name));
 }
 

@@ -32,39 +32,44 @@ import { DonorRowData } from '@/types/donor';
 interface DataTableActionsMenuProps {
   donorRow?: Row<DonorRowData>;
   donationRow?: Row<DonationRowData>;
+  isArchived?: boolean;
 }
 
 export function DataTableActionsMenu({
   donorRow,
   donationRow,
+  isArchived = false,
 }: DataTableActionsMenuProps) {
-  const [isDeleteAlertDialogOpen, setIsDeleteAlertDialogOpen] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isPending, setIsPending] = useState(false);
 
   const isDonor = Boolean(donorRow);
   const recordLabel =
-    donorRow?.original.name ?? donationRow?.original.donorName;
+    donorRow?.original.name ?? donationRow?.original.donorName ?? 'record';
   const entityLabel = isDonor ? 'donor' : 'donation';
+  const verb = isArchived ? 'restore' : 'archive';
 
-  async function handleOnConfirmArchive() {
+  async function handleConfirm() {
     setIsPending(true);
 
     try {
       if (donorRow) {
-        await archiveDonor(donorRow.original.id);
+        if (isArchived) await restoreDonor(donorRow.original.id);
+        else await archiveDonor(donorRow.original.id);
       } else if (donationRow) {
-        await archiveDonation(donationRow.original.id);
+        if (isArchived) await restoreDonation(donationRow.original.id);
+        else await archiveDonation(donationRow.original.id);
       }
 
       toast.success(
-        `${entityLabel[0].toUpperCase()}${entityLabel.slice(1)} archived.`,
+        `${entityLabel[0].toUpperCase()}${entityLabel.slice(1)} ${verb}d.`,
       );
-      setIsDeleteAlertDialogOpen(false);
+      setIsConfirmOpen(false);
     } catch (error) {
       toast.error(
         error instanceof Error
           ? error.message
-          : `Unable to archive this ${entityLabel}.`,
+          : `Unable to ${verb} this ${entityLabel}.`,
       );
     } finally {
       setIsPending(false);
@@ -87,41 +92,52 @@ export function DataTableActionsMenu({
           <DropdownMenuLabel>More actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            className="text-destructive focus:text-destructive"
+            className={
+              isArchived ? undefined : 'text-destructive focus:text-destructive'
+            }
             onSelect={(event) => {
               event.preventDefault();
-              setIsDeleteAlertDialogOpen(true);
+              setIsConfirmOpen(true);
             }}
           >
-            Archive {entityLabel}
+            {isArchived ? 'Restore' : 'Archive'} {entityLabel}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog
-        open={isDeleteAlertDialogOpen}
-        onOpenChange={setIsDeleteAlertDialogOpen}
-      >
+      <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Archive this {entityLabel}?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {isArchived ? 'Restore' : 'Archive'} this {entityLabel}?
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              {isDonor
-                ? `“${recordLabel}” will be hidden from active donor lists. Existing donations are kept for reporting.`
-                : 'The donation will be removed from active totals and reports. You can restore it later.'}
+              {isArchived
+                ? `“${recordLabel}” will return to the active ${entityLabel} list.`
+                : isDonor
+                  ? `“${recordLabel}” will be hidden from active donor lists. Existing donations are kept for reporting.`
+                  : 'The donation will be removed from active totals and reports. You can restore it later.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>Keep it</AlertDialogCancel>
+            <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              className="bg-destructive hover:bg-destructive/90"
+              className={
+                isArchived
+                  ? undefined
+                  : 'bg-destructive hover:bg-destructive/90'
+              }
               onClick={(event) => {
                 event.preventDefault();
-                void handleOnConfirmArchive();
+                void handleConfirm();
               }}
               disabled={isPending}
             >
-              {isPending ? 'Archiving…' : 'Archive'}
+              {isPending
+                ? `${isArchived ? 'Restoring' : 'Archiving'}…`
+                : isArchived
+                  ? 'Restore'
+                  : 'Archive'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -129,8 +145,3 @@ export function DataTableActionsMenu({
     </>
   );
 }
-
-// Keep restore actions discoverable to future archive-management UI without
-// exposing them in the active tables yet.
-export const restoreArchivedDonor = restoreDonor;
-export const restoreArchivedDonation = restoreDonation;

@@ -10,11 +10,13 @@ import { Label } from '@/components/ui/label';
 interface CustomDateRangePickerProps {
   initialStartDate?: string;
   initialEndDate?: string;
+  showArchived?: boolean;
 }
 
 export default function CustomDateRangePicker({
   initialStartDate = '',
   initialEndDate = '',
+  showArchived = false,
 }: CustomDateRangePickerProps) {
   const [startDate, setStartDate] = useState(initialStartDate);
   const [endDate, setEndDate] = useState(initialEndDate);
@@ -41,8 +43,9 @@ export default function CustomDateRangePicker({
     }
 
     setError('');
+    const archiveQuery = showArchived ? 'archived=1&' : '';
     router.push(
-      `${pathname}?startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`,
+      `${pathname}?${archiveQuery}startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`,
     );
   }
 
@@ -50,7 +53,7 @@ export default function CustomDateRangePicker({
     setStartDate('');
     setEndDate('');
     setError('');
-    router.push(pathname);
+    router.push(showArchived ? `${pathname}?archived=1` : pathname);
   }
 
   return (

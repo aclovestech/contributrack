@@ -10,6 +10,8 @@ import { PrintAnnualReport } from '@/components/print-annual-report';
 import { PageHeader } from '@/components/page-header';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { formatCurrency } from '@/lib/utils';
+import { sumAmounts } from '@/lib/reporting';
 
 export default async function Reports(props: { searchParams: SearchParams }) {
   const searchParams = await props.searchParams;
@@ -47,6 +49,7 @@ export default async function Reports(props: { searchParams: SearchParams }) {
   const selectedYear =
     requestedYear && years.includes(requestedYear) ? requestedYear : years[0];
   const data = await getYearlyDonationsSummary(selectedYear);
+  const totalDonations = sumAmounts(data.map((row) => row.amount));
 
   return (
     <div className="flex flex-col gap-6 py-5 md:gap-8 md:py-6">
@@ -64,6 +67,12 @@ export default async function Reports(props: { searchParams: SearchParams }) {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
+            <div className="mr-2 text-right">
+              <p className="text-muted-foreground text-xs">Year total</p>
+              <p className="font-semibold tabular-nums">
+                {formatCurrency(totalDonations)}
+              </p>
+            </div>
             <YearSelector years={stringYears} />
             <PrintAnnualReport data={data} year={selectedYear} />
           </div>
