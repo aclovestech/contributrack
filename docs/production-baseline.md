@@ -43,9 +43,10 @@ to the owning account as unassigned donations.
   Subsequent reviewed repository-only fixes for reporting, security, and the
   aunt-focused UI are also now incorporated into `main`; use
   `git rev-parse main` and `git rev-parse origin/main` for the current canonical
-  commit. Temporary implementation branches are removed after validation.
-  `develop` and `release/v1.0.0` remain historical references until their
-  ancestry and remaining value are explicitly accounted for.
+  commit. Temporary implementation branches are removed after validation. The
+  remote `develop` and `release/v1.0.0` branches were then reviewed, found fully
+  ancestral to `main`, and deleted; their commits remain reachable in canonical
+  history. The historical `latest` tag is intentionally preserved.
 
 ## Baseline values
 
