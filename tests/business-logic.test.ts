@@ -10,6 +10,7 @@ import {
 } from '@/lib/reporting';
 import {
   donationFormSchema,
+  dateRangeSchema,
   normalizeDonationInput,
   normalizeDonorInput,
 } from '@/lib/validation';
@@ -120,4 +121,18 @@ test('trend calculation handles a first year without a divide-by-zero result', (
     output: '20.00%',
     isPositive: true,
   });
+});
+
+test('date range validation requires complete, ordered boundaries', () => {
+  assert.equal(
+    dateRangeSchema.safeParse({ startDate: '2024-01-01' }).success,
+    false,
+  );
+  assert.equal(
+    dateRangeSchema.safeParse({
+      startDate: '2024-02-01',
+      endDate: '2024-01-31',
+    }).success,
+    false,
+  );
 });

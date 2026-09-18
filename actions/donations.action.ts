@@ -185,6 +185,10 @@ async function resolveDateRange(
   endDate?: string,
   includeArchived = false,
 ) {
+  if (Boolean(startDate) !== Boolean(endDate)) {
+    throw new Error('Choose both a start date and an end date.');
+  }
+
   if (startDate && endDate) {
     const parsed = dateRangeSchema.safeParse({ startDate, endDate });
     if (!parsed.success) {
