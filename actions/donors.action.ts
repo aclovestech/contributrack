@@ -59,18 +59,26 @@ export async function editDonor(
   const id = uuidSchema.parse(donorId);
   const donor = normalizeDonorInput(input);
 
-  const [updated] = await db
-    .update(donorsTable)
-    .set({ ...donor, updatedAt: new Date() })
-    .where(and(eq(donorsTable.id, id), eq(donorsTable.userId, userId)))
-    .returning({
-      id: donorsTable.id,
-      name: donorsTable.name,
-      email: donorsTable.email,
-      phoneNumber: donorsTable.phoneNumber,
-      address: donorsTable.address,
-      notes: donorsTable.notes,
-    });
+  let updated;
+  try {
+    [updated] = await db
+      .update(donorsTable)
+      .set({ ...donor, updatedAt: new Date() })
+      .where(and(eq(donorsTable.id, id), eq(donorsTable.userId, userId)))
+      .returning({
+        id: donorsTable.id,
+        name: donorsTable.name,
+        email: donorsTable.email,
+        phoneNumber: donorsTable.phoneNumber,
+        address: donorsTable.address,
+        notes: donorsTable.notes,
+      });
+  } catch (error) {
+    if (isUniqueViolation(error)) {
+      throw new Error('A donor with that name already exists.');
+    }
+    throw new Error('The donor could not be updated.');
+  }
 
   if (!updated) {
     throw new Error('Donor not found or no longer available.');
@@ -113,11 +121,21 @@ export async function restoreDonor(donorId: string) {
   const userId = await requireCurrentUserId();
   const id = uuidSchema.parse(donorId);
 
-  const [restored] = await db
-    .update(donorsTable)
-    .set({ deletedAt: null, updatedAt: new Date() })
-    .where(and(eq(donorsTable.id, id), eq(donorsTable.userId, userId)))
-    .returning({ id: donorsTable.id });
+  let restored;
+  try {
+    [restored] = await db
+      .update(donorsTable)
+      .set({ deletedAt: null, updatedAt: new Date() })
+      .where(and(eq(donorsTable.id, id), eq(donorsTable.userId, userId)))
+      .returning({ id: donorsTable.id });
+  } catch (error) {
+    if (isUniqueViolation(error)) {
+      throw new Error(
+        'That donor cannot be restored while another active donor has the same name.',
+      );
+    }
+    throw new Error('The donor could not be restored.');
+  }
 
   if (!restored) {
     throw new Error('Donor not found.');
