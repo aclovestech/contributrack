@@ -8,10 +8,10 @@ with the administrator's own calculations.
 
 ## Source and data baseline
 
-- The rebuild baseline is `release/v1.0.0`; its reviewed application and
-  migration lineage is now incorporated into canonical `main` at the validated
-  rebuild commit. Keep `develop` and `release/v1.0.0` available as historical
-  references until their remaining value has been reviewed.
+- The rebuild baseline was `release/v1.0.0`; its reviewed application and
+  migration lineage is now incorporated into canonical `main`. The historical
+  `develop` and `release/v1.0.0` branches were reviewed, found fully ancestral
+  to `main`, and deleted after their commits were preserved.
 - PostgreSQL production data is real and must be preserved.
 - Drizzle migrations `0000` through `0004` are historical records. Never edit,
   reorder, regenerate, or replace them. Add only forward migrations after a
