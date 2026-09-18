@@ -32,6 +32,18 @@ clear setup error; it must never cause a deployment to run a migration.
 `pnpm build` checks the three StackAuth build variables before invoking Next.js;
 the values themselves are never printed.
 
+The production build explicitly uses Next.js's Webpack path
+(`next build --webpack`) because it is the most deterministic validation path
+for this repository. Turbopack remains available for local development through
+`pnpm dev`.
+
+Run `pnpm audit --prod` when reviewing dependency changes. The lockfile keeps
+same-major security overrides for transitive `shell-quote`, `js-cookie`,
+Browserslist, and `bn.js` findings. The current StackAuth release still brings
+`uuid` 9.x and `elliptic`; do not force a major `uuid` override or replace
+StackAuth's crypto dependency without a compatibility review and explicit
+approval.
+
 ## Database workflow
 
 Drizzle schema and migrations live in `src/db/schema.ts` and `drizzle/`.
