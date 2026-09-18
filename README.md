@@ -1,74 +1,68 @@
 # ContribuTrack
 
-## Overview
+ContribuTrack is a small donation-management application for a church
+administrator. It helps record donations, maintain donor records, review totals,
+and print an annual donor-total report for reconciliation.
 
-Contributrack is a Next.js application born out of a desire to help my aunt's organization, King's Chapel (Canada), manage and track their donations more effectively. This personal project allowed me to leverage my Next.js skills to create a practical tool with features like donor management, donation recording, report generation, and donation trend visualization. By addressing a real-world problem, Contributrack demonstrates my ability to translate needs into functional software and highlights my proficiency in full-stack development.
+The project is intentionally optimized for a simple, reliable workflow rather
+than a feature-heavy dashboard. It uses Next.js App Router, TypeScript,
+PostgreSQL, Drizzle ORM, StackAuth, and pdfmake.
 
-## Features
+## Start locally
 
-- **Donor Management:** Add, edit, and manage donor information.
-- **Donation Tracking:** Record and track donations with details such as date,
-  amount, and donor.
-- **Data Visualization:** Visualize donation trends using charts and graphs.
-- **PDF Report Generation:** Generate annual donation reports in PDF format.
-- **Stack Auth Webhook Integration:** Integrate Stack Auth through a webhook.
-- **Customizable Date Ranges:** Filter data by custom date ranges for specific
-  reporting periods.
-- **Modern UI:** Built with shadcn/ui for a clean and responsive
-  user experience.
+1. Install Node.js and the pnpm version declared in `package.json`.
+2. Install dependencies:
 
-## Technologies Used
+   ```bash
+   pnpm install --frozen-lockfile
+   ```
 
-- [Next.js](https://nextjs.org/)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Stack Auth](https://stack-auth.com/)
-- [Drizzle ORM](https://orm.drizzle.team/)
-- [PostgreSQL](https://www.postgresql.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [shadcn/ui](https://ui.shadcn.com/)
-- [lucide-react](https://lucide.dev/)
+3. Copy `.env.example` to `.env.local` and provide development-only values.
+4. Start the development server:
 
-## Setup Instructions
+   ```bash
+   pnpm dev
+   ```
 
-1.  **Clone the repository:**
+Use a local or restored test PostgreSQL database. Do not point local tooling at
+production except for an explicitly approved, read-only investigation.
 
-    ```bash
-    git clone https://github.com/your-username/contributrack.git
-    cd contributrack
-    ```
+## Validation
 
-2.  **Install dependencies:**
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm build
+```
 
-    ```bash
-    pnpm install
-    ```
+## Data and migration safety
 
-3.  **Set up your PostgreSQL database:**
+Production contains real donor and donation data. The rebuild baseline is
+`release/v1.0.0`; historical Drizzle migrations `0000` through `0004` are
+preserved exactly. Production migration 0002 has a known hash mismatch, and some
+historical donations have no donor relationship. Both facts are recorded in
+[`docs/production-baseline.md`](docs/production-baseline.md) and must be handled
+without rewriting history or inventing data.
 
-    - Create a new PostgreSQL database.
-    - Update the database connection string in your `.env` file.
+Production migrations and data changes are never automatic. A current backup
+must be restored and verified before any such operation, followed by explicit
+owner approval.
 
-4.  **Run database migrations:**
+## Documentation
 
-    ```bash
-    pnpm drizzle-kit generate
-    pnpm drizzle-kit studio
-    ```
+- [`AGENTS.md`](AGENTS.md) — durable instructions for coding agents.
+- [`docs/architecture.md`](docs/architecture.md) — application boundaries and
+  target architecture.
+- [`docs/development.md`](docs/development.md) — setup, validation, and local
+  database workflow.
+- [`docs/production-baseline.md`](docs/production-baseline.md) — source, schema,
+  backup, and deployment facts.
 
-5.  **Run the application:**
+## Deployment
 
-    ```bash
-    pnpm dev
-    ```
-
-    Open your browser and navigate to `http://localhost:3000`.
-
-## Contributing
-
-We welcome contributions to Contributrack! If you'd like to contribute, please
-follow these steps:
-
-1.  Fork the repository.
-2.  Create a new branch for your feature or bug fix.
-3.  Make your changes and commit them with clear, concise messages.
-4.  Submit a pull request.
+The repository is deployed through Coolify using Nixpacks. The historical
+configuration was observed using ref `latest` and commit setting `HEAD`; the
+historical deployed SHA is unknown. Do not infer deployment success from a Git
+push. Coolify should be deliberately changed to a validated canonical `main`
+commit only during the planned production cutover.

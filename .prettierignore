@@ -1,0 +1,10 @@
+# Generated/build output
+.next/
+node_modules/
+coverage/
+out/
+
+# Preserve historical dependency and Drizzle migration artifacts exactly.
+pnpm-lock.yaml
+drizzle/*.sql
+drizzle/meta/

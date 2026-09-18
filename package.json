@@ -2,11 +2,18 @@
   "name": "contributrack",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.30.3",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/**/*.test.ts",
+    "format:check": "prettier --check 'actions/**/*.ts' 'app/**/*.{ts,tsx,css}' 'components/**/*.tsx' 'lib/**/*.ts' 'src/**/*.ts' 'types/**/*.ts' 'tests/**/*.ts' '*.md' 'docs/**/*.md' '.env.example' 'package.json' 'eslint.config.mjs' 'next.config.ts' 'drizzle.config.ts'",
     "format": "prettier --write ."
   },
   "dependencies": {
