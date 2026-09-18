@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { getMostRecentSundayDateRange } from '@/lib/utils';
 
 interface CustomDateRangePickerProps {
   initialStartDate?: string;
@@ -51,9 +52,7 @@ export default function CustomDateRangePicker({
     router.push(showArchived ? `${pathname}?archived=1` : pathname);
   }
 
-  function applyYear(year: number) {
-    const nextStartDate = `${year}-01-01`;
-    const nextEndDate = `${year}-12-31`;
+  function applyDateRange(nextStartDate: string, nextEndDate: string) {
     const archiveQuery = showArchived ? 'archived=1&' : '';
 
     setStartDate(nextStartDate);
@@ -62,6 +61,16 @@ export default function CustomDateRangePicker({
     router.push(
       `${pathname}?${archiveQuery}startDate=${nextStartDate}&endDate=${nextEndDate}`,
     );
+  }
+
+  function applyYear(year: number) {
+    applyDateRange(`${year}-01-01`, `${year}-12-31`);
+  }
+
+  function applyMostRecentWeek() {
+    const { startDate: nextStartDate, endDate: nextEndDate } =
+      getMostRecentSundayDateRange();
+    applyDateRange(nextStartDate, nextEndDate);
   }
 
   const currentYear = new Date().getFullYear();
@@ -121,10 +130,19 @@ export default function CustomDateRangePicker({
         >
           Last year
         </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={applyMostRecentWeek}
+        >
+          Most recent week
+        </Button>
       </div>
       <p className="text-muted-foreground mt-2 text-xs">
-        Choose a quick range or enter custom dates. Leaving the dates blank
-        shows the latest year with donations.
+        Choose a quick range or enter custom dates. The most recent week runs
+        Monday through Sunday. Leaving the dates blank shows the latest year
+        with donations.
       </p>
       {error && (
         <p className="text-destructive mt-2 text-sm" role="alert">

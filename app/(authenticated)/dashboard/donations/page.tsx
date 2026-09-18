@@ -5,6 +5,8 @@ import { PageHeader } from '@/components/page-header';
 import { DonationDialog } from '@/components/dialogs/donation-dialog';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { DonationRangeSummary } from '@/components/donation-range-summary';
+import { sumAmounts } from '@/lib/reporting';
 import { DonationsTable } from './donations-table';
 
 export default async function Donations(props: { searchParams: SearchParams }) {
@@ -21,6 +23,7 @@ export default async function Donations(props: { searchParams: SearchParams }) {
     endDate,
     showArchived,
   );
+  const total = sumAmounts(donations.map((donation) => donation.amount));
 
   return (
     <div className="flex flex-col gap-6 py-5 md:gap-8 md:py-6">
@@ -54,6 +57,11 @@ export default async function Donations(props: { searchParams: SearchParams }) {
           initialStartDate={startDate}
           initialEndDate={endDate}
           showArchived={showArchived}
+        />
+        <DonationRangeSummary
+          total={total}
+          donationCount={donations.length}
+          isArchived={showArchived}
         />
         <DonationsTable data={donations} isArchived={showArchived} />
       </div>
