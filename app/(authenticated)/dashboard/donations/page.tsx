@@ -29,7 +29,7 @@ export default async function Donations(props: { searchParams: SearchParams }) {
         description={
           showArchived
             ? 'Review donations you have archived and restore one when needed.'
-            : 'Record gifts quickly, then review or correct them whenever you need.'
+            : 'Record donations quickly, then review or correct them whenever you need.'
         }
         actions={
           <>

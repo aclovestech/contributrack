@@ -20,4 +20,11 @@ export type ReportRowData = Pick<DonationRowData, 'donorName'> & {
   amount: number;
 };
 
+export type WeeklyReportRowData = {
+  weekStart: string;
+  weekEnd: string;
+  weekLabel: string;
+  amount: number;
+};
+
 export { DONATION_TYPES };

@@ -70,14 +70,14 @@ export function DonationForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(handleFormSubmit)}
-        className="space-y-5"
+        className="space-y-4"
       >
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           <FormField
             control={form.control}
             name="dateReceived"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="gap-1.5">
                 <FormLabel>
                   Date received <span className="text-destructive">*</span>
                 </FormLabel>
@@ -93,7 +93,7 @@ export function DonationForm({
             control={form.control}
             name="amount"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="gap-1.5">
                 <FormLabel>
                   Amount <span className="text-destructive">*</span>
                 </FormLabel>
@@ -121,7 +121,6 @@ export function DonationForm({
                     />
                   </div>
                 </FormControl>
-                <FormDescription>Canadian dollars.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}

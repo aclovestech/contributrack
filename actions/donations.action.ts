@@ -11,6 +11,7 @@ import {
   lte,
   sql,
 } from 'drizzle-orm';
+import { addDays, format, parseISO } from 'date-fns';
 import { revalidatePath } from 'next/cache';
 
 import { requireCurrentUserId } from '@/lib/auth';
@@ -23,7 +24,11 @@ import {
 import { getMonthName } from '@/lib/utils';
 import { db } from '@/src/db';
 import { donationsTable, donorsTable } from '@/src/db/schema';
-import { DonationRowData, ReportRowData } from '@/types/donations';
+import {
+  DonationRowData,
+  ReportRowData,
+  WeeklyReportRowData,
+} from '@/types/donations';
 
 const unassignedDonorName = 'Unassigned donor';
 
@@ -429,4 +434,46 @@ export async function getYearlyDonationsSummary(
     )
     .groupBy(donorsTable.name)
     .orderBy(asc(donorName));
+}
+
+/**
+ * Return active donation totals for each Monday–Sunday week in a calendar
+ * year. The date filter still limits rows to the selected year, so a week
+ * crossing New Year's Day only includes donations from the selected year.
+ */
+export async function getWeeklyDonationsSummary(
+  year: number,
+): Promise<WeeklyReportRowData[]> {
+  const userId = await requireCurrentUserId();
+  const { startDate, endDate } = yearBounds(year);
+  const weekStart = sql<string>`to_char(date_trunc('week', ${donationsTable.dateReceived}::date), 'YYYY-MM-DD')`;
+
+  const result = await db
+    .select({
+      weekStart,
+      amount: sql<number>`SUM(${donationsTable.amount})`.mapWith(Number),
+    })
+    .from(donationsTable)
+    .where(
+      and(
+        activeDonationPredicate(userId),
+        gte(donationsTable.dateReceived, startDate),
+        lte(donationsTable.dateReceived, endDate),
+      ),
+    )
+    .groupBy(weekStart)
+    .orderBy(asc(weekStart));
+
+  return result.map((row) => {
+    const start = parseISO(row.weekStart);
+    const end = addDays(start, 6);
+    const sameYear = start.getFullYear() === end.getFullYear();
+
+    return {
+      weekStart: row.weekStart,
+      weekEnd: format(end, 'yyyy-MM-dd'),
+      weekLabel: `${format(start, sameYear ? 'MMM d' : 'MMM d, yyyy')} – ${format(end, 'MMM d, yyyy')}`,
+      amount: row.amount,
+    };
+  });
 }
