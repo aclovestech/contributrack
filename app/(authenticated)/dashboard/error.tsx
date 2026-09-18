@@ -12,9 +12,9 @@ export default function DashboardError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Keep the error visible to framework logging without displaying database
-    // or provider details to the user.
-    console.error(error);
+    // Keep only the framework-safe digest in browser logs. The full error may
+    // contain database or provider details and should not be exposed client-side.
+    console.error('Dashboard page failed', error.digest ?? 'unknown');
   }, [error]);
 
   return (
