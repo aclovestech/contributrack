@@ -26,6 +26,11 @@ export default async function Donors({
         }
         actions={
           <>
+            {!showArchived && (
+              <Button asChild variant="outline">
+                <Link href="/dashboard/donations">Record donation</Link>
+              </Button>
+            )}
             <Button asChild variant="outline">
               <Link
                 href={

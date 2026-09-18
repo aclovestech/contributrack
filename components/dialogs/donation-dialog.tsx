@@ -167,7 +167,17 @@ export function DonationDialog({ donationData }: DonationDialogProps) {
             />
           )}
           {dialogState === 'addDonor' && (
-            <DonorForm onFormSubmit={handleOnDonorAdd} />
+            <div className="space-y-4">
+              <Button
+                type="button"
+                variant="ghost"
+                className="-ml-2"
+                onClick={() => setDialogState('selectDonor')}
+              >
+                ← Back to donor search
+              </Button>
+              <DonorForm onFormSubmit={handleOnDonorAdd} />
+            </div>
           )}
           {dialogState === 'fillInDonation' && (
             <div className="space-y-5">
