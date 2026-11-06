@@ -33,8 +33,8 @@ commit an environment file.
 
 ## Safe release checklist
 
-1. Validate the candidate commit locally and in CI (`lint`, `typecheck`, focused
-   tests, format check, and production build).
+1. Validate the candidate commit locally (`lint`, `typecheck`, focused tests,
+   format check, and production build).
 2. Review the Git diff for accidental migration, environment, or generated-file
    changes.
 3. If the release includes a database migration or data write, stop for the

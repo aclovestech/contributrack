@@ -86,8 +86,10 @@ type uses `DonationRowData['donationType']`.
 - A sample PDF with two types, the same donor in both, an unassigned donor, and
   fractional amounts rendered cleanly; inspected its PNG.
 - Production build passed under Node 24.22.1 using the placeholder configuration
-  already defined in `.github/workflows/ci.yml`. No authenticated browser or
+  from the validation workflow present at the time. No authenticated browser or
   database integration checks were performed.
-- The owner reported successfully applying migration 0005 and authorized
-  release to canonical `main`. The owner will verify Coolify configuration and
-  live behavior manually. The agent did not access or modify the database.
+- The owner reported successfully applying migration 0005 and authorized release
+  to canonical `main`. The owner will verify Coolify configuration and live
+  behavior manually. The agent did not access or modify the database.
+- After the feature merge, the owner requested removal of the unused GitHub
+  Actions validation workflow. Local validation scripts remain available.
