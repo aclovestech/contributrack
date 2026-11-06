@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +24,22 @@ export default function CustomDateRangePicker({
   const [error, setError] = useState('');
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  function navigateDates(nextStartDate?: string, nextEndDate?: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (showArchived) params.set('archived', '1');
+    else params.delete('archived');
+    if (nextStartDate && nextEndDate) {
+      params.set('startDate', nextStartDate);
+      params.set('endDate', nextEndDate);
+    } else {
+      params.delete('startDate');
+      params.delete('endDate');
+    }
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname);
+  }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -39,28 +55,21 @@ export default function CustomDateRangePicker({
     }
 
     setError('');
-    const archiveQuery = showArchived ? 'archived=1&' : '';
-    router.push(
-      `${pathname}?${archiveQuery}startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`,
-    );
+    navigateDates(startDate, endDate);
   }
 
   function handleClear() {
     setStartDate('');
     setEndDate('');
     setError('');
-    router.push(showArchived ? `${pathname}?archived=1` : pathname);
+    navigateDates();
   }
 
   function applyDateRange(nextStartDate: string, nextEndDate: string) {
-    const archiveQuery = showArchived ? 'archived=1&' : '';
-
     setStartDate(nextStartDate);
     setEndDate(nextEndDate);
     setError('');
-    router.push(
-      `${pathname}?${archiveQuery}startDate=${nextStartDate}&endDate=${nextEndDate}`,
-    );
+    navigateDates(nextStartDate, nextEndDate);
   }
 
   function applyYear(year: number) {

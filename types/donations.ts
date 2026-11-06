@@ -16,7 +16,10 @@ export type DonationRowData = {
   donationType: (typeof DONATION_TYPES)[number];
 };
 
-export type ReportRowData = Pick<DonationRowData, 'donorName'> & {
+export type ReportRowData = Pick<
+  DonationRowData,
+  'donorName' | 'donationType'
+> & {
   amount: number;
 };
 

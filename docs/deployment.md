@@ -49,6 +49,47 @@ commit an environment file.
 
 ## Coolify source and cutover
 
+### Kingdom Builders release
+
+Migration `0005_add_kingdom_builders.sql` adds one enum value to
+`public.donation_type`. It preserves existing donation values, amounts, donor
+relationships, and historical migration records. The known production 0002
+migration hash mismatch must remain recorded as-is.
+
+Before release:
+
+1. Validate the reviewed application commit with Node 24 and non-production
+   configuration. Verify the current Coolify source and rollback settings.
+2. Review the live enum and migration history through authorized read-only
+   access. Confirm that this migration is the expected pending change; the
+   Drizzle migration command applies all pending migrations.
+3. Verify a current backup and test the migration and application against an
+   isolated restored database where practical, including saving/editing Kingdom
+   Builders donations, filtering, and annual PDF reconciliation.
+4. Obtain the owner's approval immediately before production application.
+5. In a controlled checkout of the reviewed commit with dependencies installed,
+   supply `DATABASE_URL` securely to the release shell, verify the intended
+   database target, and run `pnpm exec drizzle-kit migrate`. Drizzle Kit is a
+   development dependency, so a production image that omits development
+   dependencies may not contain this command. A configured Coolify application
+   does not automatically provide its secrets to a local terminal.
+6. Deploy the validated application commit after the enum addition, and verify
+   the donation form, type filter, annual sections, subtotals, and grand total.
+
+If using an environment file instead of injected variables, explicitly load that
+secured file with Node 24:
+
+```bash
+node --env-file=/secure/path/release.env ./node_modules/drizzle-kit/bin.cjs migrate
+```
+
+Do not commit that file. A local `.env` or `.env.local` is not required when the
+release process already supplies `DATABASE_URL`. Build and start never apply
+this migration. If rolling back the application, retain the added enum value and
+any donations recorded with it.
+
+### Current source
+
 The previous Coolify application used repository `aclovestech/contributrack`,
 ref `latest`, and commit setting `HEAD`; its historical deployed SHA is unknown.
 A replacement Coolify application has since been created with the Railpack build

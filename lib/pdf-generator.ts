@@ -2,10 +2,10 @@
 
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
-import { TDocumentDefinitions } from 'pdfmake/interfaces';
+import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
 
-import { formatCurrency } from '@/lib/utils';
-import { sumAmounts } from '@/lib/reporting';
+import { formatCurrency, formatDonationType } from '@/lib/utils';
+import { groupReportByDonationType, sumAmounts } from '@/lib/reporting';
 import { ReportRowData } from '@/types/donations';
 
 // pdfmake's browser bundle exposes the virtual file system through a runtime
@@ -21,6 +21,34 @@ export function buildAnnualReportDocument(
   year: number,
 ): TDocumentDefinitions {
   const total = sumAmounts(data.map((row) => row.amount));
+  const sections = groupReportByDonationType(data);
+  const sectionContent = sections.flatMap<Content>((section) => {
+    const label = formatDonationType(section.donationType);
+    return [
+      { text: label, style: 'sectionHeader', headlineLevel: 1 },
+      {
+        table: {
+          headerRows: 1,
+          widths: ['*', 'auto'],
+          body: [
+            [
+              { text: 'Donor', style: 'tableHeader' },
+              { text: 'Total donated', style: 'tableHeader' },
+            ],
+            ...section.rows.map((donor) => [
+              donor.donorName,
+              formatCurrency(donor.amount),
+            ]),
+          ],
+        },
+        layout: 'lightHorizontalLines',
+      },
+      {
+        text: `${label} subtotal: ${formatCurrency(section.total)}`,
+        style: 'subtotal',
+      },
+    ];
+  });
 
   return {
     info: {
@@ -33,31 +61,17 @@ export function buildAnnualReportDocument(
     content: [
       { text: `Annual Donation Summary for ${year}`, style: 'header' },
       {
-        text: 'Totals by donor for active donations. Keep this report with your yearly reconciliation.',
+        text: 'Totals by donor, separated by donation type, for active donations. Keep this report with your yearly reconciliation.',
         style: 'subheader',
       },
-      data.length
-        ? {
-            table: {
-              headerRows: 1,
-              widths: ['*', 'auto'],
-              body: [
-                [
-                  { text: 'Donor', style: 'tableHeader' },
-                  { text: 'Total donated', style: 'tableHeader' },
-                ],
-                ...data.map((donor) => [
-                  donor.donorName,
-                  formatCurrency(donor.amount),
-                ]),
-              ],
+      ...(data.length
+        ? sectionContent
+        : [
+            {
+              text: 'No active donations were recorded for this year.',
+              style: 'body',
             },
-            layout: 'lightHorizontalLines',
-          }
-        : {
-            text: 'No active donations were recorded for this year.',
-            style: 'body',
-          },
+          ]),
       {
         text: `Total donated: ${formatCurrency(total)}`,
         style: 'total',
@@ -82,6 +96,15 @@ export function buildAnnualReportDocument(
         bold: true,
         fontSize: 11,
         color: '#111111',
+      },
+      sectionHeader: {
+        fontSize: 14,
+        bold: true,
+        margin: [0, 16, 0, 8],
+      },
+      subtotal: {
+        bold: true,
+        margin: [0, 8, 0, 12],
       },
       total: {
         fontSize: 14,

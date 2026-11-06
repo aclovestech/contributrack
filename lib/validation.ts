@@ -5,6 +5,7 @@ export const DONATION_TYPES = [
   'daily_seed',
   'mission_offering',
   'other',
+  'kingdom_builders',
 ] as const;
 
 export const donationTypeSchema = z.enum(DONATION_TYPES, {

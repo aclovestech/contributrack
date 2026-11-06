@@ -53,6 +53,41 @@ reviewing the live schema and production impact. Do not run `drizzle-kit push`
 against production. Production migration execution is an explicit, owner-
 approved release step with a fresh verified backup.
 
+### Generating and applying migrations
+
+After updating the Drizzle schema, generate a forward migration with:
+
+```bash
+pnpm exec drizzle-kit generate --name=add_kingdom_builders
+```
+
+Generation compares the schema with the existing migration snapshots; it does
+not require a database connection. Review the generated SQL, snapshot, and
+appended journal entry before applying anything.
+
+`drizzle.config.ts` reads `DATABASE_URL` from the process environment. The
+installed Drizzle CLI also loads a root `.env` file automatically, but does not
+automatically load Next.js's `.env.local`. This checkout initially contains only
+`.env.example`, which supplies no runtime configuration.
+
+For a disposable local/restored database, create an ignored `.env.local` with
+development configuration and load it explicitly when applying migrations:
+
+```bash
+node --env-file=.env.local ./node_modules/drizzle-kit/bin.cjs migrate
+```
+
+Use Node 24 and install dependencies before running this command. Alternatively,
+when `DATABASE_URL` is already supplied to the release process environment:
+
+```bash
+pnpm exec drizzle-kit migrate
+```
+
+Both commands apply **all pending migrations** to that configured database. Do
+not use a production URL for local development. Production uses the separate
+approval and backup process in `docs/deployment.md`.
+
 ## Application conventions
 
 Server actions obtain the authenticated StackAuth user themselves and scope

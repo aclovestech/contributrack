@@ -9,8 +9,8 @@ import { PrintAnnualReport } from '@/components/print-annual-report';
 import { PageHeader } from '@/components/page-header';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { formatCurrency } from '@/lib/utils';
-import { sumAmounts } from '@/lib/reporting';
+import { formatCurrency, formatDonationType } from '@/lib/utils';
+import { groupReportByDonationType, sumAmounts } from '@/lib/reporting';
 import { ReportsTable } from './reports-table';
 import { WeeklyDonationTotals } from '@/components/weekly-donation-totals';
 
@@ -54,6 +54,7 @@ export default async function Reports(props: { searchParams: SearchParams }) {
     getWeeklyDonationsSummary(selectedYear),
   ]);
   const totalDonations = sumAmounts(data.map((row) => row.amount));
+  const sections = groupReportByDonationType(data);
 
   return (
     <div className="flex flex-col gap-6 py-5 md:gap-8 md:py-6">
@@ -84,7 +85,23 @@ export default async function Reports(props: { searchParams: SearchParams }) {
             <PrintAnnualReport data={data} year={selectedYear} />
           </div>
         </div>
-        <ReportsTable data={data} />
+        {sections.map((section) => (
+          <section
+            key={section.donationType}
+            aria-label={formatDonationType(section.donationType)}
+            className="space-y-3"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-lg font-semibold">
+                {formatDonationType(section.donationType)}
+              </h2>
+              <p className="text-sm font-medium tabular-nums">
+                Subtotal: {formatCurrency(section.total)}
+              </p>
+            </div>
+            <ReportsTable data={section.rows} />
+          </section>
+        ))}
         <WeeklyDonationTotals data={weeklyData} year={selectedYear} />
       </div>
     </div>

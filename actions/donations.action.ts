@@ -18,6 +18,7 @@ import { requireCurrentUserId } from '@/lib/auth';
 import { isUniqueViolation } from '@/lib/db-errors';
 import {
   dateRangeSchema,
+  donationTypeSchema,
   normalizeDonationInput,
   uuidSchema,
 } from '@/lib/validation';
@@ -243,8 +244,10 @@ export async function getAllDonationsWithinRange(
   startDate?: string,
   endDate?: string,
   includeArchived = false,
+  donationType?: DonationRowData['donationType'],
 ): Promise<DonationRowData[]> {
   const userId = await requireCurrentUserId();
+  const selectedType = donationTypeSchema.optional().parse(donationType);
   const range = await resolveDateRange(
     userId,
     startDate,
@@ -278,6 +281,9 @@ export async function getAllDonationsWithinRange(
         donationVisibilityPredicate(userId, includeArchived),
         gte(donationsTable.dateReceived, range.startDate),
         lte(donationsTable.dateReceived, range.endDate),
+        selectedType
+          ? eq(donationsTable.donationType, selectedType)
+          : undefined,
       ),
     )
     .orderBy(desc(donationsTable.dateReceived), asc(donorName));
@@ -430,6 +436,7 @@ export async function getYearlyDonationsSummary(
   return db
     .select({
       donorName,
+      donationType: donationsTable.donationType,
       amount: sql<number>`SUM(${donationsTable.amount})`.mapWith(Number),
     })
     .from(donationsTable)
@@ -447,7 +454,7 @@ export async function getYearlyDonationsSummary(
         lte(donationsTable.dateReceived, endDate),
       ),
     )
-    .groupBy(donorsTable.name)
+    .groupBy(donorsTable.name, donationsTable.donationType)
     .orderBy(asc(donorName));
 }
 

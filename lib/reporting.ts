@@ -1,3 +1,6 @@
+import { DONATION_TYPES } from '@/lib/validation';
+import type { ReportRowData } from '@/types/donations';
+
 export type AmountLike = number | string;
 
 /** Convert a decimal amount to integer cents for exact aggregation. */
@@ -22,6 +25,24 @@ export function sumAmounts(amounts: readonly AmountLike[]) {
 }
 
 export type DonorAmount = { donorName: string; amount: AmountLike };
+
+/** Keep annual page/PDF sections in the same order with exact subtotals. */
+export function groupReportByDonationType(data: readonly ReportRowData[]) {
+  return DONATION_TYPES.flatMap((donationType) => {
+    const rows = data
+      .filter((row) => row.donationType === donationType)
+      .sort((left, right) => left.donorName.localeCompare(right.donorName));
+    return rows.length
+      ? [
+          {
+            donationType,
+            rows,
+            total: sumAmounts(rows.map((row) => row.amount)),
+          },
+        ]
+      : [];
+  });
+}
 
 /**
  * Aggregate rows in the same shape as the report query. Keeping this pure
