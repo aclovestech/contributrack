@@ -27,7 +27,7 @@ import {
   DonationFormData,
   DONATION_TYPES,
 } from '@/lib/validation';
-import { getLocalDateInputValue } from '@/lib/utils';
+import { formatDonationType, getLocalDateInputValue } from '@/lib/utils';
 
 interface DonationDetailsFormProps {
   onSubmit: (
@@ -36,12 +36,6 @@ interface DonationDetailsFormProps {
   ) => void | Promise<void>;
   onCancel?: () => void;
   initialData?: DonationFormData;
-}
-
-function formatDonationType(type: string) {
-  return type
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
 export function DonationForm({

@@ -5,6 +5,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function formatDonationType(type: string) {
+  return type
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
 /**
  * Return a date in the format expected by an HTML date input using the
  * browser's local calendar date. Using `toISOString()` here can show the

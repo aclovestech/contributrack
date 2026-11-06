@@ -1,0 +1,1 @@
+ALTER TYPE "public"."donation_type" ADD VALUE 'kingdom_builders';

@@ -6,6 +6,7 @@ export const donationTypeEnum = pgEnum('donation_type', [
   'daily_seed',
   'mission_offering',
   'other',
+  'kingdom_builders',
 ]);
 
 const timestamps = {

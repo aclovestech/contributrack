@@ -6,6 +6,7 @@ import { buildAnnualReportDocument } from '@/lib/pdf-generator';
 import {
   amountToCents,
   groupAmountsByDonor,
+  groupReportByDonationType,
   sumAmounts,
 } from '@/lib/reporting';
 import {
@@ -37,8 +38,8 @@ test('report rows are grouped by donor and sorted for a stable PDF', () => {
 test('annual PDF data includes unassigned rows and the exact report total', () => {
   const document = buildAnnualReportDocument(
     [
-      { donorName: 'Unassigned donor', amount: 0.1 },
-      { donorName: 'Alex', amount: 0.2 },
+      { donorName: 'Unassigned donor', amount: 0.1, donationType: 'tithes' },
+      { donorName: 'Alex', amount: 0.2, donationType: 'kingdom_builders' },
     ],
     2024,
   );
@@ -47,6 +48,53 @@ test('annual PDF data includes unassigned rows and the exact report total', () =
   assert.match(serialized, /Annual Donation Summary for 2024/);
   assert.match(serialized, /Unassigned donor/);
   assert.match(serialized, /Total donated: \$0\.30/);
+  assert.match(serialized, /Tithes subtotal: \$0\.10/);
+  assert.match(serialized, /Kingdom Builders subtotal: \$0\.20/);
+});
+
+test('report sections separate the same donor across types and sum exact cents', () => {
+  const rows = [
+    {
+      donorName: 'Alex',
+      donationType: 'kingdom_builders' as const,
+      amount: 0.1,
+    },
+    { donorName: 'Alex', donationType: 'tithes' as const, amount: 12.5 },
+    {
+      donorName: 'Unassigned donor',
+      donationType: 'kingdom_builders' as const,
+      amount: 0.2,
+    },
+  ];
+  assert.deepEqual(groupReportByDonationType(rows), [
+    { donationType: 'tithes', rows: [rows[1]], total: 12.5 },
+    { donationType: 'kingdom_builders', rows: [rows[0], rows[2]], total: 0.3 },
+  ]);
+  assert.deepEqual(groupReportByDonationType([]), []);
+});
+
+test('annual PDF has independent donor tables for each type and omits empty types', () => {
+  const document = buildAnnualReportDocument(
+    [
+      { donorName: 'Alex', donationType: 'tithes', amount: 10 },
+      { donorName: 'Alex', donationType: 'kingdom_builders', amount: 25 },
+    ],
+    2026,
+  );
+  const content = document.content as Array<{ table?: { body: unknown[][] } }>;
+  const tables = content
+    .filter((item) => item.table)
+    .map((item) => item.table!.body.slice(1));
+  assert.deepEqual(tables, [[['Alex', '$10.00']], [['Alex', '$25.00']]]);
+  assert.match(JSON.stringify(document), /Total donated: \$35\.00/);
+  assert.doesNotMatch(JSON.stringify(document), /Mission Offering subtotal/);
+});
+
+test('annual PDF handles a year without active donations', () => {
+  const serialized = JSON.stringify(buildAnnualReportDocument([], 2026));
+  assert.match(serialized, /No active donations were recorded for this year/);
+  assert.match(serialized, /Total donated: \$0\.00/);
+  assert.doesNotMatch(serialized, /subtotal:/);
 });
 
 test('donation validation rejects zero, malformed dates, and unknown types', () => {
@@ -81,6 +129,21 @@ test('donation validation rejects zero, malformed dates, and unknown types', () 
       donationType: 'tithes',
     }).success,
     false,
+  );
+});
+
+test('Kingdom Builders is accepted for donation entry and normalized for storage', () => {
+  assert.deepEqual(
+    normalizeDonationInput({
+      dateReceived: '2026-11-06',
+      amount: 25.5,
+      donationType: 'kingdom_builders',
+    }),
+    {
+      dateReceived: '2026-11-06',
+      amount: '25.50',
+      donationType: 'kingdom_builders',
+    },
   );
 });
 
